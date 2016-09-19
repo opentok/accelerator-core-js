@@ -1,0 +1,26 @@
+{
+  "name": "opentok-accelerator-core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/opentok-accelerator.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "opentok",
+    "opentok-acc-pack",
+    "webrtc",
+    "communication",
+    "video",
+    "audio"
+  ],
+  "author": "adrice727@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^3.5.0",
+    "eslint-config-airbnb": "^11.1.0",
+    "eslint-plugin-import": "^1.15.0",
+    "eslint-plugin-jsx-a11y": "^2.2.2",
+    "eslint-plugin-react": "^6.2.2"
+  }
+}
