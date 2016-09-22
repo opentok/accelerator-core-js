@@ -16,9 +16,12 @@ let archiving;
  * Session, publishers, and subscribers
  */
 // let session;
-const publishers = new Set();
-const subscribers = new Set();
-const streams = new Set();
+const publishers = {
+  camera: null,
+  screen: null,
+};
+const subscribers = {};
+const streams = {};
 
 /**
  * Example options hash for init
@@ -105,11 +108,11 @@ const createSessionEventListeners = session => {
   registerEvents(['streamCreated', 'streamDestroyed', 'error']);
   session.on({
     streamCreated(event) {
-      streams.add(event.stream);
+      streams[event.stream.id] = event.stream;
       triggerEvent('streamCreated', event.stream);
     },
     streamDestroyed(event) {
-      streams.remove(event.stream);
+      delete streams[event.stream.id];
       triggerEvent('streamDestroyed', event.stream);
     },
   });
@@ -150,7 +153,9 @@ const initPackages = (session, options) => {
 
   const packageOptions = packageName => {
     const accPack = { registerEvents, triggerEvent };
-    return Object.assign({}, options[packageName], { session, accPack });
+    const commOptions = packageName === 'communication' ?
+      { publishers, subscribers, streams } : {};
+    return Object.assign({}, options[packageName], commOptions, { session, accPack });
   };
 
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
