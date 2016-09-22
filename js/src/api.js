@@ -115,7 +115,7 @@ const createSessionEventListeners = session => {
   });
 };
 
-const initPackages = (options) => {
+const initPackages = (session, options) => {
   const env = typeof module === 'object' && typeof module.exports === 'object' ?
     'node' :
     'browser';
@@ -148,12 +148,17 @@ const initPackages = (options) => {
     }
   });
 
+  const packageOptions = packageName => {
+    const accPack = { registerEvents, triggerEvent };
+    return Object.assign({}, options[packageName], { session, accPack });
+  };
+
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  communication = require('./communication')(options);
-  textChat = new packages.TextChat(options);
-  screenSharing = new packages.ScreenSharing(options);
-  annotation = new packages.Annotation(options);
-  archiving = new packages.Archiving(options);
+  communication = require('./communication')(packageOptions('communication'));
+  textChat = new packages.TextChat(packageOptions('textChat'));
+  screenSharing = new packages.ScreenSharing(packageOptions('screenSharing'));
+  annotation = new packages.Annotation(packageOptions('annotation'));
+  archiving = new packages.Archiving(packageOptions('archiving'));
 };
 
 
@@ -172,7 +177,6 @@ const validateCredentials = credentials => {
     }
   });
 };
-
 
 /**
  * Connect to the session
