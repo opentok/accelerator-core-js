@@ -153,8 +153,8 @@ const initPackages = (session, options) => {
 
 
   const defaultContainers = {
-    publisher: { camera: 'publisherContainer', screen: 'publisherContainer' },
-    subscriber: { camera: 'subscriberContainer', screen: 'subscriberContainer' }
+    publisher: { camera: '#publisherContainer', screen: '#publisherContainer' },
+    subscriber: { camera: '#subscriberContainer', screen: '#subscriberContainer' },
   };
 
   const optionContainers = options.containers ? options.containers : {};
