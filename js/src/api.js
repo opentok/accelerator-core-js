@@ -26,26 +26,37 @@ const streams = {};
 /**
  * Example options hash for init
  */
-// const exampleOptions = {
-//   credentials: {
-//     apiKey: '123',
-//     sessionId: '456',
-//     token: 'tok123',
-//   },
-//   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
-//   communication: {
+const exampleOptions = {
+  credentials: {
+    apiKey: '123',
+    sessionId: '456',
+    token: 'tok123',
+  },
+  // A container can either be a query selector or an HTMLElement
+  containers: {
+    publisher: {
+      camera: '#cameraPublisherContainer', // defaults to #publisherContainer
+      screen: '#screenPublisherContainer', // defaults to #publisherContainer
+    },
+    subscriber: {
+      camera: document.getElementById('cameraSubscriberContainer'), // defaults to #subscriberContainer
+      screen: document.getElementById('screenSubscriberContainer'), // defaults to #subscriberContainer
+    },
+  },
+  packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
+  communication: {
 
-//   },
-//   textChat: {
+  },
+  textChat: {
 
-//   },
-//   screenSharing: {
+  },
+  screenSharing: {
 
-//   },
-//   annotation: {
+  },
+  annotation: {
 
-//   },
-// };
+  },
+};
 
 /** Eventing */
 
@@ -119,6 +130,7 @@ const createSessionEventListeners = session => {
 };
 
 const initPackages = (session, options) => {
+  /** Get packages based on ENV */
   const env = typeof module === 'object' && typeof module.exports === 'object' ?
     'node' :
     'browser';
@@ -151,32 +163,36 @@ const initPackages = (session, options) => {
     }
   });
 
-
-  const defaultContainers = {
-    publisher: { camera: '#publisherContainer', screen: '#publisherContainer' },
-    subscriber: { camera: '#subscriberContainer', screen: '#subscriberContainer' },
+  /** Build containers hash */
+  const getDefaultContainer = pubSub => document.getElementById(`${pubSub}Container`);
+  const getContainerElement = (pubSub, type) => {
+    const containers = options.containers || {};
+    const definedContainer = containers[pubSub] ? containers[pubSub][type] : null;
+    if (definedContainer) {
+      return typeof definedContainer === 'string' ? document.querySelector(definedContainer) : definedContainer;
+    }
+    return getDefaultContainer(pubSub);
   };
+  const getContainerElements = () =>
+    ['publisher', 'subscriber'].reduce((acc, pubSub) =>
+      Object.assign({}, acc, { [pubSub]: ['camera', 'screen'].reduce((containerAcc, type) =>
+        Object.assign({}, containerAcc, { [type]: getContainerElement(pubSub, type) }), {}) }), {});
 
-  const optionContainers = options.containers ? options.containers : {};
-
-  const containers = {
-    publisher: Object.assign({}, defaultContainers.publisher, optionContainers.publisher || {}),
-    subscriber: Object.assign({}, defaultContainers.subscriber, optionContainers.subscriber || {}),
-  };
-
-  const packageOptions = packageName => {
-    const accPack = { registerEvents, triggerEvent };
-    const commOptions = packageName === 'communication' ?
-      { publishers, subscribers, streams, containers } : {};
+  /** Get options based on package */
+  const packageOptions = (packageName) => {
+    const accPack = { on, registerEvents, triggerEvent };
+    const containers = getContainerElements();
+    const commOptions = packageName === 'communication' ? { publishers, subscribers, streams, containers } : {};
     return Object.assign({}, options[packageName], commOptions, { session, accPack });
   };
 
+  /** Create instances of each package */
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
   communication = require('./communication')(packageOptions('communication'));
-  textChat = new packages.TextChat(packageOptions('textChat'));
-  screenSharing = new packages.ScreenSharing(packageOptions('screenSharing'));
-  annotation = new packages.Annotation(packageOptions('annotation'));
-  archiving = new packages.Archiving(packageOptions('archiving'));
+  textChat = packages.TextChat ? new packages.TextChat(packageOptions('textChat')) : null;
+  screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;
+  annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
+  archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
 };
 
 
@@ -187,9 +203,9 @@ const initPackages = (session, options) => {
  * @param {String} credentials.sessionId
  * @param {String} credentials.token
  */
-const validateCredentials = credentials => {
+const validateCredentials = (credentials) => {
   const required = ['apiKey', 'sessionId', 'token'];
-  required.forEach(credential => {
+  required.forEach((credential) => {
     if (!credentials[credential]) {
       logging.error(`${credential} is a required credential`);
     }
@@ -216,7 +232,7 @@ const init = (options) => {
   }
   const { credentials } = options;
   validateCredentials(credentials);
-  const session = OT.initSession(credentials.apiKey, credentials.sessionId, error => {
+  const session = OT.initSession(credentials.apiKey, credentials.sessionId, (error) => {
     if (error) {
       logging.error(error);
     } else {
