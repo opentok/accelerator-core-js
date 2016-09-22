@@ -5,6 +5,9 @@
         "node": true
     },
     "extends": "airbnb",
+    "rules": {
+        "no-confusing-arrow": 1
+    },
     "globals": {
         "OT": true
     }
