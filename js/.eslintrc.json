@@ -4,5 +4,8 @@
         "es6": true,
         "node": true
     },
-    "extends": "airbnb"
+    "extends": "airbnb",
+    "globals": {
+        "OT": true
+    }
 }
