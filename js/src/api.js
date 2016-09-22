@@ -72,7 +72,7 @@ const registerEvents = events => {
  * @param {String} event - The name of the event
  * @param {Function} callback
  */
-const registerEventListener = (event, callback) => {
+const on = (event, callback) => {
   const eventCallbacks = registeredEvents[event];
   if (!eventCallbacks) {
     logging.error(`${event} is not a registered event.`);
@@ -151,10 +151,23 @@ const initPackages = (session, options) => {
     }
   });
 
+
+  const defaultContainers = {
+    publisher: { camera: 'publisherContainer', screen: 'publisherContainer' },
+    subscriber: { camera: 'subscriberContainer', screen: 'subscriberContainer' }
+  };
+
+  const optionContainers = options.containers ? options.containers : {};
+
+  const containers = {
+    publisher: Object.assign({}, defaultContainers.publisher, optionContainers.publisher || {}),
+    subscriber: Object.assign({}, defaultContainers.subscriber, optionContainers.subscriber || {}),
+  };
+
   const packageOptions = packageName => {
     const accPack = { registerEvents, triggerEvent };
     const commOptions = packageName === 'communication' ?
-      { publishers, subscribers, streams } : {};
+      { publishers, subscribers, streams, containers } : {};
     return Object.assign({}, options[packageName], commOptions, { session, accPack });
   };
 
@@ -220,6 +233,7 @@ module.exports = {
   connect,
   getSession,
   registeredEvents,
-  registerEventListener,
+  on,
+  registerEventListener: on,
   triggerEvent,
 };

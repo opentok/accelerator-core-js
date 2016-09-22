@@ -6,6 +6,7 @@ let streams;
 let accPack;
 let callProperties;
 let screenProperties;
+let containers = {};
 
 const defaultCallProperties = {
   insertMode: 'append',
@@ -26,6 +27,7 @@ const registerEvents = () => {
     'endCall',
     'callPropertyChanged',
     'subscribeToCamera',
+    'subscribeToScreen',
     'startViewingSharedScreen',
     'endViewingSharedScreen',
   ];
@@ -35,10 +37,37 @@ const registerEvents = () => {
 // Trigger an event through the API
 const triggerEvent = (event, data) => accPack.triggerEvent(event, data);
 
+const createPublisher = () =>
+  new Promise((resolve, reject) => {
+    // TODO: Handle adding 'name' option to props
+    const props = callProperties;
+    // TODO: Figure out how to handle common vs package-specific options
+    const container = containers.publisher.camera || 'publisherContainer';
+    const publisher = OT.initPublisher(container, props, error => {
+      if (error) {
+        reject(error);
+      }
+      resolve(publisher);
+    });
+  });
+
+
+const publish = () => {
+  createPublisher()
+    .then((publisher) => {
+      publishers.camera = publisher;
+      session.publish(publisher);
+    })
+    .catch((error) => {
+      const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
+      triggerEvent('error', errorMessage);
+    });
+};
+
 const startCall = () => {
   active = true;
   publish();
-  streams.forEach(stream => subscribe(stream));
+  streams.forEach(stream => session.subscribe(stream));
   triggerEvent('startCall', publishers.camera);
 };
 
@@ -57,9 +86,10 @@ const enableRemoteAV = (subscriberId, source, enable) => {
   subscribers[subscriberId][method](enable);
 };
 
-const validateOptions = options => {
+const validateOptions = (options) => {
   const requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
-  requiredOptions.forEach(option => {
+
+  requiredOptions.forEach((option) => {
     if (!options[option]) {
       logging.error(`${option} is a required option.`);
     }
@@ -70,29 +100,39 @@ const validateOptions = options => {
   subscribers = options.subscribers;
   streams = options.streams;
   accPack = options.accPack;
+  containers = options.containers;
   callProperties = options.callProperties || defaultCallProperties;
   screenProperties = options.screenProperties ||
     Object.assign({}, defaultCallProperties, { videoSource: 'window' });
 };
 
-const onStreamCreated = stream => {
+const onStreamCreated = (stream) => {
   const type = stream.videoType;
-  const container = options.containers.subscribers[type] || 'subcriberContainer';
+  const container = containers.subscriber[type] || 'subcriberContainer';
   const options = type === 'camera' ? callProperties : screenProperties;
-  const subscriber = session.subscribe(streams[stream.streamId], container, options, error => {
+
+  const subscriber = session.subscribe(streams[stream.streamId], container, options, (error) => {
     triggerEvent('error', error);
   });
+
   subscribers[subscriber.id] = subscriber;
+
+  if (type === 'camera') {
+    triggerEvent('subscribeToCamera', subscriber);
+  } else if (type === 'screen') {
+    triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+    triggerEvent('subscribeToScreen', subscriber);
+  }
 };
 
 const onStreamDestroyed = stream =>
   stream.videoType === 'screen' && triggerEvent('endViewingSharedScreen');
 
 
-// Register listeners with theAPI
+// Register listeners with the API
 const createEventListeners = () => {
-  accPack.registerEventListener('streamCreated', onStreamCreated);
-  accPack.registerEventListener('streamDestroyed', onStreamDestroyed);
+  accPack.on('streamCreated', onStreamCreated);
+  accPack.on('streamDestroyed', onStreamDestroyed);
 };
 
 /**
@@ -103,39 +143,11 @@ const createEventListeners = () => {
  * @param {Object} options.subscribers
  * @param {Object} options.streams
  */
-const init = options => {
+const init = (options) => {
   validateOptions(options);
-  registerEvents();
+  registerEvents(options);
   createEventListeners();
 };
-
-const createPublisher = () =>
-  new Promise((resolve, reject) => {
-    // TODO: Handle adding 'name' option to props
-    const props = callProperties;
-    // TODO: Figure out how to handle common vs package-specific options
-    const container = options.container || 'publisherContainer';
-    const publisher = OT.initPublisher(container, props, error => {
-      if (error) {
-        reject(error);
-      }
-      resolve(publisher);
-    });
-  });
-
-
-const publish = () => {
-  createPublisher()
-    .then(publisher => {
-      publishers.camera = publisher;
-      session.publish(publisher);
-    })
-    .catch(error => {
-      const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
-      triggerEvent('error', errorMessage);
-    });
-};
-
 
 module.exports = {
   init,
