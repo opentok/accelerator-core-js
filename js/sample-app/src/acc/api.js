@@ -4,7 +4,7 @@
  */
 const logging = require('./logging');
 const communication = require('./communication');
-const acceleratorPackEvents = require('./events');
+const accPackEvents = require('./events');
 
 /**
  * Individual Accelerator Packs
@@ -17,15 +17,24 @@ let archiving;
 /**
  * Session, publishers, and subscribers
  */
+
+// Map publisher ids to publisher objects
 const publishers = {
-  camera: null,
-  screen: null,
+  camera: {},
+  screen: {},
 };
+
+// Map subscriber id to subscriber objects
 const subscribers = {
   camera: {},
   screen: {},
 };
+
+// Map stream ids to stream objects
 const streams = {};
+
+// Map stream ids to subscriber ids
+const streamMap = {};
 
 /**
  * Example options hash for init
@@ -122,7 +131,7 @@ let getOptions;
 
 
 const createSessionEventListeners = (session) => {
-  Object.keys(acceleratorPackEvents).forEach(type => registerEvents(acceleratorPackEvents[type]));
+  Object.keys(accPackEvents).forEach(type => registerEvents(accPackEvents[type]));
 
   session.on({
     streamCreated(event) {
@@ -198,7 +207,7 @@ const initPackages = () => {
   const packageOptions = (packageName) => {
     const accPack = { registerEventListener: on, on, registerEvents, triggerEvent };
     const containers = getContainerElements();
-    const commOptions = packageName === 'communication' ? { publishers, subscribers, streams, containers } : {};
+    const commOptions = packageName === 'communication' ? { publishers, subscribers, streams, streamMap, containers } : {};
     const controlsContainer = containers.controls; // Legacy option
     return Object.assign({},
       options[packageName],

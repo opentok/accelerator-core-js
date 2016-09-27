@@ -84,11 +84,12 @@ body {
 }
 
 .App-video-container .video-container.small {
-    width: 200px;
-    height: 140px;
     position: absolute;
     top: 20px;
     right: 20px;
+    width: 200px;
+    height: 140px;
+    border: 1px solid #fcba00;
     z-index: 2;
 }
 

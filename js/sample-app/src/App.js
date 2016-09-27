@@ -52,45 +52,42 @@ const connectingMask = () =>
     <div className="message with-spinner">Connecting</div>
   </div>
 
-const startCallMask = startCall =>
+const startCallMask = start =>
   <div className="App-mask">
-    <div className="message button clickable" onClick={startCall}>Click to Start Call</div>
+    <div className="message button clickable" onClick={start}>Click to Start Call</div>
   </div>
+
+
 
 class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { connected: false, active: false, cameraSubscribers: 0, screenSubscribers: 0};
+    this.state = { connected: false, active: false, publishers: null, subscribers: null };
     this.startCall = this.startCall.bind(this);
   }
 
   startCall() {
-    const subscribers = otAcc.startCall();
-    this.setState({ active: true, subscribers })
+    this.setState({active: true});
+    otAcc.startCall()
+      .then(({ publishers, subscribers, meta }) => {
+        this.setState({ publishers, subscribers, meta });
+      }).catch(error => console.log(error));
   }
 
   componentDidMount() {
     otAcc.init(otAccOptions);
     otAcc.connect().then((remoteParticpant) => this.setState({ connected: true, remoteParticpant }));
-    otAcc.on('subscribeToCamera', () => {
-      const updatedCount = this.state.cameraSubscribers + 1;
-      console.log('ccccc', updatedCount)
-      this.setState({cameraSubscribers: updatedCount})});
+    otAcc.on('subscribeToCamera', ({publishers, subscribers, meta}) => {
+      this.setState({ publishers, subscribers, meta })
+    });
   }
 
   render() {
-    const { connected, active, cameraSubscribers } = this.state;
-    console.log('aslkdjfhlasf', cameraSubscribers);
-    const publisherClass = classNames(
-      'video-container',
-      {small: !!cameraSubscribers}
-    );
-
-    const subscriberClass = classNames(
-      'video-container',
-      {hidden: !cameraSubscribers}
-    );
+    const { connected, active, subscribers, publishers, meta } = this.state;
+    const activeSubscribers = meta && !!meta.subscriber.total;
+    const publisherClass = classNames('video-container', { 'small': activeSubscribers });
+    const subscriberClass = classNames('video-container', { 'hidden': !activeSubscribers });
 
     return (
       <div className="App">

@@ -41,5 +41,4 @@ const events = {
   ],
 };
 
-
-module.export = events;
+module.exports = events;
