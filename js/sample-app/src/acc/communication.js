@@ -23,20 +23,6 @@ const defaultCallProperties = {
 
 let active = false;
 
-// Register events with the API
-const registerEvents = () => {
-  const events = [
-    'startCall',
-    'endCall',
-    'callPropertyChanged',
-    'subscribeToCamera',
-    'subscribeToScreen',
-    'startViewingSharedScreen',
-    'endViewingSharedScreen',
-  ];
-  accPack.registerEvents(events);
-};
-
 // Trigger an event through the API
 const triggerEvent = (event, data) => accPack.triggerEvent(event, data);
 
@@ -146,7 +132,6 @@ const createEventListeners = () => {
 const init = (options) =>
   new Promise((resolve) => {
     validateOptions(options);
-    registerEvents(options);
     createEventListeners();
     resolve();
   });

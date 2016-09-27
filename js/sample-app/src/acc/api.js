@@ -4,6 +4,7 @@
  */
 const logging = require('./logging');
 const communication = require('./communication');
+const acceleratorPackEvents = require('./events');
 
 /**
  * Individual Accelerator Packs
@@ -121,7 +122,8 @@ let getOptions;
 
 
 const createSessionEventListeners = (session) => {
-  registerEvents(['connected', 'streamCreated', 'streamDestroyed', 'error']);
+  Object.keys(acceleratorPackEvents).forEach(type => registerEvents(acceleratorPackEvents[type]));
+
   session.on({
     streamCreated(event) {
       streams[event.stream.id] = event.stream;
