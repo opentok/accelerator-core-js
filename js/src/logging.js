@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-console
 const log = message => console.log(`otAccCore: ${message}`);
 
-const error = message => {
+const error = (message) => {
   throw new Error(`otAccCore: ${message}`);
 };
 

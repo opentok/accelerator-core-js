@@ -1,12 +1,13 @@
+/* global OT */
 /**
  * Dependencies
  */
 const logging = require('./logging');
+const communication = require('./communication');
 
 /**
  * Individual Accelerator Packs
  */
-let communication;
 let textChat;
 let screenSharing;
 let annotation;
@@ -15,12 +16,14 @@ let archiving;
 /**
  * Session, publishers, and subscribers
  */
-// let session;
 const publishers = {
   camera: null,
   screen: null,
 };
-const subscribers = {};
+const subscribers = {
+  camera: {},
+  screen: {},
+};
 const streams = {};
 
 /**
@@ -68,10 +71,9 @@ const registeredEvents = {};
  * also be passed as a string.
  * @returns {function} See triggerEvent
  */
-const registerEvents = events => {
+const registerEvents = (events) => {
   const eventList = Array.isArray(events) ? events : [events];
-
-  eventList.forEach(event => {
+  eventList.forEach((event) => {
     if (!registeredEvents[event]) {
       registeredEvents[event] = new Set();
     }
@@ -86,7 +88,7 @@ const registerEvents = events => {
 const on = (event, callback) => {
   const eventCallbacks = registeredEvents[event];
   if (!eventCallbacks) {
-    logging.error(`${event} is not a registered event.`);
+    logging.log(`${event} is not a registered event.`);
   } else {
     eventCallbacks.add(callback);
   }
@@ -100,7 +102,7 @@ const on = (event, callback) => {
 const triggerEvent = (event, data) => {
   const eventCallbacks = registeredEvents[event];
   if (!eventCallbacks) {
-    registeredEvents(event);
+    registerEvents(event);
     logging.log(`${event} has been registered as a new event.`);
   } else {
     eventCallbacks.forEach(callback => callback(data, event));
@@ -114,22 +116,28 @@ let getSession;
 /** Returns the current OpenTok session credentials */
 let getCredentials;
 
+/** Returns the options used for initialization */
+let getOptions;
 
-const createSessionEventListeners = session => {
-  registerEvents(['streamCreated', 'streamDestroyed', 'error']);
+
+const createSessionEventListeners = (session) => {
+  registerEvents(['connected', 'streamCreated', 'streamDestroyed', 'error']);
   session.on({
     streamCreated(event) {
       streams[event.stream.id] = event.stream;
-      triggerEvent('streamCreated', event.stream);
+      triggerEvent('streamCreated', event);
     },
     streamDestroyed(event) {
       delete streams[event.stream.id];
-      triggerEvent('streamDestroyed', event.stream);
+      triggerEvent('streamDestroyed', event);
     },
   });
 };
 
-const initPackages = (session, options) => {
+const initPackages = () => {
+  const session = getSession();
+  const options = getOptions();
+
   /** Get packages based on ENV */
   const env = typeof module === 'object' && typeof module.exports === 'object' ?
     'node' :
@@ -164,31 +172,41 @@ const initPackages = (session, options) => {
   });
 
   /** Build containers hash */
+  const containerOptions = options.containers || {};
   const getDefaultContainer = pubSub => document.getElementById(`${pubSub}Container`);
   const getContainerElement = (pubSub, type) => {
-    const containers = options.containers || {};
-    const definedContainer = containers[pubSub] ? containers[pubSub][type] : null;
+    const definedContainer = containerOptions[pubSub] ? containerOptions[pubSub][type] : null;
     if (definedContainer) {
       return typeof definedContainer === 'string' ? document.querySelector(definedContainer) : definedContainer;
     }
     return getDefaultContainer(pubSub);
   };
-  const getContainerElements = () =>
-    ['publisher', 'subscriber'].reduce((acc, pubSub) =>
-      Object.assign({}, acc, { [pubSub]: ['camera', 'screen'].reduce((containerAcc, type) =>
-        Object.assign({}, containerAcc, { [type]: getContainerElement(pubSub, type) }), {}) }), {});
+  const getContainerElements = () => {
+    const controls = containerOptions.controls || '#videoControls';
+    return ['publisher', 'subscriber'].reduce((acc, pubSub) =>
+      Object.assign({}, acc, {
+        [pubSub]: ['camera', 'screen'].reduce((containerAcc, type) =>
+          Object.assign({}, containerAcc, {
+            [type]: getContainerElement(pubSub, type),
+          }), {}),
+      }), { controls });
+  };
 
   /** Get options based on package */
   const packageOptions = (packageName) => {
-    const accPack = { on, registerEvents, triggerEvent };
+    const accPack = { registerEventListener: on, on, registerEvents, triggerEvent };
     const containers = getContainerElements();
     const commOptions = packageName === 'communication' ? { publishers, subscribers, streams, containers } : {};
-    return Object.assign({}, options[packageName], commOptions, { session, accPack });
+    const controlsContainer = containers.controls; // Legacy option
+    return Object.assign({},
+      options[packageName],
+      commOptions, { session, accPack, controlsContainer }
+    );
   };
 
   /** Create instances of each package */
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  communication = require('./communication')(packageOptions('communication'));
+  communication.init(packageOptions('communication'));
   textChat = packages.TextChat ? new packages.TextChat(packageOptions('textChat')) : null;
   screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;
   annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
@@ -203,7 +221,7 @@ const initPackages = (session, options) => {
  * @param {String} credentials.sessionId
  * @param {String} credentials.token
  */
-const validateCredentials = (credentials) => {
+const validateCredentials = (credentials = []) => {
   const required = ['apiKey', 'sessionId', 'token'];
   required.forEach((credential) => {
     if (!credentials[credential]) {
@@ -215,11 +233,19 @@ const validateCredentials = (credentials) => {
 /**
  * Connect to the session
  */
-const connect = () => {
-  const session = getSession();
-  const { token } = getCredentials();
-  session.connect(token);
-};
+const connect = () =>
+  new Promise((resolve, reject) => {
+    const session = getSession();
+    const { token } = getCredentials();
+    session.connect(token, (error) => {
+      if (error) {
+        logging.message(error);
+        reject(error);
+      }
+      initPackages();
+      resolve();
+    });
+  });
 
 /**
  * Initialize the accelerator pack
@@ -231,25 +257,23 @@ const init = (options) => {
     logging.error('Missing options required for initialization');
   }
   const { credentials } = options;
-  validateCredentials(credentials);
-  const session = OT.initSession(credentials.apiKey, credentials.sessionId, (error) => {
-    if (error) {
-      logging.error(error);
-    } else {
-      initPackages(session, options);
-      createSessionEventListeners(session);
-      getSession = () => session;
-      getCredentials = () => credentials;
-    }
-  });
+  validateCredentials(options.credentials);
+  const session = OT.initSession(credentials.apiKey, credentials.sessionId);
+  createSessionEventListeners(session);
+  getSession = () => session;
+  getCredentials = () => credentials;
+  getOptions = () => options;
 };
 
 module.exports = {
   init,
   connect,
   getSession,
-  registeredEvents,
+  getCredentials,
+  registerEvents,
   on,
   registerEventListener: on,
   triggerEvent,
+  startCall: communication.startCall,
+  endCall: communication.endCall,
 };

@@ -1,3 +1,4 @@
+/* eslint-disable */
 const logging = require('./logging');
 let session;
 let publishers;
@@ -7,6 +8,8 @@ let accPack;
 let callProperties;
 let screenProperties;
 let containers = {};
+
+const properCase = text => `${text[0].toUpperCase()}${text.slice(1)}`;
 
 const defaultCallProperties = {
   insertMode: 'append',
@@ -44,10 +47,7 @@ const createPublisher = () =>
     // TODO: Figure out how to handle common vs package-specific options
     const container = containers.publisher.camera || 'publisherContainer';
     const publisher = OT.initPublisher(container, props, error => {
-      if (error) {
-        reject(error);
-      }
-      resolve(publisher);
+      error ? reject(error) : resolve(publisher);
     });
   });
 
@@ -64,11 +64,28 @@ const publish = () => {
     });
 };
 
+const subscribe = stream => {
+
+  const type = stream.videoType;
+  const container = containers.subscriber[type] || 'subcriberContainer';
+  const options = type === 'camera' ? callProperties : screenProperties;
+  const subscriber = session.subscribe(streams[stream.streamId], container, options, (error) => {
+    if (error) {
+      triggerEvent('error', error);
+    } else {
+      subscribers[type][subscriber.id] = subscriber;
+      triggerEvent(`subcribeTo${properCase(type)}`);
+      type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+    }
+  });
+}
+
 const startCall = () => {
   active = true;
   publish();
-  streams.forEach(stream => session.subscribe(stream));
+  Object.keys(streams).forEach(streamId => subscribe(streams[streamId]));
   triggerEvent('startCall', publishers.camera);
+  return Object.keys(subscribers.camera).length;
 };
 
 
@@ -77,12 +94,12 @@ const endCall = () => {
 };
 
 const enableLocalAV = (source, enable) => {
-  const method = `publish${source[0].toUpperCase()}${source.slice(1)}`;
+  const method = `publish${properCase(source)}`;
   publishers.camera[method](enable);
 };
 
 const enableRemoteAV = (subscriberId, source, enable) => {
-  const method = `publish${source[0].toUpperCase()}${source.slice(1)}`;
+  const method = `publish${properCase(source)}`;
   subscribers[subscriberId][method](enable);
 };
 
@@ -106,26 +123,9 @@ const validateOptions = (options) => {
     Object.assign({}, defaultCallProperties, { videoSource: 'window' });
 };
 
-const onStreamCreated = (stream) => {
-  const type = stream.videoType;
-  const container = containers.subscriber[type] || 'subcriberContainer';
-  const options = type === 'camera' ? callProperties : screenProperties;
+const onStreamCreated = ({ stream }) => active && subscribe(stream);
 
-  const subscriber = session.subscribe(streams[stream.streamId], container, options, (error) => {
-    triggerEvent('error', error);
-  });
-
-  subscribers[subscriber.id] = subscriber;
-
-  if (type === 'camera') {
-    triggerEvent('subscribeToCamera', subscriber);
-  } else if (type === 'screen') {
-    triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-    triggerEvent('subscribeToScreen', subscriber);
-  }
-};
-
-const onStreamDestroyed = stream =>
+const onStreamDestroyed = ({ stream }) =>
   stream.videoType === 'screen' && triggerEvent('endViewingSharedScreen');
 
 
@@ -143,11 +143,13 @@ const createEventListeners = () => {
  * @param {Object} options.subscribers
  * @param {Object} options.streams
  */
-const init = (options) => {
-  validateOptions(options);
-  registerEvents(options);
-  createEventListeners();
-};
+const init = (options) =>
+  new Promise((resolve) => {
+    validateOptions(options);
+    registerEvents(options);
+    createEventListeners();
+    resolve();
+  });
 
 module.exports = {
   init,
