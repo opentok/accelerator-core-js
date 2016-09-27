@@ -1,0 +1,98 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+.App {
+    text-align: center;
+}
+
+.App-header {
+    background-color: #222;
+    height: 40px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.App-header h1 {
+    font-size: 16px;
+    font-weight: 200;
+}
+
+.App-logo {
+    height: 60%;
+    width: auto;
+}
+
+.App-main {
+    width: 75vw;
+    height: calc(75vw * .6);
+    margin: 10px auto;
+    border: 1px solid lightblue;
+}
+
+.App-video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.App-mask {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    color: white;
+    background: rgba(27, 134, 144, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.App-mask .react-spinner {
+    position: absolute;
+}
+
+.App-mask .message {
+    font-weight: 200;
+}
+
+.App-mask .message.with-spinner {
+    position: absolute;
+    top: 55%;
+}
+
+.App-mask .message.button {
+  border: 1px solid white;
+  padding:20px 40px;
+  border-radius: 6px;
+}
+
+.App-video-container .video-container {
+    width: 100%;
+    height: 100%;
+}
+
+.App-video-container .video-container.small {
+    width: 200px;
+    height: 140px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 2;
+}
+
+.App-video-container .video-container.hidden {
+  display: none;
+}
+
