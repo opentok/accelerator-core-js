@@ -11,6 +11,8 @@ const events = {
     'callPropertyChanged',
     'subscribeToCamera',
     'subscribeToScreen',
+    'unsubscribeFromCamera',
+    'unsubscribeFromScreen',
     'startViewingSharedScreen',
     'endViewingSharedScreen',
   ],

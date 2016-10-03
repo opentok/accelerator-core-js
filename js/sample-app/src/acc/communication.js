@@ -145,9 +145,15 @@ const validateOptions = (options) => {
 
 const onStreamCreated = ({ stream }) => active && subscribe(stream);
 
-const onStreamDestroyed = ({ stream }) =>
-  stream.videoType === 'screen' && triggerEvent('endViewingSharedScreen');
-
+const onStreamDestroyed = ({ stream }) => {
+  const type = stream.videoType;
+  const subscriberId = streamMap[stream.id];
+  delete subscribers[type][subscriberId];
+  delete streams[stream.id];
+  delete streamMap[stream.id]
+  type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
+  triggerEvent(`unsubscribeFrom${properCase(stream.videoType)}`, currentPubSub());
+};
 
 // Register listeners with the API
 const createEventListeners = () => {
