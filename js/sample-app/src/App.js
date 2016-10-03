@@ -68,7 +68,7 @@ class App extends Component {
   }
 
   startCall() {
-    this.setState({active: true});
+    this.setState({ active: true });
     otAcc.startCall()
       .then(({ publishers, subscribers, meta }) => {
         this.setState({ publishers, subscribers, meta });
@@ -78,16 +78,28 @@ class App extends Component {
   componentDidMount() {
     otAcc.init(otAccOptions);
     otAcc.connect().then((remoteParticpant) => this.setState({ connected: true, remoteParticpant }));
-    otAcc.on('subscribeToCamera', ({publishers, subscribers, meta}) => {
+    otAcc.on('subscribeToCamera', ({ publishers, subscribers, meta }) => {
+      this.setState({ publishers, subscribers, meta })
+    });
+    otAcc.on('unsubscribeFromCamera', ({ publishers, subscribers, meta }) => {
+      this.setState({ publishers, subscribers, meta })
+    });
+    otAcc.on('subscribeToScreen', ({ publishers, subscribers, meta }) => {
+      this.setState({ publishers, subscribers, meta })
+    });
+    otAcc.on('unsubscribeFromCamera', ({ publishers, subscribers, meta }) => {
       this.setState({ publishers, subscribers, meta })
     });
   }
 
   render() {
     const { connected, active, subscribers, publishers, meta } = this.state;
-    const activeSubscribers = meta && !!meta.subscriber.total;
-    const publisherClass = classNames('video-container', { 'small': activeSubscribers });
-    const subscriberClass = classNames('video-container', { 'hidden': !activeSubscribers });
+    const activeSubscribers = meta ? meta.subscriber.total : 0;
+    const publisherClass = classNames('video-container', { 'small': !!activeSubscribers });
+    const subscriberClass = classNames('video-container', { 'hidden': !activeSubscribers },
+      `active-${activeSubscribers}`
+    );
+
 
     return (
       <div className="App">
