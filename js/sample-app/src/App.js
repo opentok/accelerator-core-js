@@ -84,24 +84,36 @@ class App extends Component {
   componentDidMount() {
     otAcc.init(otAccOptions);
     otAcc.connect().then((remoteParticpant) => this.setState({ connected: true, remoteParticpant }));
-    otAcc.on('subscribeToCamera', ({ publishers, subscribers, meta }) => {
-      this.setState({ publishers, subscribers, meta })
-    });
-    otAcc.on('unsubscribeFromCamera', ({ publishers, subscribers, meta }) => {
-      this.setState({ publishers, subscribers, meta })
-    });
-    otAcc.on('subscribeToScreen', ({ publishers, subscribers, meta }) => {
-      this.setState({ publishers, subscribers, meta })
-    });
-    otAcc.on('unsubscribeFromStream', ({ publishers, subscribers, meta }) => {
-      this.setState({ publishers, subscribers, meta })
-    });
-    otAcc.on('startScreenShare', ({ publishers, subscribers, meta }) => {
-      this.setState({ publishers, subscribers, meta })
-    });
-    otAcc.on('endScreenSharing', ({ publishers, subscribers, meta }) => {
-      this.setState({ publishers, subscribers, meta })
-    });
+    const events = [
+      'subscribeToCamera',
+      'unsubscribeFromCamera',
+      'subscribeToScreen',
+      'unsubscribeFromScreen',
+      'startScreenShare',
+      'endScreenShare',
+    ];
+
+    events.forEach(event => otAcc.on(event, ({ publishers, subscribers, meta }) => {
+        this.setState({ publishers, subscribers, meta });
+    }));
+    // otAcc.on('subscribeToCamera', ({ publishers, subscribers, meta }) => {
+    //   this.setState({ publishers, subscribers, meta })
+    // });
+    // otAcc.on('unsubscribeFromCamera', ({ publishers, subscribers, meta }) => {
+    //   this.setState({ publishers, subscribers, meta })
+    // });
+    // otAcc.on('subscribeToScreen', ({ publishers, subscribers, meta }) => {
+    //   this.setState({ publishers, subscribers, meta })
+    // });
+    // otAcc.on('unsubscribeFromScreen', ({ publishers, subscribers, meta }) => {
+    //   this.setState({ publishers, subscribers, meta })
+    // });
+    // otAcc.on('startScreenShare', ({ publishers, subscribers, meta }) => {
+    //   this.setState({ publishers, subscribers, meta })
+    // });
+    // otAcc.on('endScreenSharing', ({ publishers, subscribers, meta }) => {
+    //   this.setState({ publishers, subscribers, meta })
+    // });
   }
 
   render() {
