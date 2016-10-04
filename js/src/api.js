@@ -4,6 +4,8 @@
  */
 const logging = require('./logging');
 const communication = require('./communication');
+const accPackEvents = require('./events');
+const state = require('./state');
 
 /**
  * Individual Accelerator Packs
@@ -16,50 +18,24 @@ let archiving;
 /**
  * Session, publishers, and subscribers
  */
+
+// Map publisher ids to publisher objects
 const publishers = {
-  camera: null,
-  screen: null,
+  camera: {},
+  screen: {},
 };
+
+// Map subscriber id to subscriber objects
 const subscribers = {
   camera: {},
   screen: {},
 };
+
+// Map stream ids to stream objects
 const streams = {};
 
-/**
- * Example options hash for init
- */
-const exampleOptions = {
-  credentials: {
-    apiKey: '123',
-    sessionId: '456',
-    token: 'tok123',
-  },
-  // A container can either be a query selector or an HTMLElement
-  containers: {
-    publisher: {
-      camera: '#cameraPublisherContainer', // defaults to #publisherContainer
-      screen: '#screenPublisherContainer', // defaults to #publisherContainer
-    },
-    subscriber: {
-      camera: document.getElementById('cameraSubscriberContainer'), // defaults to #subscriberContainer
-      screen: document.getElementById('screenSubscriberContainer'), // defaults to #subscriberContainer
-    },
-  },
-  packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
-  communication: {
-
-  },
-  textChat: {
-
-  },
-  screenSharing: {
-
-  },
-  annotation: {
-
-  },
-};
+// Map stream ids to subscriber ids
+const streamMap = {};
 
 /** Eventing */
 
@@ -120,18 +96,77 @@ let getCredentials;
 let getOptions;
 
 
-const createSessionEventListeners = (session) => {
-  registerEvents(['connected', 'streamCreated', 'streamDestroyed', 'error']);
+const createEventListeners = (session, options) => {
+  Object.keys(accPackEvents).forEach(type => registerEvents(accPackEvents[type]));
+
+  /**
+   * If using screen sharing + annotation in an external window, the individual packages
+   * will take care of
+   */
+  const usingAnnotation = options.screenSharing.annotation;
+  const internalAnnotation = usingAnnotation && !options.screenSharing.externalWindow;
+
   session.on({
     streamCreated(event) {
-      streams[event.stream.id] = event.stream;
+      state.addStream(event.stream);
       triggerEvent('streamCreated', event);
     },
     streamDestroyed(event) {
-      delete streams[event.stream.id];
+      state.removeStream(event.stream);
+      // delete streams[event.stream.id];
       triggerEvent('streamDestroyed', event);
     },
   });
+
+  if (usingAnnotation) {
+    on('subscribeToScreen', ({ subscriber }) => {
+      annotation.start(getSession())
+      .then(() => annotation.linkCanvas(subscriber, subscriber.element.parentElement));
+    });
+
+    on('unsubscribeFromScreen', () => {
+      annotation.end();
+    });
+  }
+
+  on('startScreenSharing', (publisher) => {
+    state.addPublisher('screen', publisher);
+    triggerEvent('startScreenShare', Object.assign({}, { publisher }, state.currentPubSub()));
+    // publishers.screen[publisher.id] = publisher;
+    if (internalAnnotation) {
+      annotation.start(getSession())
+      .then(() => annotation.linkCanvas(publisher, publisher.element.parentElement));
+    }
+  });
+
+  on('endScreenSharing', (publisher) => {
+    // delete publishers.screen[publisher.id];
+    state.removePublisher('screen', publisher);
+    triggerEvent('endScreenShare', state.currentPubSub());
+    if (internalAnnotation) {
+      annotation.end();
+    }
+  });
+};
+
+const setupExternalAnnotation = () =>
+  annotation.start(getSession(), {
+    screensharing: true,
+  });
+
+const linkAnnotation = (pubSub, annotationContainer, externalWindow) => {
+  annotation.linkCanvas(pubSub, annotationContainer, {
+    externalWindow,
+  });
+
+  if (externalWindow) {
+    // Add subscribers to the external window
+    const cameraStreams = Object.keys(streams).reduce((acc, streamId) => {
+      const stream = streams[streamId];
+      return stream.videoType === 'camera' ? acc.concat(stream) : acc;
+    }, []);
+    cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
+  }
 };
 
 const initPackages = () => {
@@ -177,32 +212,53 @@ const initPackages = () => {
   const getContainerElement = (pubSub, type) => {
     const definedContainer = containerOptions[pubSub] ? containerOptions[pubSub][type] : null;
     if (definedContainer) {
-      return typeof definedContainer === 'string' ?
-        document.querySelector(definedContainer) :
-        definedContainer;
+      return typeof definedContainer === 'string' ? document.querySelector(definedContainer) : definedContainer;
     }
     return getDefaultContainer(pubSub);
   };
   const getContainerElements = () => {
     const controls = containerOptions.controls || '#videoControls';
+    const chat = containerOptions.chat || '#chat';
     return ['publisher', 'subscriber'].reduce((acc, pubSub) =>
       Object.assign({}, acc, {
         [pubSub]: ['camera', 'screen'].reduce((containerAcc, type) =>
           Object.assign({}, containerAcc, {
             [type]: getContainerElement(pubSub, type),
           }), {}),
-      }), { controls });
+      }), { controls, chat });
   };
 
   /** Get options based on package */
   const packageOptions = (packageName) => {
-    const accPack = { registerEventListener: on, on, registerEvents, triggerEvent };
+    const accPack = {
+      registerEventListener: on,
+      on,
+      registerEvents,
+      triggerEvent,
+      setupExternalAnnotation,
+      linkAnnotation,
+    };
     const containers = getContainerElements();
-    const commOptions = packageName === 'communication' ? { publishers, subscribers, streams, containers } : {};
+    const commOptions =
+      packageName === 'communication' ?
+      Object.assign({},
+        options.communication, { publishers, subscribers, streams, streamMap, containers }) : {};
+    const chatOptions =
+      packageName === 'textChat' ? {
+        textChatContainer: containers.chat,
+        waitingMessage: options.textChat.waitingMessage,
+        sender: { alias: options.textChat.name },
+      } : {};
+    const screenSharingOptions =
+      packageName === 'screenSharing' ?
+      Object.assign({},
+        options.screenSharing, { screenSharingContainer: containers.publisher.screen }) : {};
     const controlsContainer = containers.controls; // Legacy option
     return Object.assign({},
       options[packageName],
-      commOptions, { session, accPack, controlsContainer }
+      commOptions,
+      chatOptions, { session, accPack, controlsContainer },
+      screenSharingOptions
     );
   };
 
@@ -261,7 +317,7 @@ const init = (options) => {
   const { credentials } = options;
   validateCredentials(options.credentials);
   const session = OT.initSession(credentials.apiKey, credentials.sessionId);
-  createSessionEventListeners(session);
+  createEventListeners(session, options);
   getSession = () => session;
   getCredentials = () => credentials;
   getOptions = () => options;
