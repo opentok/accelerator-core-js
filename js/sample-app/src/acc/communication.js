@@ -165,10 +165,6 @@ const onStreamCreated = ({ stream }) => active && subscribe(stream);
 const onStreamDestroyed = ({ stream }) => {
   state.removeStream(stream)
   const type = stream.videoType;
-  // const subscriberId = streamMap[stream.id];
-  // delete subscribers[type][subscriberId];
-  // delete streams[stream.id];
-  // delete streamMap[stream.id]
   type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
   triggerEvent(`unsubscribeFrom${properCase(type)}`, state.currentPubSub());
 };
