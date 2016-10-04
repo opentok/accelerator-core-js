@@ -7,10 +7,10 @@
   },
   "dependencies": {
     "classnames": "^2.2.5",
-    "opentok-annotation": "^1.0.48",
+    "opentok-annotation": "*",
     "opentok-archiving": "^1.0.9",
     "opentok-screen-sharing": "^1.0.17",
-    "opentok-solutions-css": "0.0.26",
+    "opentok-solutions-css": "*",
     "opentok-text-chat": "^1.0.16",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",

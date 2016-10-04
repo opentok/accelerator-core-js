@@ -30,7 +30,7 @@ const otAccOptions = {
   },
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
   communication: {
-
+    callProperites: null, // Using default
   },
   textChat: {
     name: ['David', 'Paul', 'Emma', 'George', 'Amanda'][Math.random() * 5 | 0],
@@ -41,6 +41,7 @@ const otAccOptions = {
     annotation: true,
     externalWindow: false,
     dev: true,
+    screenProperties: null, // Using default
   },
   annotation: {
 

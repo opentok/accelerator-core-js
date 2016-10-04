@@ -62,3 +62,10 @@ const removeStream = stream => {
   delete subscribers[type][subscriberId];
   delete streams[stream.id];
 };
+
+module.exports = {
+  addStream,
+  removeStream,
+  addPublisher,
+  removePublisher,
+};

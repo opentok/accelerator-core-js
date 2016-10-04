@@ -1,5 +1,6 @@
 /* eslint-disable */
 const logging = require('./logging');
+const state = require('./state');
 let session;
 let publishers;
 let subscribers;
@@ -9,8 +10,7 @@ let accPack;
 let callProperties;
 let screenProperties;
 let containers = {};
-
-const properCase = text => `${text[0].toUpperCase()}${text.slice(1)}`;
+let active = false;
 
 const defaultCallProperties = {
   insertMode: 'append',
@@ -22,7 +22,29 @@ const defaultCallProperties = {
   },
 };
 
+/**
+ * Converts a string to proper case (e.g. 'camera' => 'Camera')
+ * @param {String} text
+ * @returns {String}
+ */
+const properCase = text => `${text[0].toUpperCase()}${text.slice(1)}`;
 
+/**
+ * Returns the count of current publishers and subscribers by type
+ * @retuns {Object}
+ *    {
+ *      publishers: {
+ *        camera: 1,
+ *        screen: 1,
+ *        total: 2
+ *      },
+ *      subscribers: {
+ *        camera: 3,
+ *        screen: 1,
+ *        total: 4
+ *      }
+ *   }
+ */
 const pubSubCount = () => {
   const pubs = Object.keys(publishers).reduce((acc, source) => {
     acc[source] = Object.keys(publishers[source]).length;
@@ -39,13 +61,19 @@ const pubSubCount = () => {
   return { publisher: pubs, subscriber: subs };
 };
 
+/**
+ * Returns the current publishers and subscribers, along with a count of each
+ */
 const currentPubSub = () => ({ publishers, subscribers, meta: pubSubCount() });
 
-let active = false;
-
-// Trigger an event through the API
+/**
+ * Trigger an event through the API layer
+ * @param {String} event - The name of the event
+ * @param {*} [data]
+ */
 const triggerEvent = (event, data) => accPack.triggerEvent(event, data);
 
+/** Create a camera publisher object */
 const createPublisher = () =>
   new Promise((resolve, reject) => {
     // TODO: Handle adding 'name' option to props
@@ -58,6 +86,7 @@ const createPublisher = () =>
   });
 
 
+/** Publish a camera stream */
 const publish = () =>
   new Promise((resolve, reject) => {
     createPublisher()
@@ -73,6 +102,12 @@ const publish = () =>
       });
   });
 
+
+/**
+ * Subscribe to a stream
+ * @param {Object} stream - An OpenTok stream object
+ * @returns {Promise} <resolve: >
+ */
 const subscribe = stream =>
   new Promise((resolve, reject) => {
     if (streamMap[stream.id]) {
@@ -87,13 +122,17 @@ const subscribe = stream =>
       } else {
         subscribers[type][subscriber.id] = subscriber;
         streamMap[stream.id] = subscriber.id;
-        triggerEvent(`subscribeTo${properCase(type)}`, currentPubSub());
+        triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { newSubscriber: subscriber }, currentPubSub()));
         type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
         resolve();
       }
     });
   })
 
+
+/**
+ * Start publishing the local camera feed and subscribing to streams in the session
+ */
 const startCall = () =>
   new Promise((resolve, reject) => {
     publish()
@@ -108,19 +147,36 @@ const startCall = () =>
       });
   });
 
+
+/**
+ * Stop publishing and unsubscribe from all streams
+ */
 const endCall = () => {
   active = false;
 };
 
+/**
+ * Enable/disable local audio or video
+ * @param {String} source - 'audio' or 'video'
+ * @param {Boolean} enable
+ */
 const enableLocalAV = (source, enable) => {
   const method = `publish${properCase(source)}`;
   publishers.camera[method](enable);
 };
 
+
+/**
+ * Enable/disable remote audio or video
+ * @param {String} subscriberId
+ * @param {String} source - 'audio' or 'video'
+ * @param {Boolean} enable
+ */
 const enableRemoteAV = (subscriberId, source, enable) => {
   const method = `publish${properCase(source)}`;
   subscribers[subscriberId][method](enable);
 };
+
 
 const validateOptions = (options) => {
   const requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
