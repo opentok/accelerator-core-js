@@ -108,7 +108,7 @@ const createEventListeners = (session, options) => {
 
   session.on({
     streamCreated(event) {
-      streams[event.stream.id] = event.stream;
+      state.addStream(event.stream);
       triggerEvent('streamCreated', event);
     },
     streamDestroyed(event) {
@@ -130,7 +130,7 @@ const createEventListeners = (session, options) => {
   }
 
   on('startScreenSharing', publisher => {
-    state.addPublisher(publisher);
+    state.addPublisher('screen', publisher);
     // publishers.screen[publisher.id] = publisher;
     if (internalAnnotation) {
       annotation.start(getSession())
@@ -139,7 +139,8 @@ const createEventListeners = (session, options) => {
   });
 
   on('endScreenSharing', publisher => {
-    delete publishers.screen[publisher.id];
+    // delete publishers.screen[publisher.id];
+    state.removePublisher('screen', publisher);
     if (internalAnnotation) {
       annotation.end();
     }

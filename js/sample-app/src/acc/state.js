@@ -17,6 +17,23 @@ const streams = {};
 const streamMap = {};
 
 
+
+/**
+ * Returns the count of current publishers and subscribers by type
+ * @retuns {Object}
+ *    {
+ *      publishers: {
+ *        camera: 1,
+ *        screen: 1,
+ *        total: 2
+ *      },
+ *      subscribers: {
+ *        camera: 3,
+ *        screen: 1,
+ *        total: 4
+ *      }
+ *   }
+ */
 const pubSubCount = () => {
   const pubs = Object.keys(publishers).reduce((acc, source) => {
     acc[source] = Object.keys(publishers[source]).length;
@@ -38,17 +55,24 @@ const pubSubCount = () => {
  */
 const currentPubSub = () => ({ publishers, subscribers, meta: pubSubCount() });
 
-
-
-const addPublisher = publisher => {
-  const type = publisher.stream.videoType;
-  streamMap[publisher.stream.id] = publisher.id;
+const addPublisher = (type, publisher) => {
   publishers[type][publisher.id] = publisher;
 };
 
-const removePublisher = publisher => {
-  const type = publisher.stream.videoType;
+const removePublisher = (type, publisher) => {
   delete publishers[type][publisher.id];
+};
+
+const removeAllPublishers = () => {
+  publishers.camera = {};
+  publishers.screen = {};
+};
+
+const addSubscriber = subscriber => {
+  const type = subscriber.stream.videoType;
+  const streamId = subscriber.stream.id;
+  subscribers[type][subscriber.id] = subscriber;
+  streamMap[streamId] = subscriber.id;
 };
 
 const addStream = stream => {
@@ -63,9 +87,15 @@ const removeStream = stream => {
   delete streams[stream.id];
 };
 
+const getStreams = () => streams;
+
 module.exports = {
   addStream,
   removeStream,
+  getStreams,
   addPublisher,
   removePublisher,
+  removeAllPublishers,
+  addSubscriber,
+  currentPubSub,
 };

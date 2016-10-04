@@ -177,7 +177,9 @@ const initPackages = () => {
   const getContainerElement = (pubSub, type) => {
     const definedContainer = containerOptions[pubSub] ? containerOptions[pubSub][type] : null;
     if (definedContainer) {
-      return typeof definedContainer === 'string' ? document.querySelector(definedContainer) : definedContainer;
+      return typeof definedContainer === 'string' ?
+        document.querySelector(definedContainer) :
+        definedContainer;
     }
     return getDefaultContainer(pubSub);
   };

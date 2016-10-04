@@ -30,43 +30,6 @@ const defaultCallProperties = {
 const properCase = text => `${text[0].toUpperCase()}${text.slice(1)}`;
 
 /**
- * Returns the count of current publishers and subscribers by type
- * @retuns {Object}
- *    {
- *      publishers: {
- *        camera: 1,
- *        screen: 1,
- *        total: 2
- *      },
- *      subscribers: {
- *        camera: 3,
- *        screen: 1,
- *        total: 4
- *      }
- *   }
- */
-const pubSubCount = () => {
-  const pubs = Object.keys(publishers).reduce((acc, source) => {
-    acc[source] = Object.keys(publishers[source]).length;
-    acc.total += acc[source];
-    return acc;
-  }, { camera: 0, screen: 0, total: 0 });
-
-  const subs = Object.keys(subscribers).reduce((acc, source) => {
-    acc[source] = Object.keys(subscribers[source]).length;
-    acc.total += acc[source];
-    return acc;
-  }, { camera: 0, screen: 0, total: 0 });
-
-  return { publisher: pubs, subscriber: subs };
-};
-
-/**
- * Returns the current publishers and subscribers, along with a count of each
- */
-const currentPubSub = () => ({ publishers, subscribers, meta: pubSubCount() });
-
-/**
  * Trigger an event through the API layer
  * @param {String} event - The name of the event
  * @param {*} [data]
@@ -91,7 +54,7 @@ const publish = () =>
   new Promise((resolve, reject) => {
     createPublisher()
       .then((publisher) => {
-        publishers.camera[publisher.id] = publisher;
+        state.addPublisher('camera', publisher);
         session.publish(publisher);
         resolve()
       })
@@ -110,7 +73,7 @@ const publish = () =>
  */
 const subscribe = stream =>
   new Promise((resolve, reject) => {
-    if (streamMap[stream.id]) {
+    if (state.getStreams()[stream.id]) {
       resolve();
     }
     const type = stream.videoType;
@@ -120,9 +83,8 @@ const subscribe = stream =>
       if (error) {
         reject(error);
       } else {
-        subscribers[type][subscriber.id] = subscriber;
-        streamMap[stream.id] = subscriber.id;
-        triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { newSubscriber: subscriber }, currentPubSub()));
+        state.addSubscriber(subscriber);
+        triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { newSubscriber: subscriber }, state.currentPubSub()));
         type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
         resolve();
       }
@@ -137,9 +99,11 @@ const startCall = () =>
   new Promise((resolve, reject) => {
     publish()
       .then(() => {
-        const initialSubscriptions = Object.keys(streams).map(streamId => subscribe(streams[streamId]));
+        const streams = state.getStreams();
+        console.log('initial Streams', streams);
+        const initialSubscriptions = Object.keys(state.getStreams()).map(streamId => subscribe(streams[streamId]));
         Promise.all(initialSubscriptions).then(() => {
-          const pubSubData = currentPubSub();
+          const pubSubData = state.currentPubSub();
           triggerEvent('startCall', pubSubData);
           active = true;
           resolve(pubSubData);
@@ -152,6 +116,12 @@ const startCall = () =>
  * Stop publishing and unsubscribe from all streams
  */
 const endCall = () => {
+  const publishers = state.currentPubSub().publishers;
+
+  const unpublish = publisher => session.unpublish(publisher);
+  Object.keys(publishers.camera).forEach(id => unpublish(publishers.camera[id]));
+  Object.keys(publishers.screen).forEach(id => unpublish(publishers.screen[id]));
+  state.removeAllPublishers();
   active = false;
 };
 
@@ -177,7 +147,6 @@ const enableRemoteAV = (subscriberId, source, enable) => {
   subscribers[subscriberId][method](enable);
 };
 
-
 const validateOptions = (options) => {
   const requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
 
@@ -202,13 +171,14 @@ const validateOptions = (options) => {
 const onStreamCreated = ({ stream }) => active && subscribe(stream);
 
 const onStreamDestroyed = ({ stream }) => {
+  state.removeStream(stream)
   const type = stream.videoType;
-  const subscriberId = streamMap[stream.id];
-  delete subscribers[type][subscriberId];
-  delete streams[stream.id];
-  delete streamMap[stream.id]
+  // const subscriberId = streamMap[stream.id];
+  // delete subscribers[type][subscriberId];
+  // delete streams[stream.id];
+  // delete streamMap[stream.id]
   type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
-  triggerEvent(`unsubscribeFrom${properCase(stream.videoType)}`, currentPubSub());
+  triggerEvent(`unsubscribeFrom${properCase(type)}`, state.currentPubSub());
 };
 
 // Register listeners with the API
