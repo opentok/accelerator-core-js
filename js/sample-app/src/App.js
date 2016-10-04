@@ -26,16 +26,21 @@ const otAccOptions = {
       screen: '#subscriberContainer',
     },
     controls: '#controls',
+    chat: '#chat'
   },
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
   communication: {
 
   },
   textChat: {
-    alias: 'Aaron'
+    name: ['David', 'Paul', 'Emma', 'George', 'Amanda'][Math.random() * 5 | 0],
+    waitingMessage: 'Messages will be delivered when other users arrive',
   },
   screenSharing: {
-    extensionID: 'plocfffmbcclpdifaikiikgplfnepkpo'
+    extensionID: 'plocfffmbcclpdifaikiikgplfnepkpo',
+    annotation: true,
+    externalWindow: false,
+    dev: true,
   },
   annotation: {
 
@@ -90,24 +95,29 @@ class App extends Component {
     otAcc.on('unsubscribeFromCamera', ({ publishers, subscribers, meta }) => {
       this.setState({ publishers, subscribers, meta })
     });
+    otAcc.on('startScreenSharing', ({ publishers, subscribers, meta }) => {
+      this.setState({ publishers, subscribers, meta })
+    });
   }
 
   render() {
     const { connected, active, subscribers, publishers, meta } = this.state;
     const activeSubscribers = meta ? meta.subscriber.total : 0;
-    const publisherClass = classNames('video-container', { 'small': !!activeSubscribers });
-    const subscriberClass = classNames('video-container', { 'hidden': !activeSubscribers },
-      `active-${activeSubscribers}`
-    );
+    const controlClass = classNames('App-control-container', {'hidden': !active });
+  const publisherClass = classNames('video-container', { 'small': !!activeSubscribers });
+  const subscriberClass = classNames('video-container', { 'hidden': !activeSubscribers },
+    `active-${activeSubscribers}`
+  );
 
 
-    return (
-      <div className="App">
+  return (
+    <div className="App">
         <div className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1>OpenTok Accelerator Core</h1>
         </div>
         <div className="App-main">
+          <div id="controls" className={controlClass}></div>
           <div className="App-video-container">
             { !connected && connectingMask() }
             { connected && !active && startCallMask(this.startCall)}
@@ -115,10 +125,11 @@ class App extends Component {
             <div id="subscriberContainer" className={subscriberClass}></div>
             <div id="controls"></div>
           </div>
+          <div id="chat" className="App-chat-container"></div>
         </div>
       </div>
-    );
-  }
+  );
+}
 }
 
 export default App;
