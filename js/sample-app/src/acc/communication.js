@@ -84,7 +84,7 @@ const subscribe = stream =>
         reject(error);
       } else {
         state.addSubscriber(subscriber);
-        triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { newSubscriber: subscriber }, state.currentPubSub()));
+        triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, state.currentPubSub()));
         type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
         resolve();
       }

@@ -3,6 +3,8 @@ const events = {
     'connected',
     'streamCreated',
     'streamDestroyed',
+    'startScreenShare',
+    'endScreenShare',
     'error',
   ],
   communication: [

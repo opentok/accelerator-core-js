@@ -119,9 +119,9 @@ const createEventListeners = (session, options) => {
   });
 
   if (usingAnnotation) {
-    on('subscribeToScreen', ({ newSubscriber }) => {
+    on('subscribeToScreen', ({ subscriber }) => {
       annotation.start(getSession())
-      .then(() => annotation.linkCanvas(newSubscriber, newSubscriber.element.parentElement));
+      .then(() => annotation.linkCanvas(subscriber, subscriber.element.parentElement));
     });
 
     on('unsubscribeFromScreen', () => {
@@ -129,8 +129,9 @@ const createEventListeners = (session, options) => {
     });
   }
 
-  on('startScreenSharing', publisher => {
+  on('startScreenSharing', (publisher) => {
     state.addPublisher('screen', publisher);
+    triggerEvent('startScreenShare', Object.assign({}, { publisher }, state.currentPubSub()));
     // publishers.screen[publisher.id] = publisher;
     if (internalAnnotation) {
       annotation.start(getSession())
@@ -138,9 +139,10 @@ const createEventListeners = (session, options) => {
     }
   });
 
-  on('endScreenSharing', publisher => {
+  on('endScreenSharing', (publisher) => {
     // delete publishers.screen[publisher.id];
     state.removePublisher('screen', publisher);
+    triggerEvent('endScreenShare', state.currentPubSub());
     if (internalAnnotation) {
       annotation.end();
     }

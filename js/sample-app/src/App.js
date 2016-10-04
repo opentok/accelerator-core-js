@@ -93,10 +93,13 @@ class App extends Component {
     otAcc.on('subscribeToScreen', ({ publishers, subscribers, meta }) => {
       this.setState({ publishers, subscribers, meta })
     });
-    otAcc.on('unsubscribeFromCamera', ({ publishers, subscribers, meta }) => {
+    otAcc.on('unsubscribeFromStream', ({ publishers, subscribers, meta }) => {
       this.setState({ publishers, subscribers, meta })
     });
-    otAcc.on('startScreenSharing', ({ publishers, subscribers, meta }) => {
+    otAcc.on('startScreenShare', ({ publishers, subscribers, meta }) => {
+      this.setState({ publishers, subscribers, meta })
+    });
+    otAcc.on('endScreenSharing', ({ publishers, subscribers, meta }) => {
       this.setState({ publishers, subscribers, meta })
     });
   }
@@ -104,15 +107,15 @@ class App extends Component {
   render() {
     const { connected, active, subscribers, publishers, meta } = this.state;
     const activeSubscribers = meta ? meta.subscriber.total : 0;
-    const controlClass = classNames('App-control-container', {'hidden': !active });
-  const publisherClass = classNames('video-container', { 'small': !!activeSubscribers });
-  const subscriberClass = classNames('video-container', { 'hidden': !activeSubscribers },
-    `active-${activeSubscribers}`
-  );
+    const controlClass = classNames('App-control-container', { 'hidden': !active });
+    const publisherClass = classNames('video-container', { 'small': !!activeSubscribers });
+    const subscriberClass = classNames('video-container', { 'hidden': !activeSubscribers },
+      `active-${activeSubscribers}`
+    );
 
 
-  return (
-    <div className="App">
+    return (
+      <div className="App">
         <div className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1>OpenTok Accelerator Core</h1>
@@ -129,8 +132,8 @@ class App extends Component {
           <div id="chat" className="App-chat-container"></div>
         </div>
       </div>
-  );
-}
+    );
+  }
 }
 
 export default App;
