@@ -2,10 +2,6 @@
 const logging = require('./logging');
 const state = require('./state');
 let session;
-let publishers;
-let subscribers;
-let streams;
-let streamMap;
 let accPack;
 let callProperties;
 let screenProperties;
@@ -157,10 +153,6 @@ const validateOptions = (options) => {
   });
 
   session = options.session;
-  publishers = options.publishers;
-  subscribers = options.subscribers;
-  streams = options.streams;
-  streamMap = options.streamMap;
   accPack = options.accPack;
   containers = options.containers;
   callProperties = options.callProperties || defaultCallProperties;
