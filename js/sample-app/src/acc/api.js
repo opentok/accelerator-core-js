@@ -15,28 +15,6 @@ let screenSharing;
 let annotation;
 let archiving;
 
-/**
- * Session, publishers, and subscribers
- */
-
-// Map publisher ids to publisher objects
-const publishers = {
-  camera: {},
-  screen: {},
-};
-
-// Map subscriber id to subscriber objects
-const subscribers = {
-  camera: {},
-  screen: {},
-};
-
-// Map stream ids to stream objects
-const streams = {};
-
-// Map stream ids to subscriber ids
-const streamMap = {};
-
 /** Eventing */
 
 const registeredEvents = {};

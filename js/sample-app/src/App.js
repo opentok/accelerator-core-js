@@ -96,24 +96,6 @@ class App extends Component {
     events.forEach(event => otAcc.on(event, ({ publishers, subscribers, meta }) => {
         this.setState({ publishers, subscribers, meta });
     }));
-    // otAcc.on('subscribeToCamera', ({ publishers, subscribers, meta }) => {
-    //   this.setState({ publishers, subscribers, meta })
-    // });
-    // otAcc.on('unsubscribeFromCamera', ({ publishers, subscribers, meta }) => {
-    //   this.setState({ publishers, subscribers, meta })
-    // });
-    // otAcc.on('subscribeToScreen', ({ publishers, subscribers, meta }) => {
-    //   this.setState({ publishers, subscribers, meta })
-    // });
-    // otAcc.on('unsubscribeFromScreen', ({ publishers, subscribers, meta }) => {
-    //   this.setState({ publishers, subscribers, meta })
-    // });
-    // otAcc.on('startScreenShare', ({ publishers, subscribers, meta }) => {
-    //   this.setState({ publishers, subscribers, meta })
-    // });
-    // otAcc.on('endScreenSharing', ({ publishers, subscribers, meta }) => {
-    //   this.setState({ publishers, subscribers, meta })
-    // });
   }
 
   render() {
@@ -124,7 +106,6 @@ class App extends Component {
     const subscriberClass = classNames('video-container', { 'hidden': !activeSubscribers },
       `active-${activeSubscribers}`
     );
-
 
     return (
       <div className="App">
