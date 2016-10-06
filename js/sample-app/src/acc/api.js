@@ -99,7 +99,7 @@ const createEventListeners = (session, options) => {
   if (usingAnnotation) {
     on('subscribeToScreen', ({ subscriber }) => {
       annotation.start(getSession())
-      .then(() => annotation.linkCanvas(subscriber, subscriber.element.parentElement));
+        .then(() => annotation.linkCanvas(subscriber, subscriber.element.parentElement));
     });
 
     on('unsubscribeFromScreen', () => {
@@ -113,7 +113,7 @@ const createEventListeners = (session, options) => {
     // publishers.screen[publisher.id] = publisher;
     if (internalAnnotation) {
       annotation.start(getSession())
-      .then(() => annotation.linkCanvas(publisher, publisher.element.parentElement));
+        .then(() => annotation.linkCanvas(publisher, publisher.element.parentElement));
     }
   });
 
@@ -121,6 +121,7 @@ const createEventListeners = (session, options) => {
     // delete publishers.screen[publisher.id];
     state.removePublisher('screen', publisher);
     triggerEvent('endScreenShare', state.currentPubSub());
+    console.log('end screen sharehere', state.currentPubSub());
     if (internalAnnotation) {
       annotation.end();
     }
@@ -139,6 +140,7 @@ const linkAnnotation = (pubSub, annotationContainer, externalWindow) => {
 
   if (externalWindow) {
     // Add subscribers to the external window
+    const streams = state.getStreams();
     const cameraStreams = Object.keys(streams).reduce((acc, streamId) => {
       const stream = streams[streamId];
       return stream.videoType === 'camera' ? acc.concat(stream) : acc;
@@ -208,6 +210,7 @@ const initPackages = () => {
 
   /** Get options based on package */
   const packageOptions = (packageName) => {
+    const { streams, streamMap, publishers, subscribers } = state.all();
     const accPack = {
       registerEventListener: on,
       on,
