@@ -18,12 +18,12 @@ const otAccOptions = {
   // A container can either be a query selector or an HTMLElement
   containers: {
     publisher: {
-      camera: '#publisherContainer',
-      screen: '#publisherContainer',
+      camera: '#cameraPublisherContainer',
+      screen: '#screenPublisherContainer',
     },
     subscriber: {
-      camera: '#subscriberContainer',
-      screen: '#subscriberContainer',
+      camera: '#cameraSubscriberContainer',
+      screen: '#screenSubscriberContainer',
     },
     controls: '#controls',
     chat: '#chat'
@@ -94,18 +94,22 @@ class App extends Component {
     ];
 
     events.forEach(event => otAcc.on(event, ({ publishers, subscribers, meta }) => {
-        this.setState({ publishers, subscribers, meta });
+      this.setState({ publishers, subscribers, meta });
     }));
   }
 
   render() {
     const { connected, active, subscribers, publishers, meta } = this.state;
-    const activeSubscribers = meta ? meta.subscriber.total : 0;
+    const sharingScreen = meta ? !!meta.publisher.screen : false;
+    const viewingSharedScreen = meta ? meta.subscriber.screen : false;
+    const activeCameraSubscribers = meta ? meta.subscriber.camera : 0;
     const controlClass = classNames('App-control-container', { 'hidden': !active });
-    const publisherClass = classNames('video-container', { 'small': !!activeSubscribers });
-    const subscriberClass = classNames('video-container', { 'hidden': !activeSubscribers },
-      `active-${activeSubscribers}`
+    const cameraPublisherClass = classNames('video-container', { 'small': !!activeCameraSubscribers || sharingScreen }, { 'left': sharingScreen || viewingSharedScreen });
+    const screenPublisherClass = classNames('video-container', { 'hidden': !sharingScreen });
+    const cameraSubscriberClass = classNames('video-container', { 'hidden': !activeCameraSubscribers },
+      `active-${activeCameraSubscribers}`, { 'small' : viewingSharedScreen || sharingScreen }
     );
+    const screenSubscriberClass = classNames('video-container', { 'hidden' : !viewingSharedScreen} );
 
     return (
       <div className="App">
@@ -118,8 +122,10 @@ class App extends Component {
           <div className="App-video-container">
             { !connected && connectingMask() }
             { connected && !active && startCallMask(this.startCall)}
-            <div id="publisherContainer" className={publisherClass}></div>
-            <div id="subscriberContainer" className={subscriberClass}></div>
+            <div id="cameraPublisherContainer" className={cameraPublisherClass}></div>
+            <div id="screenPublisherContainer" className={screenPublisherClass}></div>
+            <div id="cameraSubscriberContainer" className={cameraSubscriberClass}></div>
+            <div id="screenSubscriberContainer" className={screenSubscriberClass}></div>
             <div id="controls"></div>
           </div>
           <div id="chat" className="App-chat-container"></div>

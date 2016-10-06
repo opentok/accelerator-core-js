@@ -116,10 +116,15 @@ body {
     position: absolute;
     top: 20px;
     right: 20px;
-    width: 200px;
-    height: 140px;
+    width: 160px;
+    height: 96px;
     border: 1px solid #fcba00;
     z-index: 2;
+}
+
+.App-video-container .video-container.small.left {
+    left: 20px;
+    border: 1px solid #00fcc2;
 }
 
 .App-video-container .video-container.hidden {
