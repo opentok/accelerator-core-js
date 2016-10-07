@@ -121,7 +121,6 @@ const createEventListeners = (session, options) => {
     // delete publishers.screen[publisher.id];
     state.removePublisher('screen', publisher);
     triggerEvent('endScreenShare', state.currentPubSub());
-    console.log('end screen sharehere', state.currentPubSub());
     if (internalAnnotation) {
       annotation.end();
     }
@@ -308,17 +307,25 @@ const connect = () =>
     });
   });
 
+/**
+ * Enable or disable local audio
+ * @param {Boolean} enable
+ */
 const toggleLocalAudio = (enable) => {
   const { publishers } = state.currentPubSub();
   const toggleAudio = id => communication.enableLocalAV(id, 'audio', enable);
-  Object.keys(publishers.camera).forEach(toggleAudio)
-}
+  Object.keys(publishers.camera).forEach(toggleAudio);
+};
 
+/**
+ * Enable or disable local video
+ * @param {Boolean} enable
+ */
 const toggleLocalVideo = (enable) => {
   const { publishers } = state.currentPubSub();
   const toggleVideo = id => communication.enableLocalAV(id, 'video', enable);
-  Object.keys(publishers.camera).forEach(toggleVideo)
-}
+  Object.keys(publishers.camera).forEach(toggleVideo);
+};
 
 /**
  * Initialize the accelerator pack
