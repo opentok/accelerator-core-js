@@ -13,7 +13,7 @@ const subscribers = {
 // Map stream ids to stream objects
 const streams = {};
 
-// Map stream ids to subscriber ids
+// Map stream ids to subscriber/publisher ids
 const streamMap = {};
 
 
@@ -56,11 +56,13 @@ const pubSubCount = () => {
 const currentPubSub = () => ({ publishers, subscribers, meta: pubSubCount() });
 
 const addPublisher = (type, publisher) => {
+  streamMap[publisher.streamId] = publisher.id;
   publishers[type][publisher.id] = publisher;
 };
 
 const removePublisher = (type, publisher) => {
-  delete publishers[type][publisher.id];
+  const id = publisher.id || streamMap[publisher.streamId];
+  delete publishers[type][id];
 };
 
 const removeAllPublishers = () => {
@@ -89,6 +91,8 @@ const removeStream = stream => {
 
 const getStreams = () => streams;
 
+const all = () => Object.assign({}, currentPubSub(), { streams, streamMap });
+
 module.exports = {
   addStream,
   removeStream,
@@ -98,4 +102,5 @@ module.exports = {
   removeAllPublishers,
   addSubscriber,
   currentPubSub,
+  all,
 };
