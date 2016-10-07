@@ -1,3 +1,5 @@
+"use strict";
+
 // Map publisher ids to publisher objects
 var publishers = {
   camera: {},

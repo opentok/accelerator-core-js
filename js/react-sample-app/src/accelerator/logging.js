@@ -1,3 +1,5 @@
+"use strict";
+
 // eslint-disable-next-line no-console
 var log = function log(message) {
   return console.log("otAccCore: " + message);

@@ -2,7 +2,9 @@
 
 const options = {
   credentials: {
-
+  "apiKey": "45621172",
+  "sessionId": "2_MX40NTYyMTE3Mn5-MTQ3NDkxOTMyMzg5NX5vZzJBUlpXM3hGQi82MDR3S1dURFRGa2t-fg",
+  "token": "T1==cGFydG5lcl9pZD00NTYyMTE3MiZzaWc9NmQxZGQyOWRkZjNhNDgwN2Q5ZGUyYTcwMzUyYmI1NzUzNDNiMjQzOTpzZXNzaW9uX2lkPTJfTVg0ME5UWXlNVEUzTW41LU1UUTNORGt4T1RNeU16ZzVOWDV2WnpKQlVscFhNM2hHUWk4Mk1EUjNTMWRVUkZSR2EydC1mZyZjcmVhdGVfdGltZT0xNDc0OTE5MzM0Jm5vbmNlPTAuMTczOTA0MTI0NjQ3Mzc4OTImcm9sZT1wdWJsaXNoZXImZXhwaXJlX3RpbWU9MTQ3NzUxMTMzMw=="
   },
   // A container can either be a query selector or an HTMLElement
   containers: {

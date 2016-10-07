@@ -1,3 +1,5 @@
+'use strict';
+
 /* eslint-disable */
 var logging = require('./logging');
 var state = require('./state');

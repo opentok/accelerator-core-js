@@ -153,43 +153,51 @@ const initPackages = () => {
   const session = getSession();
   const options = getOptions();
 
-  const env = typeof module === 'object' && typeof module.exports === 'object' ?
-    'node' :
-    'browser';
+  const optionalRequire = (packageName, globalName) => {
+    let result;
+    /* eslint-disable global-require, import/no-extraneous-dependencies */
+    try {
+      switch (packageName) {
+        case 'opentok-text-chat':
+          result = require('opentok-text-chat');
+          break;
+        case 'opentok-screen-sharing':
+          result = require('opentok-screen-sharing');
+          break;
+        case 'opentok-annotation':
+          result = require('opentok-annotation');
+          break;
+        case 'opentok-archiving':
+          result = require('opentok-archiving');
+          break;
+        default:
+          break;
+      }
+      /* eslint-enable global-require */
+    } catch (error) {
+      result = window[globalName];
+    }
+    if (!result) {
+      logging.error(`Could not load ${packageName}`);
+    }
+    return result;
+  };
 
-  // const availablePackages = {
-  //   textChat: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  //     node: () => require('opentok-text-chat'),
-  //     browser: () => TextChatAccPack, // eslint-disable-line no-undef
-  //   },
-  //   screenSharing: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  //     node: () => require('opentok-screen-sharing'),
-  //     browser: () => ScreenSharingAccPack, // eslint-disable-line no-undef
-  //   },
-  //   annotation: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  //     node: () => require('opentok-annotation'),
-  //     browser: () => AnnotationAccPack, // eslint-disable-line no-undef
-  //   },
-  //   archiving: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  //     node: () => require('opentok-archiving'),
-  //     browser: () => ArchivingAccPack, // eslint-disable-line no-undef
-  //   },
-  // };
-  /* eslint-disable import/no-extraneous-dependencies, global-require, no-undef */
   const availablePackages = {
     textChat() {
-      return env === 'node' ? require('opentok-text-chat') : TextChatAccPack;
+      return optionalRequire('opentok-text-chat', 'TextChatAccPack');
     },
-    screenSharing() { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      return env === 'node' ? require('opentok-screen-sharing') : ScreenSharingAccPack;
+    screenSharing() {
+      return optionalRequire('opentok-screen-sharing', 'ScreenSharingAccPack');
     },
-    annotation() { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      return env === 'node' ? require('opentok-annotation') : AnnotationAccPack;
+    annotation() {
+      return optionalRequire('opentok-annotation', 'AnnotationAccPack');
     },
-    archiving() { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      return env === 'node' ? require('opentok-archiving') : ArchivingAccPack;
+    archiving() {
+      return optionalRequire('opentok-archiving', 'ArchivingAccPack');
     },
   };
+
   const packages = {};
   options.packages.forEach((acceleratorPack) => {
     if (availablePackages[acceleratorPack]) { // eslint-disable-next-line no-param-reassign

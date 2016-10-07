@@ -1,4 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+'use strict';
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -167,48 +167,57 @@ var initPackages = function initPackages() {
   var session = getSession();
   var options = getOptions();
 
-  var env = (typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && _typeof(module.exports) === 'object' ? 'node' : 'browser';
+  var optionalRequire = function optionalRequire(packageName, globalName) {
+    var result = undefined;
+    /* eslint-disable global-require, import/no-extraneous-dependencies */
+    try {
+      switch (packageName) {
+        case 'opentok-text-chat':
+          result = require('opentok-text-chat');
+          break;
+        case 'opentok-screen-sharing':
+          result = require('opentok-screen-sharing');
+          break;
+        case 'opentok-annotation':
+          result = require('opentok-annotation');
+          break;
+        case 'opentok-archiving':
+          result = require('opentok-archiving');
+          break;
+        default:
+          break;
+      }
+      /* eslint-enable global-require */
+    } catch (error) {
+      result = window[globalName];
+    }
+    if (!result) {
+      logging.error('Could not load ' + packageName);
+    }
+    return result;
+  };
 
   var availablePackages = {
-    textChat: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      node: function node() {
-        return require('opentok-text-chat');
-      },
-      browser: function browser() {
-        return TextChatAccPack;
-      } },
-    // eslint-disable-line no-undef
-    screenSharing: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      node: function node() {
-        return require('opentok-screen-sharing');
-      },
-      browser: function browser() {
-        return ScreenSharingAccPack;
-      } },
-    // eslint-disable-line no-undef
-    annotation: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      node: function node() {
-        return require('opentok-annotation');
-      },
-      browser: function browser() {
-        return AnnotationAccPack;
-      } },
-    // eslint-disable-line no-undef
-    archiving: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      node: function node() {
-        return require('opentok-archiving');
-      },
-      browser: function browser() {
-        return ArchivingAccPack;
-      } }
+    textChat: function textChat() {
+      return optionalRequire('opentok-text-chat', 'TextChatAccPack');
+    },
+    screenSharing: function screenSharing() {
+      return optionalRequire('opentok-screen-sharing', 'ScreenSharingAccPack');
+    },
+    annotation: function annotation() {
+      return optionalRequire('opentok-annotation', 'AnnotationAccPack');
+    },
+    archiving: function archiving() {
+      return optionalRequire('opentok-archiving', 'ArchivingAccPack');
+    }
   };
-  // eslint-disable-line no-undef
+
   var packages = {};
   options.packages.forEach(function (acceleratorPack) {
     if (availablePackages[acceleratorPack]) {
       // eslint-disable-next-line no-param-reassign
       var packageName = '' + acceleratorPack[0].toUpperCase() + acceleratorPack.slice(1);
-      packages[packageName] = availablePackages[acceleratorPack][env]();
+      packages[packageName] = availablePackages[acceleratorPack]();
     } else {
       logging.log(acceleratorPack + ' is not a valid accelerator pack');
     }
