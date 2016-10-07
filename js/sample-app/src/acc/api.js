@@ -286,6 +286,18 @@ const connect = () =>
     });
   });
 
+  const toggleLocalAudio = (enable) => {
+    const { publishers } = state.currentPubSub();
+    const toggleAudio = id => communication.enableLocalAV(id, 'audio', enable);
+    Object.keys(publishers.camera).forEach(toggleAudio)
+  }
+
+  const toggleLocalVideo = (enable) => {
+    const { publishers } = state.currentPubSub();
+    const toggleVideo = id => communication.enableLocalAV(id, 'video', enable);
+    Object.keys(publishers.camera).forEach(toggleVideo)
+  }
+
 /**
  * Initialize the accelerator pack
  * @param {Object} options
@@ -315,4 +327,6 @@ module.exports = {
   triggerEvent,
   startCall: communication.startCall,
   endCall: communication.endCall,
+  toggleLocalAudio,
+  toggleLocalVideo,
 };

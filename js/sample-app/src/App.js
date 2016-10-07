@@ -69,8 +69,17 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { connected: false, active: false, publishers: null, subscribers: null };
+    this.state = {
+      connected: false,
+      active: false,
+      publishers: null,
+      subscribers: null,
+      localAudioEnabled: true,
+      localVideoEnabled: true,
+    };
     this.startCall = this.startCall.bind(this);
+    this.toggleLocalAudio = this.toggleLocalAudio.bind(this);
+    this.toggleLocalVideo = this.toggleLocalVideo.bind(this);
   }
 
   startCall() {
@@ -98,8 +107,20 @@ class App extends Component {
     }));
   }
 
+  toggleLocalAudio() {
+    otAcc.toggleLocalAudio(!this.state.localAudioEnabled);
+    this.setState({localAudioEnabled: !this.state.localAudioEnabled});
+  }
+
+  toggleLocalVideo() {
+    otAcc.toggleLocalVideo(!this.state.localVideoEnabled);
+    this.setState({localVideoEnabled: !this.state.localVideoEnabled});
+  }
+
   render() {
-    const { connected, active, subscribers, publishers, meta } = this.state;
+    const { connected, active, subscribers, publishers, meta, localAudioEnabled, localVideoEnabled } = this.state;
+    const localAudioClass = classNames('ots-video-control circle audio', {'muted': !localAudioEnabled});
+    const localVideoClass = classNames('ots-video-control circle video', {'muted': !localVideoEnabled})
     const sharingScreen = meta ? !!meta.publisher.screen : false;
     const viewingSharedScreen = meta ? meta.subscriber.screen : false;
     const activeCameraSubscribers = meta ? meta.subscriber.camera : 0;
@@ -107,9 +128,9 @@ class App extends Component {
     const cameraPublisherClass = classNames('video-container', { 'small': !!activeCameraSubscribers || sharingScreen }, { 'left': sharingScreen || viewingSharedScreen });
     const screenPublisherClass = classNames('video-container', { 'hidden': !sharingScreen });
     const cameraSubscriberClass = classNames('video-container', { 'hidden': !activeCameraSubscribers },
-      `active-${activeCameraSubscribers}`, { 'small' : viewingSharedScreen || sharingScreen }
+      `active-${activeCameraSubscribers}`, { 'small': viewingSharedScreen || sharingScreen }
     );
-    const screenSubscriberClass = classNames('video-container', { 'hidden' : !viewingSharedScreen} );
+    const screenSubscriberClass = classNames('video-container', { 'hidden': !viewingSharedScreen });
 
     return (
       <div className="App">
@@ -118,7 +139,10 @@ class App extends Component {
           <h1>OpenTok Accelerator Core</h1>
         </div>
         <div className="App-main">
-          <div id="controls" className={controlClass}></div>
+          <div id="controls" className={controlClass}>
+              <div className={localAudioClass} onClick={this.toggleLocalAudio}></div>
+              <div className={localVideoClass} onClick={this.toggleLocalVideo}></div>
+          </div>
           <div className="App-video-container">
             { !connected && connectingMask() }
             { connected && !active && startCallMask(this.startCall)}
@@ -126,7 +150,6 @@ class App extends Component {
             <div id="screenPublisherContainer" className={screenPublisherClass}></div>
             <div id="cameraSubscriberContainer" className={cameraSubscriberClass}></div>
             <div id="screenSubscriberContainer" className={screenSubscriberClass}></div>
-            <div id="controls"></div>
           </div>
           <div id="chat" className="App-chat-container"></div>
         </div>

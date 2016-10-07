@@ -126,9 +126,10 @@ const endCall = () => {
  * @param {String} source - 'audio' or 'video'
  * @param {Boolean} enable
  */
-const enableLocalAV = (source, enable) => {
+const enableLocalAV = (id, source, enable) => {
   const method = `publish${properCase(source)}`;
-  publishers.camera[method](enable);
+  const { publishers } = state.currentPubSub()
+  publishers.camera[id][method](enable);
 };
 
 
