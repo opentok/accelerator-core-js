@@ -8,8 +8,7 @@
     "build:browser": "browserify src/core.js -o browser/opentok-acc-core.js -t [ babelify --presets [ es2015 ] ] --im",
     "build:react-sample": "cp dist/* react-sample-app/src/accelerator/",
     "build:js-sample": "cp browser/opentok-acc-core.js vanilla-js-sample-app/public/js/components/opentok-acc-core.js",
-    "build": "npm run build:node && npm run build:browser && npm run build:react-sample && npm run build:js-sample",
-    "test": "mocha test/test.js -R nyan"
+    "build": "npm run build:node && npm run build:browser && npm run build:react-sample && npm run build:js-sample"
   },
   "keywords": [
     "opentok",
@@ -23,7 +22,6 @@
   "license": "MIT",
   "devDependencies": {
     "babel-preset-es2015": "^6.16.0",
-    "babel-preset-es2015-script": "^1.1.0",
     "babelify": "^7.3.0",
     "eslint": "^3.5.0",
     "eslint-config-airbnb": "^11.1.0",
