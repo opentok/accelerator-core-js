@@ -4,12 +4,12 @@ import React, { Component } from 'react';
 import Spinner from 'react-spinner';
 import classNames from 'classnames';
 import logo from './logo.svg';
-import otAcc from './acc/api';
+import otCore from './dist/core.js';
 import config from './config.json';
 import './App.css';
 import 'opentok-solutions-css';
 
-const otAccOptions = {
+const otCoreOptions = {
   credentials: {
     apiKey: config.apiKey,
     sessionId: config.sessionId,
@@ -54,7 +54,7 @@ const otAccOptions = {
 
 const connectingMask = () =>
   <div className="App-mask">
-  <Spinner />
+    <Spinner />
     <div className="message with-spinner">Connecting</div>
   </div>
 
@@ -84,15 +84,15 @@ class App extends Component {
 
   startCall() {
     this.setState({ active: true });
-    otAcc.startCall()
+    otCore.startCall()
       .then(({ publishers, subscribers, meta }) => {
         this.setState({ publishers, subscribers, meta });
       }).catch(error => console.log(error));
   }
 
   componentDidMount() {
-    otAcc.init(otAccOptions);
-    otAcc.connect().then((remoteParticpant) => this.setState({ connected: true, remoteParticpant }));
+    otCore.init(otCoreOptions);
+    otCore.connect().then(() => this.setState({ connected: true }));
     const events = [
       'subscribeToCamera',
       'unsubscribeFromCamera',
@@ -102,18 +102,18 @@ class App extends Component {
       'endScreenShare',
     ];
 
-    events.forEach(event => otAcc.on(event, ({ publishers, subscribers, meta }) => {
+    events.forEach(event => otCore.on(event, ({ publishers, subscribers, meta }) => {
       this.setState({ publishers, subscribers, meta });
     }));
   }
 
   toggleLocalAudio() {
-    otAcc.toggleLocalAudio(!this.state.localAudioEnabled);
+    otCore.toggleLocalAudio(!this.state.localAudioEnabled);
     this.setState({localAudioEnabled: !this.state.localAudioEnabled});
   }
 
   toggleLocalVideo() {
-    otAcc.toggleLocalVideo(!this.state.localVideoEnabled);
+    otCore.toggleLocalVideo(!this.state.localVideoEnabled);
     this.setState({localVideoEnabled: !this.state.localVideoEnabled});
   }
 

@@ -153,7 +153,7 @@ const initPackages = () => {
   const session = getSession();
   const options = getOptions();
 
-  const env = typeof module === 'object' && typeof module.exports === 'object' ?
+  const env = typeof module === 'object' && typeof module.exports === 'object' && global !== window ?
     'node' :
     'browser';
 
@@ -330,8 +330,5 @@ const opentokCore = {
   toggleLocalVideo,
 };
 
-if (global === window) {
-  window.otCore = opentokCore;
-}
 
-module.exports = opentokCore;
+global.opentokCore = module.exports = opentokCore;

@@ -1,6 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
-
 /* eslint-disable */
 var logging = require('./logging');
 var state = require('./state');
@@ -222,8 +220,7 @@ module.exports = {
 };
 
 },{"./logging":4,"./state":5}],2:[function(require,module,exports){
-'use strict';
-
+(function (global){
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -393,8 +390,7 @@ var initPackages = function initPackages() {
   var session = getSession();
   var options = getOptions();
 
-  /** Get packages based on ENV */
-  var env = (typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && _typeof(module.exports) === 'object' ? 'node' : 'browser';
+  var env = (typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && _typeof(module.exports) === 'object' && global !== window ? 'node' : 'browser';
 
   var availablePackages = {
     textChat: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
@@ -584,7 +580,7 @@ var init = function init(options) {
   };
 };
 
-module.exports = {
+var opentokCore = {
   init: init,
   connect: connect,
   getSession: getSession,
@@ -599,9 +595,14 @@ module.exports = {
   toggleLocalVideo: toggleLocalVideo
 };
 
-},{"./communication":1,"./events":3,"./logging":4,"./state":5,"opentok-annotation":undefined,"opentok-archiving":undefined,"opentok-screen-sharing":undefined,"opentok-text-chat":undefined}],3:[function(require,module,exports){
-'use strict';
+if (global === window) {
+  window.otCore = opentokCore;
+}
 
+module.exports = opentokCore;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./communication":1,"./events":3,"./logging":4,"./state":5,"opentok-annotation":undefined,"opentok-archiving":undefined,"opentok-screen-sharing":undefined,"opentok-text-chat":undefined}],3:[function(require,module,exports){
 var events = {
   core: ['connected', 'streamCreated', 'streamDestroyed', 'startScreenShare', 'endScreenShare', 'error'],
   communication: ['startCall', 'endCall', 'callPropertyChanged', 'subscribeToCamera', 'subscribeToScreen', 'unsubscribeFromCamera', 'unsubscribeFromScreen', 'startViewingSharedScreen', 'endViewingSharedScreen'],
@@ -614,8 +615,6 @@ var events = {
 module.exports = events;
 
 },{}],4:[function(require,module,exports){
-"use strict";
-
 // eslint-disable-next-line no-console
 var log = function log(message) {
   return console.log("otAccCore: " + message);
@@ -631,8 +630,6 @@ module.exports = {
 };
 
 },{}],5:[function(require,module,exports){
-"use strict";
-
 // Map publisher ids to publisher objects
 var publishers = {
   camera: {},
