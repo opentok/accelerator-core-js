@@ -132,7 +132,6 @@ var createEventListeners = function createEventListeners(session, options) {
     // delete publishers.screen[publisher.id];
     state.removePublisher('screen', publisher);
     triggerEvent('endScreenShare', state.currentPubSub());
-    console.log('end screen sharehere', state.currentPubSub());
     if (internalAnnotation) {
       annotation.end();
     }
@@ -323,6 +322,10 @@ var connect = function connect() {
   });
 };
 
+/**
+ * Enable or disable local audio
+ * @param {Boolean} enable
+ */
 var toggleLocalAudio = function toggleLocalAudio(enable) {
   var _state$currentPubSub = state.currentPubSub();
 
@@ -334,6 +337,10 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
   Object.keys(publishers.camera).forEach(toggleAudio);
 };
 
+/**
+ * Enable or disable local video
+ * @param {Boolean} enable
+ */
 var toggleLocalVideo = function toggleLocalVideo(enable) {
   var _state$currentPubSub2 = state.currentPubSub();
 
