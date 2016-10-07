@@ -157,29 +157,44 @@ const initPackages = () => {
     'node' :
     'browser';
 
+  // const availablePackages = {
+  //   textChat: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+  //     node: () => require('opentok-text-chat'),
+  //     browser: () => TextChatAccPack, // eslint-disable-line no-undef
+  //   },
+  //   screenSharing: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+  //     node: () => require('opentok-screen-sharing'),
+  //     browser: () => ScreenSharingAccPack, // eslint-disable-line no-undef
+  //   },
+  //   annotation: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+  //     node: () => require('opentok-annotation'),
+  //     browser: () => AnnotationAccPack, // eslint-disable-line no-undef
+  //   },
+  //   archiving: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+  //     node: () => require('opentok-archiving'),
+  //     browser: () => ArchivingAccPack, // eslint-disable-line no-undef
+  //   },
+  // };
+  /* eslint-disable import/no-extraneous-dependencies, global-require, no-undef */
   const availablePackages = {
-    textChat: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      node: () => require('opentok-text-chat'),
-      browser: () => TextChatAccPack, // eslint-disable-line no-undef
+    textChat() {
+      return env === 'node' ? require('opentok-text-chat') : TextChatAccPack;
     },
-    screenSharing: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      node: () => require('opentok-screen-sharing'),
-      browser: () => ScreenSharingAccPack, // eslint-disable-line no-undef
+    screenSharing() { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+      return env === 'node' ? require('opentok-screen-sharing') : ScreenSharingAccPack;
     },
-    annotation: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      node: () => require('opentok-annotation'),
-      browser: () => AnnotationAccPack, // eslint-disable-line no-undef
+    annotation() { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+      return env === 'node' ? require('opentok-annotation') : AnnotationAccPack;
     },
-    archiving: { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-      node: () => require('opentok-archiving'),
-      browser: () => ArchivingAccPack, // eslint-disable-line no-undef
+    archiving() { // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+      return env === 'node' ? require('opentok-archiving') : ArchivingAccPack;
     },
   };
   const packages = {};
   options.packages.forEach((acceleratorPack) => {
     if (availablePackages[acceleratorPack]) { // eslint-disable-next-line no-param-reassign
       const packageName = `${acceleratorPack[0].toUpperCase()}${acceleratorPack.slice(1)}`;
-      packages[packageName] = availablePackages[acceleratorPack][env]();
+      packages[packageName] = availablePackages[acceleratorPack]();
     } else {
       logging.log(`${acceleratorPack} is not a valid accelerator pack`);
     }
