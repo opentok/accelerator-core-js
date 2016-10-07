@@ -289,13 +289,13 @@ const connect = () =>
   const toggleLocalAudio = (enable) => {
     const { publishers } = state.currentPubSub();
     const toggleAudio = id => communication.enableLocalAV(id, 'audio', enable);
-    Object.keys(publishers.camera).forEach(toggleAudio)
+    Object.keys(publishers.camera).forEach(toggleAudio);
   }
 
   const toggleLocalVideo = (enable) => {
     const { publishers } = state.currentPubSub();
     const toggleVideo = id => communication.enableLocalAV(id, 'video', enable);
-    Object.keys(publishers.camera).forEach(toggleVideo)
+    Object.keys(publishers.camera).forEach(toggleVideo);
   }
 
 /**
