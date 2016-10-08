@@ -19,6 +19,10 @@ OpenTok Accelerator Core provides a simple way to integrate real-time audio/vide
  - [Annotation](https://www.npmjs.com/package/opentok-annotation)
  - [Archiving](https://www.npmjs.com/package/opentok-archiving)
 
+Sample Applications
+-------------------
+There are two sample applications for `Core` .  The [React](https://github.com/opentok/accelerator-core/tree/develop/js/react-sample-app) sample application was built with [Create React App](https://github.com/facebookincubator/create-react-app) and uses [webpack](https://webpack.github.io/) to transpile code.  The other [sample application](https://github.com/opentok/accelerator-core/tree/develop/js/vanilla-js-sample-app) is built with vanilla JavaScript.
+
 Installation
 ------------
 
