@@ -37,9 +37,9 @@ Installation
 
 Options
 -------
-`Core` can be configured in a number of ways, but the only required options are `credentials`.
+`Core` can be configured in a number of ways, but the only required options property is `credentials`.
 
-The `packages` property specifies which accelerator packs should be included in your application.  If using a bundler like [`webpack`](https://webpack.github.io/) or [`Browserify`](http://browserify.org/), you'll need to install the additional packages using `npm`.  Otherwise `Core` will look for them in global scope.
+The `packages` property specifies which accelerator packs should be included in the application.  If using a bundler like [`webpack`](https://webpack.github.io/) or [`Browserify`](http://browserify.org/), you'll need to install the additional packages using `npm`.  Otherwise `Core` will look for them in global scope.
 
 The `containers` property specifies the DOM elements to be used as containers for video streams.  The remainder of the options properties are specific to individual accelerator packs.
 
@@ -51,20 +51,22 @@ const options = {
     token: yourOpenTokToken,
   },
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
-  // A container can either be a query selector or an HTMLElement
+  /* A container can either be a query selector or an HTMLElement */
   containers: {
-	// Default for publishers is '#publisherContainer'
+	/* Default for publishers is '#publisherContainer' */
     publisher: {
       camera: '#cameraPublisherContainer',
       screen: '#screenPublisherContainer',
     },
-   	// Default for subscribers is '#subscriberContainer'
+   	/* Default for subscribers is '#subscriberContainer' */
     subscriber: {
       camera: '#cameraSubscriberContainer',
       screen: '#screenSubscriberContainer',
     },
-    controls: '#controls', // Default is '#videoControls'
-    chat: '#chatContainer', // Default is '#chat'
+    /* Default controls container is '#videoControls' */
+    controls: '#controls',
+    /* Default text chat container is '#chat' */
+    chat: '#chatContainer',
   },
   communication: {
     callProperites: myCallProperties,
@@ -77,9 +79,11 @@ const options = {
     extensionID: 'yourChromeExtensionId',
     extensionPathFF: 'yourFireFoxExtensionURL',
     annotation: true,
-    externalWindow: false, // Must be 'true' if sharing the current browser window
-    dev: true, // allow screen share over http in development
-    screenProperties: null, // Using default
+    /* Must be 'true' if sharing the current browser window */
+    externalWindow: false,
+    /* Allow screen sharing over http in development(localhost) */
+    dev: true,
+    screenProperties: null,
   },
   annotation: {
     items: myToolbarItems,
