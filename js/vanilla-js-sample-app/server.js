@@ -23,22 +23,6 @@ app.get('/', (req, res) => {
 });
 
 /*
- * API Endpoints
- */
-// app.post('/broadcast/start', (req, res) => {
-//   const sessionId = R.path(['body', 'sessionId'], req);
-//   broadcast.start(sessionId)
-//     .then(data => res.send(data))
-//     .catch(error => res.status(500).send(error));
-// });
-
-// app.post('/broadcast/end', (req, res) => {
-//   broadcast.end()
-//     .then(data => res.send(data))
-//     .catch(error => res.status(500).send(error));
-// });
-
-/*
  * Listen
  */
 app.listen(process.env.PORT || port);
