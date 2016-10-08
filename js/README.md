@@ -27,7 +27,7 @@ Installation
 ------------
 
 ```bash
-npm i --save opentok-acc-core
+$ npm i --save opentok-acc-core
 ```
 webpack/Browserify:
 ```javascript
@@ -37,7 +37,6 @@ Browser:
 ```javascript
 <script src="path/to/browser/opentok-acc-core.js"></script>
 ```
-Installation
 
 Options
 -------
