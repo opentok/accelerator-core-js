@@ -25,7 +25,7 @@ Installation
 ```bash
 npm i --save opentok-acc-core
 ```
-Webpack/Browserify:
+webpack/Browserify:
 ```javascript
 const otCore = require('opentok-acc-core');
 ```
@@ -37,7 +37,11 @@ Installation
 
 Options
 -------
-`Core` can be configured in a number of ways, but the only options that are required are `credentials`.  The `packages` property specifies which accelerator packs you wish to include in your application. `containers` specifies which DOM elements should be used as containers for video streams.  The remainder of the options properties are specific to individual accelerator packs.
+`Core` can be configured in a number of ways, but the only required options are `credentials`.
+
+The `packages` property specifies which accelerator packs should be included in your application.  If using a bundler like [`webpack`](https://webpack.github.io/) or [`Browserify`](http://browserify.org/), you'll need to install the additional packages using `npm`.  Otherwise `Core` will look for them in global scope.
+
+The `containers` property specifies the DOM elements to be used as containers for video streams.  The remainder of the options properties are specific to individual accelerator packs.
 
 ```javascript
 const options = {
