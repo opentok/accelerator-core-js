@@ -43,16 +43,22 @@ const options = {
   },
 };
 
+/** Application Logic */
 const app = () => {
   const state = {
     connected: false,
     active: false,
     publishers: null,
     subscribers: null,
+    meta: null,
     localAudioEnabled: true,
     localVideoEnabled: true,
   };
 
+  /**
+   * Update the size and position of video containers based on the number of
+   * publishers and subscribers specified in the meta property returned by otCore.
+   */
   const updateVideoContainers = () => {
     const { meta } = state;
     const sharingScreen = meta ? !!meta.publisher.screen : false;
@@ -74,6 +80,11 @@ const app = () => {
     document.getElementById('screenSubscriberContainer').setAttribute('class', screenSubscriberClass);
   };
 
+
+  /**
+   * Update the UI
+   * @param {String} update - 'connected', 'active', or 'meta'
+   */
   const updateUI = (update) => {
     const { connected, active } = state;
 
@@ -98,11 +109,17 @@ const app = () => {
     }
   };
 
+  /**
+   * Update the state and UI
+   */
   const updateState = (updates) => {
     Object.assign(state, updates);
     Object.keys(updates).forEach(update => updateUI(update));
   };
 
+  /**
+   * Start publishing video/audio and subscribe to streams
+   */
   const startCall = () => {
     updateState({ active: true });
     otCore.startCall()
@@ -111,6 +128,9 @@ const app = () => {
       }).catch(error => console.log(error));
   };
 
+  /**
+   * Toggle publishing local audio
+   */
   const toggleLocalAudio = () => {
     const enabled = state.localAudioEnabled;
     otCore.toggleLocalAudio(!enabled);
@@ -119,6 +139,9 @@ const app = () => {
     document.getElementById('toggleLocalAudio').classList[action]('muted');
   };
 
+  /**
+   * Toggle publishing local video
+   */
   const toggleLocalVideo = () => {
     const enabled = state.localVideoEnabled;
     otCore.toggleLocalVideo(!enabled);
@@ -127,6 +150,9 @@ const app = () => {
     document.getElementById('toggleLocalVideo').classList[action]('muted');
   };
 
+  /**
+   * Subscribe to otCore and UI events
+   */
   const createEventListeners = () => {
     const events = [
       'subscribeToCamera',
@@ -145,6 +171,9 @@ const app = () => {
     document.getElementById('toggleLocalVideo').addEventListener('click', toggleLocalVideo);
   };
 
+  /**
+   * Initialize otCore, connect to the session, and listen to events
+   */
   const init = () => {
     otCore.init(options);
     otCore.connect().then(() => updateState({ connected: true }));
