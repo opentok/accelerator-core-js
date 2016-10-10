@@ -2,9 +2,9 @@
 
 const options = {
   credentials: {
-    apiKey: '',
-    sessionId: '',
-    token: '',
+    apiKey: 'YOUR_API_KEY',
+    sessionId: 'YOUR_SESSION_ID',
+    token: 'YOUR_TOKEN',
   },
   // A container can either be a query selector or an HTMLElement
   containers: {
