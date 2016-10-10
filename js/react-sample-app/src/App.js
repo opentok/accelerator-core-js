@@ -52,17 +52,10 @@ const otCoreOptions = {
   },
 };
 
-const connectingMask = () =>
-  <div className="App-mask">
-    <Spinner />
-    <div className="message with-spinner">Connecting</div>
-  </div>;
-
-const startCallMask = start =>
-  <div className="App-mask">
-    <div className="message button clickable" onClick={start}>Click to Start Call</div>
-  </div>;
-
+/**
+ * Build classes for container elements based on state
+ * @param {Object} state
+ */
 const containerClasses = (state) => {
   const { active, meta, localAudioEnabled, localVideoEnabled } = state;
   const sharingScreen = meta ? !!meta.publisher.screen : false;
@@ -81,6 +74,17 @@ const containerClasses = (state) => {
   };
 };
 
+const connectingMask = () =>
+  <div className="App-mask">
+    <Spinner />
+    <div className="message with-spinner">Connecting</div>
+  </div>;
+
+const startCallMask = start =>
+  <div className="App-mask">
+    <div className="message button clickable" onClick={start}>Click to Start Call</div>
+  </div>;
+
 class App extends Component {
 
   constructor(props) {
@@ -90,6 +94,7 @@ class App extends Component {
       active: false,
       publishers: null,
       subscribers: null,
+      meta: null,
       localAudioEnabled: true,
       localVideoEnabled: true,
     };
