@@ -38,13 +38,9 @@ Browser:
 <script src="path/to/browser/opentok-acc-core.js"></script>
 ```
 
-Options
+Configuration
 -------
-`Core` can be configured in a number of ways, but the only required options property is `credentials`.
-
-The `packages` property specifies which accelerator packs should be included in the application.  If using a bundler like [`webpack`](https://webpack.github.io/) or [`Browserify`](http://browserify.org/), you'll need to install the additional packages using `npm`.  Otherwise `Core` will look for them in global scope.
-
-The `containers` property specifies the DOM elements to be used as containers for video streams.  The remainder of the options properties are specific to individual accelerator packs.
+`Core` can be configured in a number of ways, but the only required options property is `credentials`, which includes an OpenTok API Key, Session ID, and Token.  These can be obtained from the [developer dashboard](https://tokbox.com/account/#/) or generated with one of the [OpenTok Server SDKs](https://tokbox.com/developer/).
 
 ```javascript
 const options = {
@@ -53,29 +49,36 @@ const options = {
     sessionId: yourOpenTokSessionId,
     token: yourOpenTokToken,
   },
+
+```
+The `packages` property specifies which accelerator packs should be included in the application.  If using a bundler like [`webpack`](https://webpack.github.io/) or [`Browserify`](http://browserify.org/), you'll need to install the additional packages using `npm`.  Otherwise `Core` will look for them in global scope.
+
+```javascript
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
-  /* A container can either be a query selector or an HTMLElement */
+```
+The `containers` property specifies the DOM elements to be used as containers for video streams and controls.  The containers can either be [query selectors](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) or references to DOM elements.  The default containers are specified below.  If these containers do not exist in the DOM, `Core` will be append new elements to the `body`.
+
+```javascript
   containers: {
-	/* Default for publishers is '#publisherContainer' */
     publisher: {
-      camera: '#cameraPublisherContainer',
-      screen: '#screenPublisherContainer',
+      camera: '#publisherContainer',
+      screen: '#publisherContainer',
     },
-   	/* Default for subscribers is '#subscriberContainer' */
     subscriber: {
-      camera: '#cameraSubscriberContainer',
-      screen: '#screenSubscriberContainer',
+      camera: '#subscriberContainer',
+      screen: '#subscriberContainer',
     },
-    /* Default controls container is '#videoControls' */
-    controls: '#controls',
-    /* Default text chat container is '#chat' */
-    chat: '#chatContainer',
+    controls: '#videoControls',
+    chat: '#chat',
   },
+```
+The remainder of the options properties are specific to individual accelerator packs.
+```javascript
   communication: {
     callProperites: myCallProperties,
   },
   textChat: {
-    name: currentUser.name,
+    name: `David`,
     waitingMessage: 'Messages will be delivered when other users arrive',
   },
   screenSharing: {
