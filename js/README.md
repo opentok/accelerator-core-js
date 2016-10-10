@@ -123,7 +123,7 @@ toggleLocalVideo => Toggle publishing local video
 getSession       => Get the OpenTok Session Object
 ```
 
-To keep your UI in sync, `Core` exposes a number of events which can be accessed using the `on` method:
+`Core` exposes a number of events which can be accessed using the `on` method:
 ```javascript
 otCore.on('streamCreated', callback);
 ```
