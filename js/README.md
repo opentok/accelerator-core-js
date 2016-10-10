@@ -116,13 +116,13 @@ otCore.connect().then(() => this.setState({ connected: true }));
 ```
 The other `Core` API methods include:
 ```javascript
-startCall        => Publish audio/video and subscribe to streams
-endCall          => Stop publishing and unsubscribe from all streams
-toggleLocalAudio => Toggle publishing local audio
-toggleLocalVideo => Toggle publishing local video
+startCall         => Publish audio/video and subscribe to streams
+endCall           => Stop publishing and unsubscribe from all streams
+toggleLocalAudio  => Toggle publishing local audio
+toggleLocalVideo  => Toggle publishing local video
 toggleRemoteAudio => Toggle subscribing to remote audio
 toggleRemoteVideo => Toggle subscribing to remote video
-getSession       => Get the OpenTok Session Object
+getSession        => Get the OpenTok Session Object
 ```
 
 `Core` exposes a number of events which can be accessed using the `on` method:
