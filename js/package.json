@@ -6,7 +6,7 @@
   "scripts": {
     "build:node": "babel -d ./dist/ ./src/",
     "build:browser": "browserify src/core.js -o browser/opentok-acc-core.js -t [ babelify --presets [ es2015 ] ] --im",
-    "build:react-sample": "cp dist/* react-sample-app/src/accelerator/",
+    "build:react-sample": "cp dist/* react-sample-app/src/ot-core/",
     "build:js-sample": "cp browser/opentok-acc-core.js vanilla-js-sample-app/public/js/components/opentok-acc-core.js",
     "build": "npm run build:node && npm run build:browser && npm run build:react-sample && npm run build:js-sample"
   },
