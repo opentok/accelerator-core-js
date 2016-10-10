@@ -140,8 +140,9 @@ const enableLocalAV = (id, source, enable) => {
  * @param {Boolean} enable
  */
 const enableRemoteAV = (subscriberId, source, enable) => {
-  const method = `publish${properCase(source)}`;
-  subscribers[subscriberId][method](enable);
+  const method = `subscribeTo${properCase(source)}`;
+  const { subscribers } = state.currentPubSub();
+  subscribers.camera[subscriberId][method](enable);
 };
 
 const validateOptions = (options) => {

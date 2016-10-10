@@ -328,6 +328,22 @@ const toggleLocalVideo = (enable) => {
 };
 
 /**
+ * Enable or disable remote audio
+ * @param {String} id - Publisher id
+ * @param {Boolean} enable
+ */
+const toggleRemoteAudio = (id, enable) => communication.enableRemoteAV(id, 'audio', enable);
+
+
+/**
+ * Enable or disable local video
+ * @param {String} id - Publisher id
+ * @param {Boolean} enable
+ */
+const toggleRemoteVideo = (id, enable) => communication.enableRemoteAV(id, 'video', enable);
+
+
+/**
  * Initialize the accelerator pack
  * @param {Object} options
  * @param {Object} options.credentials
@@ -358,6 +374,8 @@ const opentokCore = {
   endCall: communication.endCall,
   toggleLocalAudio,
   toggleLocalVideo,
+  toggleRemoteAudio,
+  toggleRemoteVideo,
 };
 
 if (global === window) {

@@ -157,8 +157,15 @@ var enableLocalAV = function enableLocalAV(id, source, enable) {
  * @param {Boolean} enable
  */
 var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
-  var method = 'publish' + properCase(source);
-  subscribers[subscriberId][method](enable);
+  var method = 'subscribeTo' + properCase(source);
+
+  var _state$currentPubSub2 = state.currentPubSub();
+
+  var subscribers = _state$currentPubSub2.subscribers;
+
+  var sub = subscribers.camera[subscriberId];
+  console.log('OXOXOXO', sub.isSubscribing());
+  subscribers.camera[subscriberId][method](enable);
 };
 
 var validateOptions = function validateOptions(options) {
@@ -578,6 +585,24 @@ var toggleLocalVideo = function toggleLocalVideo(enable) {
 };
 
 /**
+ * Enable or disable remote audio
+ * @param {String} id - Publisher id
+ * @param {Boolean} enable
+ */
+var toggleRemoteAudio = function toggleRemoteAudio(id, enable) {
+  return communication.enableRemoteAV(id, 'audio', enable);
+};
+
+/**
+ * Enable or disable local video
+ * @param {String} id - Publisher id
+ * @param {Boolean} enable
+ */
+var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
+  return communication.enableRemoteAV(id, 'video', enable);
+};
+
+/**
  * Initialize the accelerator pack
  * @param {Object} options
  * @param {Object} options.credentials
@@ -614,7 +639,9 @@ var opentokCore = {
   startCall: communication.startCall,
   endCall: communication.endCall,
   toggleLocalAudio: toggleLocalAudio,
-  toggleLocalVideo: toggleLocalVideo
+  toggleLocalVideo: toggleLocalVideo,
+  toggleRemoteAudio: toggleRemoteAudio,
+  toggleRemoteVideo: toggleRemoteVideo
 };
 
 if (global === window) {
