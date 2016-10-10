@@ -26,7 +26,7 @@ const otCoreOptions = {
       screen: '#screenSubscriberContainer',
     },
     controls: '#controls',
-    chat: '#chat'
+    chat: '#chat',
   },
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
   communication: {
@@ -49,21 +49,37 @@ const otCoreOptions = {
   archiving: {
     startURL: 'https://example.com/startArchive',
     stopURL: 'https://example.com/stopArchive',
-  }
+  },
 };
 
 const connectingMask = () =>
   <div className="App-mask">
     <Spinner />
     <div className="message with-spinner">Connecting</div>
-  </div>
+  </div>;
 
 const startCallMask = start =>
   <div className="App-mask">
     <div className="message button clickable" onClick={start}>Click to Start Call</div>
-  </div>
+  </div>;
 
-
+const containerClasses = (state) => {
+  const { active, meta, localAudioEnabled, localVideoEnabled } = state;
+  const sharingScreen = meta ? !!meta.publisher.screen : false;
+  const viewingSharedScreen = meta ? meta.subscriber.screen : false;
+  const activeCameraSubscribers = meta ? meta.subscriber.camera : 0;
+  return {
+    controlClass: classNames('App-control-container', { 'hidden': !active }),
+    localAudioClass: classNames('ots-video-control circle audio', { 'muted': !localAudioEnabled }),
+    localVideoClass: classNames('ots-video-control circle video', { 'muted': !localVideoEnabled }),
+    cameraPublisherClass: classNames('video-container', { 'small': !!activeCameraSubscribers || sharingScreen }, { 'left': sharingScreen || viewingSharedScreen }),
+    screenPublisherClass: classNames('video-container', { 'hidden': !sharingScreen }),
+    cameraSubscriberClass: classNames('video-container', { 'hidden': !activeCameraSubscribers },
+      `active-${activeCameraSubscribers}`, { 'small': viewingSharedScreen || sharingScreen }
+    ),
+    screenSubscriberClass: classNames('video-container', { 'hidden': !viewingSharedScreen }),
+  };
+};
 
 class App extends Component {
 
@@ -80,14 +96,6 @@ class App extends Component {
     this.startCall = this.startCall.bind(this);
     this.toggleLocalAudio = this.toggleLocalAudio.bind(this);
     this.toggleLocalVideo = this.toggleLocalVideo.bind(this);
-  }
-
-  startCall() {
-    this.setState({ active: true });
-    otCore.startCall()
-      .then(({ publishers, subscribers, meta }) => {
-        this.setState({ publishers, subscribers, meta });
-      }).catch(error => console.log(error));
   }
 
   componentDidMount() {
@@ -107,30 +115,35 @@ class App extends Component {
     }));
   }
 
+  startCall() {
+    this.setState({ active: true });
+    otCore.startCall()
+      .then(({ publishers, subscribers, meta }) => {
+        this.setState({ publishers, subscribers, meta });
+      }).catch(error => console.log(error));
+  }
+
   toggleLocalAudio() {
     otCore.toggleLocalAudio(!this.state.localAudioEnabled);
-    this.setState({localAudioEnabled: !this.state.localAudioEnabled});
+    this.setState({ localAudioEnabled: !this.state.localAudioEnabled });
   }
 
   toggleLocalVideo() {
     otCore.toggleLocalVideo(!this.state.localVideoEnabled);
-    this.setState({localVideoEnabled: !this.state.localVideoEnabled});
+    this.setState({ localVideoEnabled: !this.state.localVideoEnabled });
   }
 
   render() {
-    const { connected, active, subscribers, publishers, meta, localAudioEnabled, localVideoEnabled } = this.state;
-    const localAudioClass = classNames('ots-video-control circle audio', {'muted': !localAudioEnabled});
-    const localVideoClass = classNames('ots-video-control circle video', {'muted': !localVideoEnabled})
-    const sharingScreen = meta ? !!meta.publisher.screen : false;
-    const viewingSharedScreen = meta ? meta.subscriber.screen : false;
-    const activeCameraSubscribers = meta ? meta.subscriber.camera : 0;
-    const controlClass = classNames('App-control-container', { 'hidden': !active });
-    const cameraPublisherClass = classNames('video-container', { 'small': !!activeCameraSubscribers || sharingScreen }, { 'left': sharingScreen || viewingSharedScreen });
-    const screenPublisherClass = classNames('video-container', { 'hidden': !sharingScreen });
-    const cameraSubscriberClass = classNames('video-container', { 'hidden': !activeCameraSubscribers },
-      `active-${activeCameraSubscribers}`, { 'small': viewingSharedScreen || sharingScreen }
-    );
-    const screenSubscriberClass = classNames('video-container', { 'hidden': !viewingSharedScreen });
+    const { connected, active } = this.state;
+    const {
+      localAudioClass,
+      localVideoClass,
+      controlClass,
+      cameraPublisherClass,
+      screenPublisherClass,
+      cameraSubscriberClass,
+      screenSubscriberClass,
+    } = containerClasses(this.state);
 
     return (
       <div className="App">
@@ -140,8 +153,8 @@ class App extends Component {
         </div>
         <div className="App-main">
           <div id="controls" className={controlClass}>
-              <div className={localAudioClass} onClick={this.toggleLocalAudio}></div>
-              <div className={localVideoClass} onClick={this.toggleLocalVideo}></div>
+            <div className={localAudioClass} onClick={this.toggleLocalAudio}></div>
+            <div className={localVideoClass} onClick={this.toggleLocalVideo}></div>
           </div>
           <div className="App-video-container">
             { !connected && connectingMask() }
