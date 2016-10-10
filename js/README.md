@@ -120,6 +120,8 @@ startCall        => Publish audio/video and subscribe to streams
 endCall          => Stop publishing and unsubscribe from all streams
 toggleLocalAudio => Toggle publishing local audio
 toggleLocalVideo => Toggle publishing local video
+toggleRemoteAudio => Toggle subscribing to remote audio
+toggleRemoteVideo => Toggle subscribing to remote video
 getSession       => Get the OpenTok Session Object
 ```
 
