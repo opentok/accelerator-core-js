@@ -80,7 +80,7 @@ The communication properties relate to the multi-party communication provided by
     callProperties: myCallProperties,
   },
 ```
-*See more on `autoSubscribe` [below](#autoSubscribe).*
+*See more on manually subscribing to streams [below](#autoSubscribe).*
 
 The remainder of the options properties are specific to individual accelerator packs.
 ```javascript
