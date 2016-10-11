@@ -6,6 +6,7 @@ let accPack;
 let callProperties;
 let screenProperties;
 let containers = {};
+let autoSubscribe;
 let active = false;
 
 const defaultCallProperties = {
@@ -45,7 +46,10 @@ const createPublisher = () =>
   });
 
 
-/** Publish a camera stream */
+/**
+ * Publish the local camera stream and update state
+ * @returns {Promise} <resolve: -, reject: Error>
+ */
 const publish = () =>
   new Promise((resolve, reject) => {
     createPublisher()
@@ -61,9 +65,77 @@ const publish = () =>
       });
   });
 
+/**
+ * Ensure all required options are received
+ * @param {Object} options
+ */
+const validateOptions = (options) => {
+  const requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
+
+  requiredOptions.forEach((option) => {
+    if (!options[option]) {
+      logging.error(`${option} is a required option.`);
+    }
+  });
+
+  session = options.session;
+  accPack = options.accPack;
+  containers = options.containers;
+  callProperties = options.callProperties || defaultCallProperties;
+  autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
+
+
+  screenProperties = options.screenProperties ||
+    Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+};
 
 /**
- * Subscribe to a stream
+ * Subscribe to new stream unless autoSubscribe is set to false
+ * @param {Object} stream
+ */
+const onStreamCreated = ({ stream }) => active && autoSubscribe && subscribe(stream);
+
+/**
+ * Update state and trigger corresponding event(s) when stream is destroyed
+ * @param {Object} stream
+ */
+const onStreamDestroyed = ({ stream }) => {
+  state.removeStream(stream)
+  const type = stream.videoType;
+  type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
+  triggerEvent(`unsubscribeFrom${properCase(type)}`, state.currentPubSub());
+};
+
+/**
+ * Listen for API-level events
+ */
+const createEventListeners = () => {
+  accPack.on('streamCreated', onStreamCreated);
+  accPack.on('streamDestroyed', onStreamDestroyed);
+};
+
+/**
+ * Start publishing the local camera feed and subscribing to streams in the session
+ * @returns {Promise} <resolve: Object, reject: Error>
+ */
+const startCall = () =>
+  new Promise((resolve, reject) => {
+    publish()
+      .then(() => {
+        const streams = state.getStreams();
+        console.log('initial Streams', streams);
+        const initialSubscriptions = Object.keys(state.getStreams()).map(streamId => subscribe(streams[streamId]));
+        Promise.all(initialSubscriptions).then(() => {
+          const pubSubData = state.currentPubSub();
+          triggerEvent('startCall', pubSubData);
+          active = true;
+          resolve(pubSubData);
+        }, (reason) => logging.log(`Failed to subscribe to all existing streams: ${reason}`));
+      });
+  });
+
+/**
+ * Subscribe to a stream and update the state
  * @param {Object} stream - An OpenTok stream object
  * @returns {Promise} <resolve: >
  */
@@ -86,26 +158,6 @@ const subscribe = stream =>
       }
     });
   })
-
-
-/**
- * Start publishing the local camera feed and subscribing to streams in the session
- */
-const startCall = () =>
-  new Promise((resolve, reject) => {
-    publish()
-      .then(() => {
-        const streams = state.getStreams();
-        console.log('initial Streams', streams);
-        const initialSubscriptions = Object.keys(state.getStreams()).map(streamId => subscribe(streams[streamId]));
-        Promise.all(initialSubscriptions).then(() => {
-          const pubSubData = state.currentPubSub();
-          triggerEvent('startCall', pubSubData);
-          active = true;
-          resolve(pubSubData);
-        }, (reason) => logging.log(`Failed to subscribe to all existing streams: ${reason}`));
-      });
-  });
 
 
 /**
@@ -132,7 +184,6 @@ const enableLocalAV = (id, source, enable) => {
   publishers.camera[id][method](enable);
 };
 
-
 /**
  * Enable/disable remote audio or video
  * @param {String} subscriberId
@@ -145,38 +196,6 @@ const enableRemoteAV = (subscriberId, source, enable) => {
   subscribers.camera[subscriberId][method](enable);
 };
 
-const validateOptions = (options) => {
-  const requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
-
-  requiredOptions.forEach((option) => {
-    if (!options[option]) {
-      logging.error(`${option} is a required option.`);
-    }
-  });
-
-  session = options.session;
-  accPack = options.accPack;
-  containers = options.containers;
-  callProperties = options.callProperties || defaultCallProperties;
-  screenProperties = options.screenProperties ||
-    Object.assign({}, defaultCallProperties, { videoSource: 'window' });
-};
-
-const onStreamCreated = ({ stream }) => active && subscribe(stream);
-
-const onStreamDestroyed = ({ stream }) => {
-  state.removeStream(stream)
-  const type = stream.videoType;
-  type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
-  triggerEvent(`unsubscribeFrom${properCase(type)}`, state.currentPubSub());
-};
-
-// Register listeners with the API
-const createEventListeners = () => {
-  accPack.on('streamCreated', onStreamCreated);
-  accPack.on('streamDestroyed', onStreamDestroyed);
-};
-
 /**
  * Initialize the communication component
  * @param {Object} options
@@ -187,6 +206,7 @@ const createEventListeners = () => {
  */
 const init = (options) =>
   new Promise((resolve) => {
+    console.log('COMCOMCOM', options);
     validateOptions(options);
     createEventListeners();
     resolve();
@@ -196,6 +216,7 @@ module.exports = {
   init,
   startCall,
   endCall,
+  subscribe,
   enableLocalAV,
   enableRemoteAV,
 };

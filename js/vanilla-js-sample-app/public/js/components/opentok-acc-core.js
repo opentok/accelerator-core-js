@@ -9,6 +9,7 @@ var accPack = void 0;
 var callProperties = void 0;
 var screenProperties = void 0;
 var containers = {};
+var autoSubscribe = void 0;
 var active = false;
 
 var defaultCallProperties = {
@@ -52,7 +53,10 @@ var createPublisher = function createPublisher() {
   });
 };
 
-/** Publish a camera stream */
+/**
+ * Publish the local camera stream and update state
+ * @returns {Promise} <resolve: -, reject: Error>
+ */
 var publish = function publish() {
   return new Promise(function (resolve, reject) {
     createPublisher().then(function (publisher) {
@@ -68,7 +72,83 @@ var publish = function publish() {
 };
 
 /**
- * Subscribe to a stream
+ * Ensure all required options are received
+ * @param {Object} options
+ */
+var validateOptions = function validateOptions(options) {
+  var requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
+
+  requiredOptions.forEach(function (option) {
+    if (!options[option]) {
+      logging.error(option + ' is a required option.');
+    }
+  });
+
+  session = options.session;
+  accPack = options.accPack;
+  containers = options.containers;
+  callProperties = options.callProperties || defaultCallProperties;
+  autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
+
+  screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+};
+
+/**
+ * Subscribe to new stream unless autoSubscribe is set to false
+ * @param {Object} stream
+ */
+var onStreamCreated = function onStreamCreated(_ref) {
+  var stream = _ref.stream;
+  return active && autoSubscribe && subscribe(stream);
+};
+
+/**
+ * Update state and trigger corresponding event(s) when stream is destroyed
+ * @param {Object} stream
+ */
+var onStreamDestroyed = function onStreamDestroyed(_ref2) {
+  var stream = _ref2.stream;
+
+  state.removeStream(stream);
+  var type = stream.videoType;
+  type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
+  triggerEvent('unsubscribeFrom' + properCase(type), state.currentPubSub());
+};
+
+/**
+ * Listen for API-level events
+ */
+var createEventListeners = function createEventListeners() {
+  accPack.on('streamCreated', onStreamCreated);
+  accPack.on('streamDestroyed', onStreamDestroyed);
+};
+
+/**
+ * Start publishing the local camera feed and subscribing to streams in the session
+ * @returns {Promise} <resolve: Object, reject: Error>
+ */
+var startCall = function startCall() {
+  return new Promise(function (resolve, reject) {
+    publish().then(function () {
+      var streams = state.getStreams();
+      console.log('initial Streams', streams);
+      var initialSubscriptions = Object.keys(state.getStreams()).map(function (streamId) {
+        return subscribe(streams[streamId]);
+      });
+      Promise.all(initialSubscriptions).then(function () {
+        var pubSubData = state.currentPubSub();
+        triggerEvent('startCall', pubSubData);
+        active = true;
+        resolve(pubSubData);
+      }, function (reason) {
+        return logging.log('Failed to subscribe to all existing streams: ' + reason);
+      });
+    });
+  });
+};
+
+/**
+ * Subscribe to a stream and update the state
  * @param {Object} stream - An OpenTok stream object
  * @returns {Promise} <resolve: >
  */
@@ -89,29 +169,6 @@ var subscribe = function subscribe(stream) {
         type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
         resolve();
       }
-    });
-  });
-};
-
-/**
- * Start publishing the local camera feed and subscribing to streams in the session
- */
-var startCall = function startCall() {
-  return new Promise(function (resolve, reject) {
-    publish().then(function () {
-      var streams = state.getStreams();
-      console.log('initial Streams', streams);
-      var initialSubscriptions = Object.keys(state.getStreams()).map(function (streamId) {
-        return subscribe(streams[streamId]);
-      });
-      Promise.all(initialSubscriptions).then(function () {
-        var pubSubData = state.currentPubSub();
-        triggerEvent('startCall', pubSubData);
-        active = true;
-        resolve(pubSubData);
-      }, function (reason) {
-        return logging.log('Failed to subscribe to all existing streams: ' + reason);
-      });
     });
   });
 };
@@ -163,45 +220,7 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
 
   var subscribers = _state$currentPubSub2.subscribers;
 
-  var sub = subscribers.camera[subscriberId];
-  console.log('OXOXOXO', sub.isSubscribing());
   subscribers.camera[subscriberId][method](enable);
-};
-
-var validateOptions = function validateOptions(options) {
-  var requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
-
-  requiredOptions.forEach(function (option) {
-    if (!options[option]) {
-      logging.error(option + ' is a required option.');
-    }
-  });
-
-  session = options.session;
-  accPack = options.accPack;
-  containers = options.containers;
-  callProperties = options.callProperties || defaultCallProperties;
-  screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
-};
-
-var onStreamCreated = function onStreamCreated(_ref) {
-  var stream = _ref.stream;
-  return active && subscribe(stream);
-};
-
-var onStreamDestroyed = function onStreamDestroyed(_ref2) {
-  var stream = _ref2.stream;
-
-  state.removeStream(stream);
-  var type = stream.videoType;
-  type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
-  triggerEvent('unsubscribeFrom' + properCase(type), state.currentPubSub());
-};
-
-// Register listeners with the API
-var createEventListeners = function createEventListeners() {
-  accPack.on('streamCreated', onStreamCreated);
-  accPack.on('streamDestroyed', onStreamDestroyed);
 };
 
 /**
@@ -214,6 +233,7 @@ var createEventListeners = function createEventListeners() {
  */
 var init = function init(options) {
   return new Promise(function (resolve) {
+    console.log('COMCOMCOM', options);
     validateOptions(options);
     createEventListeners();
     resolve();
@@ -224,6 +244,7 @@ module.exports = {
   init: init,
   startCall: startCall,
   endCall: endCall,
+  subscribe: subscribe,
   enableLocalAV: enableLocalAV,
   enableRemoteAV: enableRemoteAV
 };
@@ -302,7 +323,6 @@ var triggerEvent = function triggerEvent(event, data) {
 };
 
 /** Returns the current OpenTok session object */
-// const getSession = () => session;
 var getSession = void 0;
 
 /** Returns the current OpenTok session credentials */
@@ -398,6 +418,15 @@ var initPackages = function initPackages() {
   var session = getSession();
   var options = getOptions();
 
+  /**
+   * Try to require a package.  If 'require' is unavailable, look for
+   * the package in global scope.  A switch statement is used because
+   * webpack and Browserify aren't able to resolve require statements
+   * that use variable names.
+   * @param {String} packageName - The name of the npm package
+   * @param {String} globalName - The name of the package if exposed on global/window
+   * @returns {Object}
+   */
   var optionalRequire = function optionalRequire(packageName, globalName) {
     var result = void 0;
     /* eslint-disable global-require, import/no-extraneous-dependencies */
@@ -454,7 +483,9 @@ var initPackages = function initPackages() {
     }
   });
 
-  /** Build containers hash */
+  /**
+   * Build video containers object
+   */
   var containerOptions = options.containers || {};
   var getDefaultContainer = function getDefaultContainer(pubSub) {
     return document.getElementById(pubSub + 'Container');
@@ -475,8 +506,13 @@ var initPackages = function initPackages() {
       }, {})));
     }, { controls: controls, chat: chat });
   };
+  /** *** *** *** *** */
 
-  /** Get options based on package */
+  /**
+   * Return options for the specified package
+   * @param {String} packageName
+   * @returns {Object}
+   */
   var packageOptions = function packageOptions(packageName) {
     var _state$all = state.all();
 
@@ -534,6 +570,7 @@ var validateCredentials = function validateCredentials() {
 
 /**
  * Connect to the session
+ * @returns {Promise} <resolve: -, reject: Error>
  */
 var connect = function connect() {
   return new Promise(function (resolve, reject) {
@@ -606,6 +643,8 @@ var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
  * Initialize the accelerator pack
  * @param {Object} options
  * @param {Object} options.credentials
+ * @param {Array} [options.packages]
+ * @param {Object} [options.containers]
  */
 var init = function init(options) {
   if (!options) {
@@ -641,7 +680,8 @@ var opentokCore = {
   toggleLocalAudio: toggleLocalAudio,
   toggleLocalVideo: toggleLocalVideo,
   toggleRemoteAudio: toggleRemoteAudio,
-  toggleRemoteVideo: toggleRemoteVideo
+  toggleRemoteVideo: toggleRemoteVideo,
+  subscribe: communication.subscribe
 };
 
 if (global === window) {

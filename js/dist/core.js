@@ -70,7 +70,6 @@ var triggerEvent = function triggerEvent(event, data) {
 };
 
 /** Returns the current OpenTok session object */
-// const getSession = () => session;
 var getSession = undefined;
 
 /** Returns the current OpenTok session credentials */
@@ -166,6 +165,15 @@ var initPackages = function initPackages() {
   var session = getSession();
   var options = getOptions();
 
+  /**
+   * Try to require a package.  If 'require' is unavailable, look for
+   * the package in global scope.  A switch statement is used because
+   * webpack and Browserify aren't able to resolve require statements
+   * that use variable names.
+   * @param {String} packageName - The name of the npm package
+   * @param {String} globalName - The name of the package if exposed on global/window
+   * @returns {Object}
+   */
   var optionalRequire = function optionalRequire(packageName, globalName) {
     var result = undefined;
     /* eslint-disable global-require, import/no-extraneous-dependencies */
@@ -222,7 +230,9 @@ var initPackages = function initPackages() {
     }
   });
 
-  /** Build containers hash */
+  /**
+   * Build video containers object
+   */
   var containerOptions = options.containers || {};
   var getDefaultContainer = function getDefaultContainer(pubSub) {
     return document.getElementById(pubSub + 'Container');
@@ -243,8 +253,13 @@ var initPackages = function initPackages() {
       }, {})));
     }, { controls: controls, chat: chat });
   };
+  /** *** *** *** *** */
 
-  /** Get options based on package */
+  /**
+   * Return options for the specified package
+   * @param {String} packageName
+   * @returns {Object}
+   */
   var packageOptions = function packageOptions(packageName) {
     var _state$all = state.all();
 
@@ -302,6 +317,7 @@ var validateCredentials = function validateCredentials() {
 
 /**
  * Connect to the session
+ * @returns {Promise} <resolve: -, reject: Error>
  */
 var connect = function connect() {
   return new Promise(function (resolve, reject) {
@@ -374,6 +390,8 @@ var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
  * Initialize the accelerator pack
  * @param {Object} options
  * @param {Object} options.credentials
+ * @param {Array} [options.packages]
+ * @param {Object} [options.containers]
  */
 var init = function init(options) {
   if (!options) {
@@ -409,7 +427,8 @@ var opentokCore = {
   toggleLocalAudio: toggleLocalAudio,
   toggleLocalVideo: toggleLocalVideo,
   toggleRemoteAudio: toggleRemoteAudio,
-  toggleRemoteVideo: toggleRemoteVideo
+  toggleRemoteVideo: toggleRemoteVideo,
+  subscribe: communication.subscribe
 };
 
 if (global === window) {

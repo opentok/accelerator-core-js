@@ -8,6 +8,7 @@ var accPack = undefined;
 var callProperties = undefined;
 var screenProperties = undefined;
 var containers = {};
+var autoSubscribe = undefined;
 var active = false;
 
 var defaultCallProperties = {
@@ -51,7 +52,10 @@ var createPublisher = function createPublisher() {
   });
 };
 
-/** Publish a camera stream */
+/**
+ * Publish the local camera stream and update state
+ * @returns {Promise} <resolve: -, reject: Error>
+ */
 var publish = function publish() {
   return new Promise(function (resolve, reject) {
     createPublisher().then(function (publisher) {
@@ -67,7 +71,83 @@ var publish = function publish() {
 };
 
 /**
- * Subscribe to a stream
+ * Ensure all required options are received
+ * @param {Object} options
+ */
+var validateOptions = function validateOptions(options) {
+  var requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
+
+  requiredOptions.forEach(function (option) {
+    if (!options[option]) {
+      logging.error(option + ' is a required option.');
+    }
+  });
+
+  session = options.session;
+  accPack = options.accPack;
+  containers = options.containers;
+  callProperties = options.callProperties || defaultCallProperties;
+  autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
+
+  screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+};
+
+/**
+ * Subscribe to new stream unless autoSubscribe is set to false
+ * @param {Object} stream
+ */
+var onStreamCreated = function onStreamCreated(_ref) {
+  var stream = _ref.stream;
+  return active && autoSubscribe && subscribe(stream);
+};
+
+/**
+ * Update state and trigger corresponding event(s) when stream is destroyed
+ * @param {Object} stream
+ */
+var onStreamDestroyed = function onStreamDestroyed(_ref2) {
+  var stream = _ref2.stream;
+
+  state.removeStream(stream);
+  var type = stream.videoType;
+  type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
+  triggerEvent('unsubscribeFrom' + properCase(type), state.currentPubSub());
+};
+
+/**
+ * Listen for API-level events
+ */
+var createEventListeners = function createEventListeners() {
+  accPack.on('streamCreated', onStreamCreated);
+  accPack.on('streamDestroyed', onStreamDestroyed);
+};
+
+/**
+ * Start publishing the local camera feed and subscribing to streams in the session
+ * @returns {Promise} <resolve: Object, reject: Error>
+ */
+var startCall = function startCall() {
+  return new Promise(function (resolve, reject) {
+    publish().then(function () {
+      var streams = state.getStreams();
+      console.log('initial Streams', streams);
+      var initialSubscriptions = Object.keys(state.getStreams()).map(function (streamId) {
+        return subscribe(streams[streamId]);
+      });
+      Promise.all(initialSubscriptions).then(function () {
+        var pubSubData = state.currentPubSub();
+        triggerEvent('startCall', pubSubData);
+        active = true;
+        resolve(pubSubData);
+      }, function (reason) {
+        return logging.log('Failed to subscribe to all existing streams: ' + reason);
+      });
+    });
+  });
+};
+
+/**
+ * Subscribe to a stream and update the state
  * @param {Object} stream - An OpenTok stream object
  * @returns {Promise} <resolve: >
  */
@@ -88,29 +168,6 @@ var subscribe = function subscribe(stream) {
         type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
         resolve();
       }
-    });
-  });
-};
-
-/**
- * Start publishing the local camera feed and subscribing to streams in the session
- */
-var startCall = function startCall() {
-  return new Promise(function (resolve, reject) {
-    publish().then(function () {
-      var streams = state.getStreams();
-      console.log('initial Streams', streams);
-      var initialSubscriptions = Object.keys(state.getStreams()).map(function (streamId) {
-        return subscribe(streams[streamId]);
-      });
-      Promise.all(initialSubscriptions).then(function () {
-        var pubSubData = state.currentPubSub();
-        triggerEvent('startCall', pubSubData);
-        active = true;
-        resolve(pubSubData);
-      }, function (reason) {
-        return logging.log('Failed to subscribe to all existing streams: ' + reason);
-      });
     });
   });
 };
@@ -162,45 +219,7 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
 
   var subscribers = _state$currentPubSub2.subscribers;
 
-  var sub = subscribers.camera[subscriberId];
-  console.log('OXOXOXO', sub.isSubscribing());
   subscribers.camera[subscriberId][method](enable);
-};
-
-var validateOptions = function validateOptions(options) {
-  var requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
-
-  requiredOptions.forEach(function (option) {
-    if (!options[option]) {
-      logging.error(option + ' is a required option.');
-    }
-  });
-
-  session = options.session;
-  accPack = options.accPack;
-  containers = options.containers;
-  callProperties = options.callProperties || defaultCallProperties;
-  screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
-};
-
-var onStreamCreated = function onStreamCreated(_ref) {
-  var stream = _ref.stream;
-  return active && subscribe(stream);
-};
-
-var onStreamDestroyed = function onStreamDestroyed(_ref2) {
-  var stream = _ref2.stream;
-
-  state.removeStream(stream);
-  var type = stream.videoType;
-  type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
-  triggerEvent('unsubscribeFrom' + properCase(type), state.currentPubSub());
-};
-
-// Register listeners with the API
-var createEventListeners = function createEventListeners() {
-  accPack.on('streamCreated', onStreamCreated);
-  accPack.on('streamDestroyed', onStreamDestroyed);
 };
 
 /**
@@ -213,6 +232,7 @@ var createEventListeners = function createEventListeners() {
  */
 var init = function init(options) {
   return new Promise(function (resolve) {
+    console.log('COMCOMCOM', options);
     validateOptions(options);
     createEventListeners();
     resolve();
@@ -223,6 +243,7 @@ module.exports = {
   init: init,
   startCall: startCall,
   endCall: endCall,
+  subscribe: subscribe,
   enableLocalAV: enableLocalAV,
   enableRemoteAV: enableRemoteAV
 };

@@ -64,7 +64,6 @@ const triggerEvent = (event, data) => {
 };
 
 /** Returns the current OpenTok session object */
-// const getSession = () => session;
 let getSession;
 
 /** Returns the current OpenTok session credentials */
@@ -72,7 +71,6 @@ let getCredentials;
 
 /** Returns the options used for initialization */
 let getOptions;
-
 
 const createEventListeners = (session, options) => {
   Object.keys(accPackEvents).forEach(type => registerEvents(accPackEvents[type]));
@@ -152,6 +150,15 @@ const initPackages = () => {
   const session = getSession();
   const options = getOptions();
 
+  /**
+   * Try to require a package.  If 'require' is unavailable, look for
+   * the package in global scope.  A switch statement is used because
+   * webpack and Browserify aren't able to resolve require statements
+   * that use variable names.
+   * @param {String} packageName - The name of the npm package
+   * @param {String} globalName - The name of the package if exposed on global/window
+   * @returns {Object}
+   */
   const optionalRequire = (packageName, globalName) => {
     let result;
     /* eslint-disable global-require, import/no-extraneous-dependencies */
@@ -207,7 +214,9 @@ const initPackages = () => {
     }
   });
 
-  /** Build containers hash */
+  /**
+   * Build video containers object
+   */
   const containerOptions = options.containers || {};
   const getDefaultContainer = pubSub => document.getElementById(`${pubSub}Container`);
   const getContainerElement = (pubSub, type) => {
@@ -228,8 +237,14 @@ const initPackages = () => {
           }), {}),
       }), { controls, chat });
   };
+  /** *** *** *** *** */
 
-  /** Get options based on package */
+
+  /**
+   * Return options for the specified package
+   * @param {String} packageName
+   * @returns {Object}
+   */
   const packageOptions = (packageName) => {
     const { streams, streamMap, publishers, subscribers } = state.all();
     const accPack = {
@@ -292,6 +307,7 @@ const validateCredentials = (credentials = []) => {
 
 /**
  * Connect to the session
+ * @returns {Promise} <resolve: -, reject: Error>
  */
 const connect = () =>
   new Promise((resolve, reject) => {
@@ -347,6 +363,8 @@ const toggleRemoteVideo = (id, enable) => communication.enableRemoteAV(id, 'vide
  * Initialize the accelerator pack
  * @param {Object} options
  * @param {Object} options.credentials
+ * @param {Array} [options.packages]
+ * @param {Object} [options.containers]
  */
 const init = (options) => {
   if (!options) {
@@ -376,6 +394,7 @@ const opentokCore = {
   toggleLocalVideo,
   toggleRemoteAudio,
   toggleRemoteVideo,
+  subscribe: communication.subscribe,
 };
 
 if (global === window) {
