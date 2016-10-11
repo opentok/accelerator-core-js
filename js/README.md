@@ -172,3 +172,7 @@ will always include the current `publishers`, `subscribers`, and a `meta` object
   }
 ```
 The full list of events can be seen [here](https://github.com/opentok/accelerator-core/blob/develop/js/src/events.js).
+
+UI Styling
+-------
+Default icons and styling for accelerator pack components are provided by `opentok-solutions-css`, which is available as an [npm](https://www.npmjs.com/package/opentok-solutions-css) module or from our [CDN](https://assets.tokbox.com/solutions/css/style.css).  To customize the layout and styling in your application, simply override these CSS rules with your own.
