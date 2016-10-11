@@ -91,11 +91,9 @@ The remainder of the options properties are specific to individual accelerator p
   screenSharing: {
     extensionID: 'yourChromeExtensionId',
     extensionPathFF: 'yourFireFoxExtensionURL',
-    annotation: true,
-    /* Must be 'true' if sharing the current browser window */
+    annotation: true, // 'true' required if sharing current browser window
     externalWindow: false,
-    /* Allow screen sharing over http in development(localhost) */
-    dev: true,
+    dev: true, // Allow http in development(localhost)
     screenProperties: null,
   },
   annotation: {
