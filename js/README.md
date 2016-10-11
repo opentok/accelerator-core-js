@@ -72,11 +72,18 @@ The `containers` property specifies the DOM elements to be used as containers fo
     chat: '#chat',
   },
 ```
-The remainder of the options properties are specific to individual accelerator packs.
+The communication properties relate to the multi-party communication provided by `Core`.  `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.  `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI.
+
 ```javascript
   communication: {
-    callProperites: myCallProperties,
+	autoSubscribe: true,
+    callProperties: myCallProperties,
   },
+```
+*See more on `autoSubscribe` [below](#autoSubscribe).*
+
+The remainder of the options properties are specific to individual accelerator packs.
+```javascript
   textChat: {
     name: `David`,
     waitingMessage: 'Messages will be delivered when other users arrive',
@@ -172,6 +179,19 @@ will always include the current `publishers`, `subscribers`, and a `meta` object
   }
 ```
 The full list of events can be seen [here](https://github.com/opentok/accelerator-core/blob/develop/js/src/events.js).
+
+
+----------
+
+*There may be situations where you need to manually subscribe to streams.  For example,  you need to call `setState` in your React component, wait for the update to finish and your component to re-render so that the container for the new stream is available before subscribing.  In this case, you can set `autoSubscribe` to `false`, listen for new streams, update your state, and subscribe once the update is complete:*
+
+```javascript
+otCore.on('streamCreated', ({ stream }) => {
+  this.setState({ streams: streams.conat(stream) }, () => {
+    otCore.subscribe(stream);
+  });
+});
+```
 
 UI Styling
 -------
