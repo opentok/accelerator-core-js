@@ -182,7 +182,7 @@ The full list of events can be seen [here](https://github.com/opentok/accelerato
 
 
 ----------
-
+<a name="autoSubscribe"></a>
 *There may be situations where you need to manually subscribe to streams.  For example,  you need to call `setState` in your React component, wait for the update to finish and your component to re-render so that the container for the new stream is available before subscribing.  In this case, you can set `autoSubscribe` to `false`, listen for new streams, update your state, and subscribe once the update is complete:*
 
 ```javascript
