@@ -12,7 +12,7 @@ otCore.init(options) =>
 	Archiving
 ```
 
-OpenTok Accelerator Core provides a simple way to integrate real-time audio/video into your web application using the OpenTok Platform.  `Core` also integrates with and manages the following accelerator packs:
+OpenTok Accelerator Core provides a simple way to integrate real-time audio/video into your web application using the OpenTok Platform.  `Core` also integrates with, manages, and provides a single API for the following accelerator packs:
 
  - [Text Chat](https://www.npmjs.com/package/opentok-text-chat)
  - [Screen Sharing](https://www.npmjs.com/package/opentok-screen-sharing)
