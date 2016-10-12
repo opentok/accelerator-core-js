@@ -141,7 +141,7 @@ var startCall = function startCall() {
         active = true;
         resolve(pubSubData);
       }, function (reason) {
-        return logging.log('Failed to subscribe to all existing streams: ' + reason);
+        return logging.message('Failed to subscribe to all existing streams: ' + reason);
       });
     });
   });
@@ -299,7 +299,7 @@ var registerEvents = function registerEvents(events) {
 var on = function on(event, callback) {
   var eventCallbacks = registeredEvents[event];
   if (!eventCallbacks) {
-    logging.log(event + ' is not a registered event.');
+    logging.message(event + ' is not a registered event.');
   } else {
     eventCallbacks.add(callback);
   }
@@ -314,7 +314,7 @@ var triggerEvent = function triggerEvent(event, data) {
   var eventCallbacks = registeredEvents[event];
   if (!eventCallbacks) {
     registerEvents(event);
-    logging.log(event + ' has been registered as a new event.');
+    logging.message(event + ' has been registered as a new event.');
   } else {
     eventCallbacks.forEach(function (callback) {
       return callback(data, event);
@@ -479,7 +479,7 @@ var initPackages = function initPackages() {
       var packageName = '' + acceleratorPack[0].toUpperCase() + acceleratorPack.slice(1);
       packages[packageName] = availablePackages[acceleratorPack]();
     } else {
-      logging.log(acceleratorPack + ' is not a valid accelerator pack');
+      logging.message(acceleratorPack + ' is not a valid accelerator pack');
     }
   });
 
@@ -708,8 +708,8 @@ module.exports = events;
 "use strict";
 
 // eslint-disable-next-line no-console
-var log = function log(message) {
-  return console.log("otAccCore: " + message);
+var message = function message(_message) {
+  return console.log("otAccCore: " + _message);
 };
 
 var error = function error(message) {
@@ -717,7 +717,7 @@ var error = function error(message) {
 };
 
 module.exports = {
-  log: log,
+  message: message,
   error: error
 };
 

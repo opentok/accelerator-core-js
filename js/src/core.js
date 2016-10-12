@@ -42,7 +42,7 @@ const registerEvents = (events) => {
 const on = (event, callback) => {
   const eventCallbacks = registeredEvents[event];
   if (!eventCallbacks) {
-    logging.log(`${event} is not a registered event.`);
+    logging.message(`${event} is not a registered event.`);
   } else {
     eventCallbacks.add(callback);
   }
@@ -57,7 +57,7 @@ const triggerEvent = (event, data) => {
   const eventCallbacks = registeredEvents[event];
   if (!eventCallbacks) {
     registerEvents(event);
-    logging.log(`${event} has been registered as a new event.`);
+    logging.message(`${event} has been registered as a new event.`);
   } else {
     eventCallbacks.forEach(callback => callback(data, event));
   }
@@ -210,7 +210,7 @@ const initPackages = () => {
       const packageName = `${acceleratorPack[0].toUpperCase()}${acceleratorPack.slice(1)}`;
       packages[packageName] = availablePackages[acceleratorPack]();
     } else {
-      logging.log(`${acceleratorPack} is not a valid accelerator pack`);
+      logging.message(`${acceleratorPack} is not a valid accelerator pack`);
     }
   });
 

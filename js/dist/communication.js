@@ -140,7 +140,7 @@ var startCall = function startCall() {
         active = true;
         resolve(pubSubData);
       }, function (reason) {
-        return logging.log('Failed to subscribe to all existing streams: ' + reason);
+        return logging.message('Failed to subscribe to all existing streams: ' + reason);
       });
     });
   });

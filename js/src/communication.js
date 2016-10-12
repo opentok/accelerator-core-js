@@ -130,7 +130,7 @@ const startCall = () =>
           triggerEvent('startCall', pubSubData);
           active = true;
           resolve(pubSubData);
-        }, (reason) => logging.log(`Failed to subscribe to all existing streams: ${reason}`));
+        }, (reason) => logging.message(`Failed to subscribe to all existing streams: ${reason}`));
       });
   });
 

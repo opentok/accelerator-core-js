@@ -1,8 +1,8 @@
 "use strict";
 
 // eslint-disable-next-line no-console
-var log = function log(message) {
-  return console.log("otAccCore: " + message);
+var message = function message(_message) {
+  return console.log("otAccCore: " + _message);
 };
 
 var error = function error(message) {
@@ -10,6 +10,6 @@ var error = function error(message) {
 };
 
 module.exports = {
-  log: log,
+  message: message,
   error: error
 };
