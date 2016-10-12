@@ -384,7 +384,6 @@ const opentokCore = {
   connect,
   getSession,
   getCredentials,
-  registerEvents,
   on,
   registerEventListener: on,
   triggerEvent,
