@@ -123,11 +123,12 @@ The other `Core` API methods include:
 ```javascript
 startCall         => Publish audio/video and subscribe to streams
 endCall           => Stop publishing and unsubscribe from all streams
+getSession        => Get the OpenTok Session Object
 toggleLocalAudio  => Toggle publishing local audio
 toggleLocalVideo  => Toggle publishing local video
 toggleRemoteAudio => Toggle subscribing to remote audio
 toggleRemoteVideo => Toggle subscribing to remote video
-getSession        => Get the OpenTok Session Object
+subscribe         => Manually subscribe to a stream
 ```
 
 `Core` exposes a number of events which can be accessed using the `on` method:
@@ -185,7 +186,7 @@ The full list of events can be seen [here](https://github.com/opentok/accelerato
 
 ```javascript
 otCore.on('streamCreated', ({ stream }) => {
-  this.setState({ streams: streams.conat(stream) }, () => {
+  this.setState({ streams: streams.concat(stream) }, () => {
     otCore.subscribe(stream);
   });
 });
