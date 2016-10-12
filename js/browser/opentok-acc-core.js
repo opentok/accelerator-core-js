@@ -671,7 +671,6 @@ var opentokCore = {
   connect: connect,
   getSession: getSession,
   getCredentials: getCredentials,
-  registerEvents: registerEvents,
   on: on,
   registerEventListener: on,
   triggerEvent: triggerEvent,
