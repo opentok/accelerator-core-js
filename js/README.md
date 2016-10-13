@@ -129,7 +129,11 @@ toggleLocalVideo  => Toggle publishing local video
 toggleRemoteAudio => Toggle subscribing to remote audio
 toggleRemoteVideo => Toggle subscribing to remote video
 subscribe         => Manually subscribe to a stream
+signal            => Send a signal using the OpenTok signaling API [1]
 ```
+[1] [OpenTok Signaling API](https://www.tokbox.com/developer/guides/signaling/js/)
+
+----------
 
 `Core` exposes a number of events, including all OpenTok [session events](https://www.tokbox.com/developer/sdks/js/reference/Session.html#events), which can be accessed using the `on` method:
 ```javascript
@@ -179,7 +183,6 @@ will always include the current `publishers`, `subscribers`, and a `meta` object
   }
 ```
 The full list of events can be seen [here](https://github.com/opentok/accelerator-core/blob/develop/js/src/events.js).
-
 
 ----------
 <a name="autoSubscribe"></a>
