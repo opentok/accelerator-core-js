@@ -131,10 +131,11 @@ toggleRemoteVideo => Toggle subscribing to remote video
 subscribe         => Manually subscribe to a stream
 ```
 
-`Core` exposes a number of events which can be accessed using the `on` method:
+`Core` exposes a number of events, including all OpenTok [session events](https://www.tokbox.com/developer/sdks/js/reference/Session.html#events), which can be accessed using the `on` method:
 ```javascript
 otCore.on('streamCreated', callback);
 ```
+
 The data passed to the callback for the following events . . .
 ```javascript
 const events = [
