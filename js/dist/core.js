@@ -391,6 +391,18 @@ var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
 };
 
 /**
+ * Signal using the OpenTok session
+ * TODO: Consider updating this method to return a Promise
+ */
+var signal = function signal() {
+  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+
+  return getSession().signal(args);
+};
+
+/**
  * Initialize the accelerator pack
  * @param {Object} options
  * @param {Object} options.credentials
@@ -431,7 +443,8 @@ var opentokCore = {
   toggleLocalVideo: toggleLocalVideo,
   toggleRemoteAudio: toggleRemoteAudio,
   toggleRemoteVideo: toggleRemoteVideo,
-  subscribe: communication.subscribe
+  subscribe: communication.subscribe,
+  signal: signal
 };
 
 if (global === window) {
