@@ -123,7 +123,6 @@ const startCall = () =>
     publish()
       .then(() => {
         const streams = state.getStreams();
-        console.log('initial Streams', streams);
         const initialSubscriptions = Object.keys(state.getStreams()).map(streamId => subscribe(streams[streamId]));
         Promise.all(initialSubscriptions).then(() => {
           const pubSubData = state.currentPubSub();
@@ -206,7 +205,6 @@ const enableRemoteAV = (subscriberId, source, enable) => {
  */
 const init = (options) =>
   new Promise((resolve) => {
-    console.log('COMCOMCOM', options);
     validateOptions(options);
     createEventListeners();
     resolve();

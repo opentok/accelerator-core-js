@@ -1,8 +1,20 @@
 const events = {
-  core: [
-    'connected',
+  session: [
+    'archiveStarted',
+    'archiveStopped',
+    'connectionCreated',
+    'connectionDestroyed',
+    'sessionConnected',
+    'sessionDisconnected',
+    'sessionReconnected',
+    'sessionReconnecting',
+    'signal',
     'streamCreated',
     'streamDestroyed',
+    'streamPropertyChanged',
+  ],
+  core: [
+    'connected',
     'startScreenShare',
     'endScreenShare',
     'error',
@@ -46,5 +58,3 @@ const events = {
 };
 
 module.exports = events;
-
-

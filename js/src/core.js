@@ -82,16 +82,16 @@ const createEventListeners = (session, options) => {
   const usingAnnotation = options.screenSharing.annotation;
   const internalAnnotation = usingAnnotation && !options.screenSharing.externalWindow;
 
-  session.on({
-    streamCreated(event) {
-      state.addStream(event.stream);
-      triggerEvent('streamCreated', event);
-    },
-    streamDestroyed(event) {
-      state.removeStream(event.stream);
-      // delete streams[event.stream.id];
-      triggerEvent('streamDestroyed', event);
-    },
+  /**
+   * Wrap session events and update state when streams are created
+   * or destroyed
+   */
+  accPackEvents.session.forEach((eventName) => {
+    session.on(eventName, (event) => {
+      if (eventName === 'streamCreated') { state.addStream(event.stream); }
+      if (eventName === 'streamDestroyed') { state.removeStream(event.stream); }
+      triggerEvent(eventName, event);
+    });
   });
 
   if (usingAnnotation) {

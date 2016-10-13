@@ -1,7 +1,8 @@
 'use strict';
 
 var events = {
-  core: ['connected', 'streamCreated', 'streamDestroyed', 'startScreenShare', 'endScreenShare', 'error'],
+  session: ['archiveStarted', 'archiveStopped', 'connectionCreated', 'connectionDestroyed', 'sessionConnected', 'sessionDisconnected', 'sessionReconnected', 'sessionReconnecting', 'signal', 'streamCreated', 'streamDestroyed', 'streamPropertyChanged'],
+  core: ['connected', 'startScreenShare', 'endScreenShare', 'error'],
   communication: ['startCall', 'endCall', 'callPropertyChanged', 'subscribeToCamera', 'subscribeToScreen', 'unsubscribeFromCamera', 'unsubscribeFromScreen', 'startViewingSharedScreen', 'endViewingSharedScreen'],
   textChat: ['showTextChat', 'hideTextChat', 'messageSent', 'errorSendingMessage', 'messageReceived'],
   screenSharing: ['startScreenSharing', 'endScreenSharing', 'screenSharingError'],

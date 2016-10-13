@@ -130,7 +130,6 @@ var startCall = function startCall() {
   return new Promise(function (resolve, reject) {
     publish().then(function () {
       var streams = state.getStreams();
-      console.log('initial Streams', streams);
       var initialSubscriptions = Object.keys(state.getStreams()).map(function (streamId) {
         return subscribe(streams[streamId]);
       });
@@ -232,7 +231,6 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
  */
 var init = function init(options) {
   return new Promise(function (resolve) {
-    console.log('COMCOMCOM', options);
     validateOptions(options);
     createEventListeners();
     resolve();

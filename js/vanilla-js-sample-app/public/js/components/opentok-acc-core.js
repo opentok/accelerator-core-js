@@ -131,7 +131,6 @@ var startCall = function startCall() {
   return new Promise(function (resolve, reject) {
     publish().then(function () {
       var streams = state.getStreams();
-      console.log('initial Streams', streams);
       var initialSubscriptions = Object.keys(state.getStreams()).map(function (streamId) {
         return subscribe(streams[streamId]);
       });
@@ -233,7 +232,6 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
  */
 var init = function init(options) {
   return new Promise(function (resolve) {
-    console.log('COMCOMCOM', options);
     validateOptions(options);
     createEventListeners();
     resolve();
@@ -343,16 +341,20 @@ var createEventListeners = function createEventListeners(session, options) {
   var usingAnnotation = options.screenSharing.annotation;
   var internalAnnotation = usingAnnotation && !options.screenSharing.externalWindow;
 
-  session.on({
-    streamCreated: function streamCreated(event) {
-      state.addStream(event.stream);
-      triggerEvent('streamCreated', event);
-    },
-    streamDestroyed: function streamDestroyed(event) {
-      state.removeStream(event.stream);
-      // delete streams[event.stream.id];
-      triggerEvent('streamDestroyed', event);
-    }
+  /**
+   * Wrap session events and update state when streams are created
+   * or destroyed
+   */
+  accPackEvents.session.forEach(function (eventName) {
+    session.on(eventName, function (event) {
+      if (eventName === 'streamCreated') {
+        state.addStream(event.stream);
+      }
+      if (eventName === 'streamDestroyed') {
+        state.removeStream(event.stream);
+      }
+      triggerEvent(eventName, event);
+    });
   });
 
   if (usingAnnotation) {
@@ -694,7 +696,8 @@ module.exports = opentokCore;
 'use strict';
 
 var events = {
-  core: ['connected', 'streamCreated', 'streamDestroyed', 'startScreenShare', 'endScreenShare', 'error'],
+  session: ['archiveStarted', 'archiveStopped', 'connectionCreated', 'connectionDestroyed', 'sessionConnected', 'sessionDisconnected', 'sessionReconnected', 'sessionReconnecting', 'signal', 'streamCreated', 'streamDestroyed', 'streamPropertyChanged'],
+  core: ['connected', 'startScreenShare', 'endScreenShare', 'error'],
   communication: ['startCall', 'endCall', 'callPropertyChanged', 'subscribeToCamera', 'subscribeToScreen', 'unsubscribeFromCamera', 'unsubscribeFromScreen', 'startViewingSharedScreen', 'endViewingSharedScreen'],
   textChat: ['showTextChat', 'hideTextChat', 'messageSent', 'errorSendingMessage', 'messageReceived'],
   screenSharing: ['startScreenSharing', 'endScreenSharing', 'screenSharingError'],
