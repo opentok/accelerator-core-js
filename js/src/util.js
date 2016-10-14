@@ -1,3 +1,25 @@
+/** Wrap DOM selector methods:
+ * document.querySelector,
+ * document.getElementById,
+ * document.getElementsByClassName]
+ */
+const dom = {
+  query(...args) {
+    return document.querySelector(args);
+  },
+  id(...args) {
+    return document.getElementById(args);
+  },
+  class(...args) {
+    return document.getElementsByClassName(args);
+  },
+};
+
+/**
+ * Returns a (nested) propery from an object, or undefined if it doesn't exist
+ * @param {String | Array} props - An array of properties or a single property
+ * @param {Object | Array} obj
+ */
 const path = (props, obj) => {
   let nested = obj;
   const properties = typeof props === 'string' ? props.split('.') : props;
@@ -13,5 +35,6 @@ const path = (props, obj) => {
 };
 
 module.exports = {
+  dom,
   path,
 };
