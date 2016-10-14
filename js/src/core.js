@@ -6,6 +6,7 @@ const logging = require('./logging');
 const communication = require('./communication');
 const accPackEvents = require('./events');
 const state = require('./state');
+const { path } = require('./util');
 
 /**
  * Individual Accelerator Packs
@@ -97,7 +98,10 @@ const createEventListeners = (session, options) => {
   if (usingAnnotation) {
     on('subscribeToScreen', ({ subscriber }) => {
       annotation.start(getSession())
-        .then(() => annotation.linkCanvas(subscriber, subscriber.element.parentElement));
+        .then(() => {
+          const absoluteParent = path('annotation.absoluteParent.subscriber', options);
+          annotation.linkCanvas(subscriber, subscriber.element.parentElement, absoluteParent);
+        });
     });
 
     on('unsubscribeFromScreen', () => {
@@ -108,10 +112,12 @@ const createEventListeners = (session, options) => {
   on('startScreenSharing', (publisher) => {
     state.addPublisher('screen', publisher);
     triggerEvent('startScreenShare', Object.assign({}, { publisher }, state.currentPubSub()));
-    // publishers.screen[publisher.id] = publisher;
     if (internalAnnotation) {
       annotation.start(getSession())
-        .then(() => annotation.linkCanvas(publisher, publisher.element.parentElement));
+        .then(() => {
+          const absoluteParent = path('annotation.absoluteParent.subscriber', options);
+          annotation.linkCanvas(publisher, publisher.element.parentElement, absoluteParent);
+        });
     }
   });
 
