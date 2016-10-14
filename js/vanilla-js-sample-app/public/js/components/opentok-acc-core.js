@@ -262,9 +262,15 @@ var communication = require('./communication');
 var accPackEvents = require('./events');
 var state = require('./state');
 
+var _require = require('./util');
+
+var dom = _require.dom;
+var path = _require.path;
+
 /**
  * Individual Accelerator Packs
  */
+
 var textChat = void 0;
 var screenSharing = void 0;
 var annotation = void 0;
@@ -362,7 +368,9 @@ var createEventListeners = function createEventListeners(session, options) {
       var subscriber = _ref.subscriber;
 
       annotation.start(getSession()).then(function () {
-        return annotation.linkCanvas(subscriber, subscriber.element.parentElement);
+        var absoluteParent = dom.query(path('annotation.absoluteParent.subscriber', options));
+        var linkOptions = absoluteParent ? { absoluteParent: absoluteParent } : null;
+        annotation.linkCanvas(subscriber, subscriber.element.parentElement, linkOptions);
       });
     });
 
@@ -374,10 +382,11 @@ var createEventListeners = function createEventListeners(session, options) {
   on('startScreenSharing', function (publisher) {
     state.addPublisher('screen', publisher);
     triggerEvent('startScreenShare', Object.assign({}, { publisher: publisher }, state.currentPubSub()));
-    // publishers.screen[publisher.id] = publisher;
     if (internalAnnotation) {
       annotation.start(getSession()).then(function () {
-        return annotation.linkCanvas(publisher, publisher.element.parentElement);
+        var absoluteParent = dom.query(path('annotation.absoluteParent.publisher', options));
+        var linkOptions = absoluteParent ? { absoluteParent: absoluteParent } : null;
+        annotation.linkCanvas(publisher, publisher.element.parentElement, linkOptions);
       });
     }
   });
@@ -705,7 +714,7 @@ if (global === window) {
 module.exports = opentokCore;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./communication":1,"./events":3,"./logging":4,"./state":5,"opentok-annotation":undefined,"opentok-archiving":undefined,"opentok-screen-sharing":undefined,"opentok-text-chat":undefined}],3:[function(require,module,exports){
+},{"./communication":1,"./events":3,"./logging":4,"./state":5,"./util":6,"opentok-annotation":undefined,"opentok-archiving":undefined,"opentok-screen-sharing":undefined,"opentok-text-chat":undefined}],3:[function(require,module,exports){
 'use strict';
 
 var events = {
@@ -849,6 +858,50 @@ module.exports = {
   addSubscriber: addSubscriber,
   currentPubSub: currentPubSub,
   all: all
+};
+
+},{}],6:[function(require,module,exports){
+'use strict';
+
+/** Wrap DOM selector methods:
+ * document.querySelector,
+ * document.getElementById,
+ * document.getElementsByClassName]
+ */
+var dom = {
+  query: function query(arg) {
+    return document.querySelector(arg);
+  },
+  id: function id(arg) {
+    return document.getElementById(arg);
+  },
+  class: function _class(arg) {
+    return document.getElementsByClassName(arg);
+  }
+};
+
+/**
+ * Returns a (nested) propery from an object, or undefined if it doesn't exist
+ * @param {String | Array} props - An array of properties or a single property
+ * @param {Object | Array} obj
+ */
+var path = function path(props, obj) {
+  var nested = obj;
+  var properties = typeof props === 'string' ? props.split('.') : props;
+
+  for (var i = 0; i < properties.length; i++) {
+    nested = nested[properties[i]];
+    if (nested === undefined) {
+      return nested;
+    }
+  }
+
+  return nested;
+};
+
+module.exports = {
+  dom: dom,
+  path: path
 };
 
 },{}]},{},[2]);

@@ -11,9 +11,15 @@ var communication = require('./communication');
 var accPackEvents = require('./events');
 var state = require('./state');
 
+var _require = require('./util');
+
+var dom = _require.dom;
+var path = _require.path;
+
 /**
  * Individual Accelerator Packs
  */
+
 var textChat = undefined;
 var screenSharing = undefined;
 var annotation = undefined;
@@ -111,7 +117,9 @@ var createEventListeners = function createEventListeners(session, options) {
       var subscriber = _ref.subscriber;
 
       annotation.start(getSession()).then(function () {
-        return annotation.linkCanvas(subscriber, subscriber.element.parentElement);
+        var absoluteParent = dom.query(path('annotation.absoluteParent.subscriber', options));
+        var linkOptions = absoluteParent ? { absoluteParent: absoluteParent } : null;
+        annotation.linkCanvas(subscriber, subscriber.element.parentElement, linkOptions);
       });
     });
 
@@ -123,10 +131,11 @@ var createEventListeners = function createEventListeners(session, options) {
   on('startScreenSharing', function (publisher) {
     state.addPublisher('screen', publisher);
     triggerEvent('startScreenShare', Object.assign({}, { publisher: publisher }, state.currentPubSub()));
-    // publishers.screen[publisher.id] = publisher;
     if (internalAnnotation) {
       annotation.start(getSession()).then(function () {
-        return annotation.linkCanvas(publisher, publisher.element.parentElement);
+        var absoluteParent = dom.query(path('annotation.absoluteParent.publisher', options));
+        var linkOptions = absoluteParent ? { absoluteParent: absoluteParent } : null;
+        annotation.linkCanvas(publisher, publisher.element.parentElement, linkOptions);
       });
     }
   });

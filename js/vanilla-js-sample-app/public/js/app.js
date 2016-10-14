@@ -65,6 +65,9 @@ const app = () => {
     const viewingSharedScreen = meta ? meta.subscriber.screen : false;
     const activeCameraSubscribers = meta ? meta.subscriber.camera : 0;
 
+    const videoContainerClass = `App-video-container ${(sharingScreen || viewingSharedScreen) ? 'center' : ''}`;
+    document.getElementById('appVideoContainer').setAttribute('class', videoContainerClass);
+
     const cameraPublisherClass =
       `video-container ${!!activeCameraSubscribers || sharingScreen ? 'small' : ''} ${sharingScreen || viewingSharedScreen ? 'left' : ''}`;
     document.getElementById('cameraPublisherContainer').setAttribute('class', cameraPublisherClass);

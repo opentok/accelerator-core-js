@@ -75,7 +75,8 @@ body {
     background-image: url(https://assets.tokbox.com/solutions/images/icon-mic.png);
 }
 
-.App-control-container .ots-video-control.audio:hover, .App-control-container .ots-video-control.audio.muted {
+.App-control-container .ots-video-control.audio:hover,
+.App-control-container .ots-video-control.audio.muted {
     background-image: url(https://assets.tokbox.com/solutions/images/icon-muted-mic.png);
 }
 
@@ -91,6 +92,12 @@ body {
     position: relative;
     width: 100%;
     height: 100%;
+}
+
+.App-video-container.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .App-mask {

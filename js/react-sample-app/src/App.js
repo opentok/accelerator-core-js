@@ -41,10 +41,23 @@ const otCoreOptions = {
     annotation: true,
     externalWindow: false,
     dev: true,
-    screenProperties: null, // Using default
+    screenProperties: {
+      insertMode: 'append',
+      width: '100%',
+      height: '100%',
+      showControls: false,
+      style: {
+        buttonDisplayMode: 'off',
+      },
+      videoSource: 'window',
+      fitMode: 'contain' // Using default
+    },
   },
   annotation: {
-
+    absoluteParent: {
+      publisher: '.App-video-container',
+      subscriber: '.App-video-container'
+    }
   },
   archiving: {
     startURL: 'https://example.com/startArchive',
@@ -62,6 +75,7 @@ const containerClasses = (state) => {
   const viewingSharedScreen = meta ? meta.subscriber.screen : false;
   const activeCameraSubscribers = meta ? meta.subscriber.camera : 0;
   return {
+    videoContainerClass: classNames('App-video-container', { center: sharingScreen || viewingSharedScreen }),
     controlClass: classNames('App-control-container', { 'hidden': !active }),
     localAudioClass: classNames('ots-video-control circle audio', { 'muted': !localAudioEnabled }),
     localVideoClass: classNames('ots-video-control circle video', { 'muted': !localVideoEnabled }),
@@ -144,6 +158,7 @@ class App extends Component {
       localAudioClass,
       localVideoClass,
       controlClass,
+      videoContainerClass,
       cameraPublisherClass,
       screenPublisherClass,
       cameraSubscriberClass,
@@ -161,7 +176,7 @@ class App extends Component {
             <div className={localAudioClass} onClick={this.toggleLocalAudio}></div>
             <div className={localVideoClass} onClick={this.toggleLocalVideo}></div>
           </div>
-          <div className="App-video-container">
+          <div className={videoContainerClass}>
             { !connected && connectingMask() }
             { connected && !active && startCallMask(this.startCall)}
             <div id="cameraPublisherContainer" className={cameraPublisherClass}></div>
