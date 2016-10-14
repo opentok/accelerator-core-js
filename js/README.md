@@ -100,6 +100,10 @@ The remainder of the options properties are specific to individual accelerator p
     items: myToolbarItems,
     colors: myColorPalette,
     onScreenCapture: myScreenCaptureCallback,
+    absoluteParent: {
+      publisher: '#videoWrapper',
+      subscriber: '#videoWrapper',
+    }
   },
   archiving: {
     startURL: 'https://yourapi.com/startArchive',
