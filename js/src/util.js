@@ -4,14 +4,14 @@
  * document.getElementsByClassName]
  */
 const dom = {
-  query(...args) {
-    return document.querySelector(args);
+  query(arg) {
+    return document.querySelector(arg);
   },
-  id(...args) {
-    return document.getElementById(args);
+  id(arg) {
+    return document.getElementById(arg);
   },
-  class(...args) {
-    return document.getElementsByClassName(args);
+  class(arg) {
+    return document.getElementsByClassName(arg);
   },
 };
 
