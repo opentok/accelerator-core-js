@@ -69,7 +69,7 @@ const app = () => {
     document.getElementById('appVideoContainer').setAttribute('class', videoContainerClass);
 
     const cameraPublisherClass =
-      `video-container ${!!activeCameraSubscribers || sharingScreen ? 'small' : ''} ${sharingScreen || viewingSharedScreen ? 'left' : ''}`;
+      `video-container ${!!activeCameraSubscribers || sharingScreen ? 'small' : ''} ${!!activeCameraSubscribers || sharingScreen ? 'small' : ''} ${sharingScreen || viewingSharedScreen ? 'left' : ''}`;
     document.getElementById('cameraPublisherContainer').setAttribute('class', cameraPublisherClass);
 
     const screenPublisherClass = `video-container ${!sharingScreen ? 'hidden' : ''}`;
@@ -100,6 +100,7 @@ const app = () => {
         break;
       case 'active':
         if (active) {
+          document.getElementById('cameraPublisherContainer').classLisl.remove('hidden');
           document.getElementById('start-mask').classList.add('hidden');
           document.getElementById('controls').classList.remove('hidden');
         }

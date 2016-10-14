@@ -75,11 +75,10 @@ const containerClasses = (state) => {
   const viewingSharedScreen = meta ? meta.subscriber.screen : false;
   const activeCameraSubscribers = meta ? meta.subscriber.camera : 0;
   return {
-    videoContainerClass: classNames('App-video-container', { center: sharingScreen || viewingSharedScreen }),
     controlClass: classNames('App-control-container', { 'hidden': !active }),
     localAudioClass: classNames('ots-video-control circle audio', { 'muted': !localAudioEnabled }),
     localVideoClass: classNames('ots-video-control circle video', { 'muted': !localVideoEnabled }),
-    cameraPublisherClass: classNames('video-container', { 'small': !!activeCameraSubscribers || sharingScreen }, { 'left': sharingScreen || viewingSharedScreen }),
+    cameraPublisherClass: classNames('video-container', { 'hidden' : !active, 'small': !!activeCameraSubscribers || sharingScreen, 'left': sharingScreen || viewingSharedScreen }),
     screenPublisherClass: classNames('video-container', { 'hidden': !sharingScreen }),
     cameraSubscriberClass: classNames('video-container', { 'hidden': !activeCameraSubscribers },
       `active-${activeCameraSubscribers}`, { 'small': viewingSharedScreen || sharingScreen }
@@ -158,7 +157,6 @@ class App extends Component {
       localAudioClass,
       localVideoClass,
       controlClass,
-      videoContainerClass,
       cameraPublisherClass,
       screenPublisherClass,
       cameraSubscriberClass,
@@ -176,7 +174,7 @@ class App extends Component {
             <div className={localAudioClass} onClick={this.toggleLocalAudio}></div>
             <div className={localVideoClass} onClick={this.toggleLocalVideo}></div>
           </div>
-          <div className={videoContainerClass}>
+          <div className="App-video-container">
             { !connected && connectingMask() }
             { connected && !active && startCallMask(this.startCall)}
             <div id="cameraPublisherContainer" className={cameraPublisherClass}></div>
