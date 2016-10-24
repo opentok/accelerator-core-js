@@ -50,6 +50,20 @@ const on = (event, callback) => {
 };
 
 /**
+ * Remove a callback for a specific event
+ * @param {String} event - The name of the event
+ * @param {Function} callback
+ */
+const off = (event, callback) => {
+  const eventCallbacks = registeredEvents[event];
+  if (!eventCallbacks) {
+    logging.message(`${event} is not a registered event.`);
+  } else {
+    eventCallbacks.delete(callback);
+  }
+};
+
+/**
  * Trigger an event and fire all registered callbacks
  * @param {String} event - The name of the event
  * @param {*} data - Data to be passed to callback functions
@@ -398,6 +412,7 @@ const opentokCore = {
   getSession,
   getCredentials,
   on,
+  off,
   registerEventListener: on,
   triggerEvent,
   startCall: communication.startCall,

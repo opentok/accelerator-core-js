@@ -59,6 +59,20 @@ var on = function on(event, callback) {
 };
 
 /**
+ * Remove a callback for a specific event
+ * @param {String} event - The name of the event
+ * @param {Function} callback
+ */
+var off = function off(event, callback) {
+  var eventCallbacks = registeredEvents[event];
+  if (!eventCallbacks) {
+    logging.message(event + ' is not a registered event.');
+  } else {
+    eventCallbacks.delete(callback);
+  }
+};
+
+/**
  * Trigger an event and fire all registered callbacks
  * @param {String} event - The name of the event
  * @param {*} data - Data to be passed to callback functions
@@ -444,6 +458,7 @@ var opentokCore = {
   getSession: getSession,
   getCredentials: getCredentials,
   on: on,
+  off: off,
   registerEventListener: on,
   triggerEvent: triggerEvent,
   startCall: communication.startCall,
