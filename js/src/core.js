@@ -381,12 +381,6 @@ const toggleRemoteAudio = (id, enable) => communication.enableRemoteAV(id, 'audi
 const toggleRemoteVideo = (id, enable) => communication.enableRemoteAV(id, 'video', enable);
 
 /**
- * Signal using the OpenTok session
- * TODO: Consider updating this method to return a Promise
- */
-const signal = (...args) => getSession().signal(args);
-
-/**
  * Initialize the accelerator pack
  * @param {Object} options
  * @param {Object} options.credentials
@@ -409,6 +403,8 @@ const init = (options) => {
 const opentokCore = {
   init,
   connect,
+  forceDisconnect: getSession().forceDisconnect,
+  forceUnpublish: getSession().forceUnpublish,
   getSession,
   getCredentials,
   on,
@@ -421,8 +417,9 @@ const opentokCore = {
   toggleLocalVideo,
   toggleRemoteAudio,
   toggleRemoteVideo,
+  signal: getSession().signal,
   subscribe: communication.subscribe,
-  signal,
+  unsubscribe: communication.unsubscribe,
 };
 
 if (global === window) {
