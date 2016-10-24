@@ -407,6 +407,8 @@ const opentokCore = {
   forceUnpublish: getSession().forceUnpublish,
   getSession,
   getCredentials,
+  getPublisherForStream: getSession().getPublisherForStream,
+  getSubscribersForStream: getSession().getSubscribersForStream,
   on,
   off,
   registerEventListener: on,

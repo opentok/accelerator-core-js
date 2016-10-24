@@ -712,6 +712,8 @@ var opentokCore = {
   forceUnpublish: getSession().forceUnpublish,
   getSession: getSession,
   getCredentials: getCredentials,
+  getPublisherForStream: getSession().getPublisherForStream,
+  getSubscribersForStream: getSession().getSubscribersForStream,
   on: on,
   off: off,
   registerEventListener: on,
