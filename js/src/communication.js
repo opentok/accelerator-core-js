@@ -158,6 +158,18 @@ const subscribe = stream =>
     });
   })
 
+/**
+ * Unsubscribe from a stream and update the state
+ * @param {Object} subscriber - An OpenTok subscriber object
+ * @returns {Promise} <resolve: empty>
+ */
+  const unsubscribe = subscriber =>
+  new Promise((resolve) => {
+    getSession().unsubscribe(subscriber);
+    state.removeSubscriber(subscriber);
+    resolve();
+  });
+
 
 /**
  * Stop publishing and unsubscribe from all streams
@@ -215,6 +227,7 @@ module.exports = {
   startCall,
   endCall,
   subscribe,
+  unsubscribe,
   enableLocalAV,
   enableRemoteAV,
 };
