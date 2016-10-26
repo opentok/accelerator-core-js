@@ -366,8 +366,8 @@ var connect = function connect() {
 };
 
 /**
- * Wrapper for session methods that ensures an OpenTok session is available
- * before calling the method.
+ * Wrapper for syncronous session methods that ensures an OpenTok
+ * session is available before invoking the method.
  * @param {String} method - The OpenTok session method
  * @params {Array} [args]
  */
@@ -380,7 +380,7 @@ var sessionMethods = function sessionMethods(method) {
   if (!session) {
     logging.message('Could not call ' + method + '. No OpenTok session is available');
   }
-  session[method](args);
+  session[method].apply(session, args);
 };
 
 /**

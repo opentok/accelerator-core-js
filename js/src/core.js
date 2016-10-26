@@ -346,8 +346,8 @@ const connect = () =>
   });
 
 /**
- * Wrapper for session methods that ensures an OpenTok session is available
- * before calling the method.
+ * Wrapper for syncronous session methods that ensures an OpenTok
+ * session is available before invoking the method.
  * @param {String} method - The OpenTok session method
  * @params {Array} [args]
  */
@@ -356,7 +356,7 @@ const sessionMethods = (method, ...args) => {
   if (!session) {
     logging.message(`Could not call ${method}. No OpenTok session is available`);
   }
-  session[method](args);
+  session[method](...args);
 }
 
 /**
