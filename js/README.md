@@ -125,15 +125,19 @@ otCore.connect().then(() => this.setState({ connected: true }));
 ```
 The other `Core` API methods include:
 ```javascript
-startCall         => Publish audio/video and subscribe to streams
-endCall           => Stop publishing and unsubscribe from all streams
-getSession        => Get the OpenTok Session Object
-toggleLocalAudio  => Toggle publishing local audio
-toggleLocalVideo  => Toggle publishing local video
-toggleRemoteAudio => Toggle subscribing to remote audio
-toggleRemoteVideo => Toggle subscribing to remote video
-subscribe         => Manually subscribe to a stream
-signal            => Send a signal using the OpenTok signaling API [1]
+startCall               => Publish audio/video and subscribe to streams
+endCall                 => Stop publishing and unsubscribe from all streams
+forceDisconnect         => Force a remote connection to leave the session
+forceUnpublish          => Force the publisher a stream to stop publishing
+getSession              => Get the OpenTok Session Object
+getPublisherForStream   => Get the local publisher object for a stream
+getSubscribersForStream => Get the local subscriber objects for a stream
+toggleLocalAudio        => Toggle publishing local audio
+toggleLocalVideo        => Toggle publishing local video
+toggleRemoteAudio       => Toggle subscribing to remote audio
+toggleRemoteVideo       => Toggle subscribing to remote video
+subscribe               => Manually subscribe to a stream
+signal                  => Send a signal using the OpenTok signaling API [1]
 ```
 [1] [OpenTok Signaling API](https://www.tokbox.com/developer/guides/signaling/js/)
 
