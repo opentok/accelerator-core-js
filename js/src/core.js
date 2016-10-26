@@ -79,13 +79,13 @@ const triggerEvent = (event, data) => {
 };
 
 /** Returns the current OpenTok session object */
-let getSession;
+const getSession = state.getSession;
 
 /** Returns the current OpenTok session credentials */
-let getCredentials;
+let getCredentials = state.getCredentials;
 
 /** Returns the options used for initialization */
-let getOptions;
+let getOptions = state.getOptions;
 
 const createEventListeners = (session, options) => {
   Object.keys(accPackEvents).forEach(type => registerEvents(accPackEvents[type]));
@@ -346,6 +346,20 @@ const connect = () =>
   });
 
 /**
+ * Wrapper for session methods that ensures an OpenTok session is available
+ * before calling the method.
+ * @param {String} method - The OpenTok session method
+ * @params {Array} [args]
+ */
+const sessionMethods = (method, ...args) => {
+  const session = getSession();
+  if (!session) {
+    logging.message(`Could not call ${method}. No OpenTok session is available`);
+  }
+  session[method](args);
+}
+
+/**
  * Enable or disable local audio
  * @param {Boolean} enable
  */
@@ -395,20 +409,20 @@ const init = (options) => {
   validateCredentials(options.credentials);
   const session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
-  getSession = () => session;
-  getCredentials = () => credentials;
-  getOptions = () => options;
+  state.setSession(session);
+  state.setCredentials(credentials);
+  state.setOptions(options);
 };
 
 const opentokCore = {
   init,
   connect,
-  forceDisconnect: getSession().forceDisconnect,
-  forceUnpublish: getSession().forceUnpublish,
+  forceDisconnect: (...args) => sessionMethods('forceDisconnect'),
+  forceUnpublish: (...args) => sessionMethods('forceUnpublish'),
+  getOptions,
   getSession,
-  getCredentials,
-  getPublisherForStream: getSession().getPublisherForStream,
-  getSubscribersForStream: getSession().getSubscribersForStream,
+  getPublisherForStream: (...args) => sessionMethods('getPublisherForStream', args),
+  getSubscribersForStream: (...args) => sessionMethods('getSubscribersForStream', args),
   on,
   off,
   registerEventListener: on,
@@ -419,7 +433,7 @@ const opentokCore = {
   toggleLocalVideo,
   toggleRemoteAudio,
   toggleRemoteVideo,
-  signal: getSession().signal,
+  signal: (...args) => sessionMethods('signal', args),
   subscribe: communication.subscribe,
   unsubscribe: communication.unsubscribe,
 };

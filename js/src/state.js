@@ -16,7 +16,37 @@ const streams = {};
 // Map stream ids to subscriber/publisher ids
 const streamMap = {};
 
+/**
+ * Getters and setters for session, credentials and options
+ */
 
+let session = null;
+let credentials = null;
+let options = null;
+
+// Get the current OpenTok session
+const getSession = () => session;
+
+// Set the current OpenTok session
+const setSession = (otSession) => {
+  session = otSession;
+};
+
+// Get the current OpenTok credentials
+const getCredentials = () => credentials;
+
+// Set the current OpenTok credentials
+const setCredentials = (otCredentials) => {
+  credentials = otCredentials;
+};
+
+// Get the current OpenTok credentials
+const getOptions = () => options;
+
+// Set the current OpenTok credentials
+const setOptions = (otOptions) => {
+  options = otOptions;
+};
 
 /**
  * Returns the count of current publishers and subscribers by type
@@ -97,6 +127,12 @@ module.exports = {
   addStream,
   removeStream,
   getStreams,
+  getSession,
+  setSession,
+  getCredentials,
+  setCredentials,
+  getOptions,
+  setOptions,
   addPublisher,
   removePublisher,
   removeAllPublishers,

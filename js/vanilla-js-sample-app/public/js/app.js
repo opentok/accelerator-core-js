@@ -2,9 +2,9 @@
 
 const options = {
   credentials: {
-    apiKey: 'YOUR_API_KEY',
-    sessionId: 'YOUR_SESSION_ID',
-    token: 'YOUR_TOKEN',
+  "apiKey": "45621172",
+  "sessionId": "1_MX40NTYyMTE3Mn5-MTQ3NjMwMTQ0NzE5MH5lOG9oTWhWWkwvMldEYVpIK3dPdlVTZEl-fg",
+  "token": "T1==cGFydG5lcl9pZD00NTYyMTE3MiZzaWc9ZTFmYzIyNmM4ZDgyYTM1Mzg4NDQxYjc5MjdmMzZhZTNhMWNmMGJlZjpzZXNzaW9uX2lkPTFfTVg0ME5UWXlNVEUzTW41LU1UUTNOak13TVRRME56RTVNSDVsT0c5b1RXaFdXa3d2TWxkRVlWcElLM2RQZGxWVFpFbC1mZyZjcmVhdGVfdGltZT0xNDc3MzQ2MDQ1Jm5vbmNlPTAuODU5NzAzMzQ3Nzg1Mzk4NCZyb2xlPXB1Ymxpc2hlciZleHBpcmVfdGltZT0xNDc5OTQxNjQ1"
   },
   // A container can either be a query selector or an HTMLElement
   containers: {
@@ -100,7 +100,7 @@ const app = () => {
         break;
       case 'active':
         if (active) {
-          document.getElementById('cameraPublisherContainer').classLisl.remove('hidden');
+          document.getElementById('cameraPublisherContainer').classList.remove('hidden');
           document.getElementById('start-mask').classList.add('hidden');
           document.getElementById('controls').classList.remove('hidden');
         }

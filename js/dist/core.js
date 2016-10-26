@@ -90,13 +90,13 @@ var triggerEvent = function triggerEvent(event, data) {
 };
 
 /** Returns the current OpenTok session object */
-var getSession = undefined;
+var getSession = state.getSession;
 
 /** Returns the current OpenTok session credentials */
-var getCredentials = undefined;
+var getCredentials = state.getCredentials;
 
 /** Returns the options used for initialization */
-var getOptions = undefined;
+var getOptions = state.getOptions;
 
 var createEventListeners = function createEventListeners(session, options) {
   Object.keys(accPackEvents).forEach(function (type) {
@@ -366,6 +366,24 @@ var connect = function connect() {
 };
 
 /**
+ * Wrapper for session methods that ensures an OpenTok session is available
+ * before calling the method.
+ * @param {String} method - The OpenTok session method
+ * @params {Array} [args]
+ */
+var sessionMethods = function sessionMethods(method) {
+  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+
+  var session = getSession();
+  if (!session) {
+    logging.message('Could not call ' + method + '. No OpenTok session is available');
+  }
+  session[method](args);
+};
+
+/**
  * Enable or disable local audio
  * @param {Boolean} enable
  */
@@ -429,26 +447,36 @@ var init = function init(options) {
   validateCredentials(options.credentials);
   var session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
-  getSession = function getSession() {
-    return session;
-  };
-  getCredentials = function getCredentials() {
-    return credentials;
-  };
-  getOptions = function getOptions() {
-    return options;
-  };
+  state.setSession(session);
+  state.setCredentials(credentials);
+  state.setOptions(options);
 };
 
 var opentokCore = {
   init: init,
   connect: connect,
-  forceDisconnect: getSession().forceDisconnect,
-  forceUnpublish: getSession().forceUnpublish,
+  forceDisconnect: function forceDisconnect() {
+    return sessionMethods('forceDisconnect');
+  },
+  forceUnpublish: function forceUnpublish() {
+    return sessionMethods('forceUnpublish');
+  },
+  getOptions: getOptions,
   getSession: getSession,
-  getCredentials: getCredentials,
-  getPublisherForStream: getSession().getPublisherForStream,
-  getSubscribersForStream: getSession().getSubscribersForStream,
+  getPublisherForStream: function getPublisherForStream() {
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    return sessionMethods('getPublisherForStream', args);
+  },
+  getSubscribersForStream: function getSubscribersForStream() {
+    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      args[_key3] = arguments[_key3];
+    }
+
+    return sessionMethods('getSubscribersForStream', args);
+  },
   on: on,
   off: off,
   registerEventListener: on,
@@ -459,7 +487,13 @@ var opentokCore = {
   toggleLocalVideo: toggleLocalVideo,
   toggleRemoteAudio: toggleRemoteAudio,
   toggleRemoteVideo: toggleRemoteVideo,
-  signal: getSession().signal,
+  signal: function signal() {
+    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
+    }
+
+    return sessionMethods('signal', args);
+  },
   subscribe: communication.subscribe,
   unsubscribe: communication.unsubscribe
 };

@@ -19,6 +19,44 @@ var streams = {};
 var streamMap = {};
 
 /**
+ * Getters and setters for session, credentials and options
+ */
+
+var session = null;
+var credentials = null;
+var options = null;
+
+// Get the current OpenTok session
+var getSession = function getSession() {
+  return session;
+};
+
+// Set the current OpenTok session
+var setSession = function setSession(otSession) {
+  session = otSession;
+};
+
+// Get the current OpenTok credentials
+var getCredentials = function getCredentials() {
+  return credentials;
+};
+
+// Set the current OpenTok credentials
+var setCredentials = function setCredentials(otCredentials) {
+  credentials = otCredentials;
+};
+
+// Get the current OpenTok credentials
+var getOptions = function getOptions() {
+  return options;
+};
+
+// Set the current OpenTok credentials
+var setOptions = function setOptions(otOptions) {
+  options = otOptions;
+};
+
+/**
  * Returns the count of current publishers and subscribers by type
  * @retuns {Object}
  *    {
@@ -103,6 +141,12 @@ module.exports = {
   addStream: addStream,
   removeStream: removeStream,
   getStreams: getStreams,
+  getSession: getSession,
+  setSession: setSession,
+  getCredentials: getCredentials,
+  setCredentials: setCredentials,
+  getOptions: getOptions,
+  setOptions: setOptions,
   addPublisher: addPublisher,
   removePublisher: removePublisher,
   removeAllPublishers: removeAllPublishers,
