@@ -357,7 +357,7 @@ const sessionMethods = (method, ...args) => {
     logging.message(`Could not call ${method}. No OpenTok session is available`);
   }
   session[method](...args);
-}
+};
 
 /**
  * Enable or disable local audio
@@ -417,12 +417,12 @@ const init = (options) => {
 const opentokCore = {
   init,
   connect,
-  forceDisconnect: (...args) => sessionMethods('forceDisconnect'),
-  forceUnpublish: (...args) => sessionMethods('forceUnpublish'),
+  forceDisconnect: (...args) => sessionMethods('forceDisconnect', ...args),
+  forceUnpublish: (...args) => sessionMethods('forceUnpublish', ...args),
   getOptions,
   getSession,
-  getPublisherForStream: (...args) => sessionMethods('getPublisherForStream', args),
-  getSubscribersForStream: (...args) => sessionMethods('getSubscribersForStream', args),
+  getPublisherForStream: (...args) => sessionMethods('getPublisherForStream', ...args),
+  getSubscribersForStream: (...args) => sessionMethods('getSubscribersForStream', ...args),
   on,
   off,
   registerEventListener: on,
@@ -433,7 +433,7 @@ const opentokCore = {
   toggleLocalVideo,
   toggleRemoteAudio,
   toggleRemoteVideo,
-  signal: (...args) => sessionMethods('signal', args),
+  signal: (...args) => sessionMethods('signal', ...args),
   subscribe: communication.subscribe,
   unsubscribe: communication.unsubscribe,
 };

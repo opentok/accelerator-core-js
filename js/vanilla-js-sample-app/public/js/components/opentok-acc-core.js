@@ -721,26 +721,34 @@ var opentokCore = {
   init: init,
   connect: connect,
   forceDisconnect: function forceDisconnect() {
-    return sessionMethods('forceDisconnect');
-  },
-  forceUnpublish: function forceUnpublish() {
-    return sessionMethods('forceUnpublish');
-  },
-  getOptions: getOptions,
-  getSession: getSession,
-  getPublisherForStream: function getPublisherForStream() {
     for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
       args[_key2] = arguments[_key2];
     }
 
-    return sessionMethods('getPublisherForStream', args);
+    return sessionMethods.apply(undefined, ['forceDisconnect'].concat(args));
   },
-  getSubscribersForStream: function getSubscribersForStream() {
+  forceUnpublish: function forceUnpublish() {
     for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       args[_key3] = arguments[_key3];
     }
 
-    return sessionMethods('getSubscribersForStream', args);
+    return sessionMethods.apply(undefined, ['forceUnpublish'].concat(args));
+  },
+  getOptions: getOptions,
+  getSession: getSession,
+  getPublisherForStream: function getPublisherForStream() {
+    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
+    }
+
+    return sessionMethods.apply(undefined, ['getPublisherForStream'].concat(args));
+  },
+  getSubscribersForStream: function getSubscribersForStream() {
+    for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      args[_key5] = arguments[_key5];
+    }
+
+    return sessionMethods.apply(undefined, ['getSubscribersForStream'].concat(args));
   },
   on: on,
   off: off,
@@ -753,11 +761,11 @@ var opentokCore = {
   toggleRemoteAudio: toggleRemoteAudio,
   toggleRemoteVideo: toggleRemoteVideo,
   signal: function signal() {
-    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-      args[_key4] = arguments[_key4];
+    for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+      args[_key6] = arguments[_key6];
     }
 
-    return sessionMethods('signal', args);
+    return sessionMethods.apply(undefined, ['signal'].concat(args));
   },
   subscribe: communication.subscribe,
   unsubscribe: communication.unsubscribe
