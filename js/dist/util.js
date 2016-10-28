@@ -25,18 +25,48 @@ var dom = {
 var path = function path(props, obj) {
   var nested = obj;
   var properties = typeof props === 'string' ? props.split('.') : props;
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
 
-  for (var i = 0; i < properties.length; i++) {
-    nested = nested[properties[i]];
-    if (nested === undefined) {
-      return nested;
+  try {
+    for (var _iterator = properties[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var property = _step.value;
+
+      nested = nested[property];
+      if (nested === undefined) {
+        return nested;
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
     }
   }
 
   return nested;
 };
 
+/**
+ * Converts a string to proper case (e.g. 'camera' => 'Camera')
+ * @param {String} text
+ * @returns {String}
+ */
+var properCase = function properCase(text) {
+  return '' + text[0].toUpperCase() + text.slice(1);
+};
+
 module.exports = {
   dom: dom,
-  path: path
+  path: path,
+  properCase: properCase
 };

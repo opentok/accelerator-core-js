@@ -78,7 +78,7 @@ const containerClasses = (state) => {
     controlClass: classNames('App-control-container', { 'hidden': !active }),
     localAudioClass: classNames('ots-video-control circle audio', { 'muted': !localAudioEnabled }),
     localVideoClass: classNames('ots-video-control circle video', { 'muted': !localVideoEnabled }),
-    cameraPublisherClass: classNames('video-container', { 'hidden' : !active, 'small': !!activeCameraSubscribers || sharingScreen, 'left': sharingScreen || viewingSharedScreen }),
+    cameraPublisherClass: classNames('video-container', { 'hidden': !active, 'small': !!activeCameraSubscribers || sharingScreen, 'left': sharingScreen || viewingSharedScreen }),
     screenPublisherClass: classNames('video-container', { 'hidden': !sharingScreen }),
     cameraSubscriberClass: classNames('video-container', { 'hidden': !activeCameraSubscribers },
       `active-${activeCameraSubscribers}`, { 'small': viewingSharedScreen || sharingScreen }

@@ -1,8 +1,16 @@
 'use strict';
 
-/* eslint-disable */
+/* global OT */
+
+/** Dependencies */
 var logging = require('./logging');
 var state = require('./state');
+
+var _require = require('./util');
+
+var properCase = _require.properCase;
+
+
 var session = undefined;
 var accPack = undefined;
 var callProperties = undefined;
@@ -11,6 +19,10 @@ var containers = {};
 var autoSubscribe = undefined;
 var active = false;
 
+/**
+ * Default UI propties
+ * https://tokbox.com/developer/guides/customize-ui/js/
+ */
 var defaultCallProperties = {
   insertMode: 'append',
   width: '100%',
@@ -22,15 +34,6 @@ var defaultCallProperties = {
 };
 
 /**
- * Converts a string to proper case (e.g. 'camera' => 'Camera')
- * @param {String} text
- * @returns {String}
- */
-var properCase = function properCase(text) {
-  return '' + text[0].toUpperCase() + text.slice(1);
-};
-
-/**
  * Trigger an event through the API layer
  * @param {String} event - The name of the event
  * @param {*} [data]
@@ -39,7 +42,10 @@ var triggerEvent = function triggerEvent(event, data) {
   return accPack.triggerEvent(event, data);
 };
 
-/** Create a camera publisher object */
+/**
+ * Create a camera publisher object
+ * @returns {Promise} <resolve: Object, reject: Error>
+ */
 var createPublisher = function createPublisher() {
   return new Promise(function (resolve, reject) {
     // TODO: Handle adding 'name' option to props
@@ -54,7 +60,7 @@ var createPublisher = function createPublisher() {
 
 /**
  * Publish the local camera stream and update state
- * @returns {Promise} <resolve: -, reject: Error>
+ * @returns {Promise} <resolve: empty, reject: Error>
  */
 var publish = function publish() {
   return new Promise(function (resolve, reject) {
@@ -67,6 +73,50 @@ var publish = function publish() {
       triggerEvent('error', errorMessage);
       reject(error);
     });
+  });
+};
+
+/**
+ * Subscribe to a stream and update the state
+ * @param {Object} stream - An OpenTok stream object
+ * @returns {Promise} <resolve: empty reject: Error >
+ */
+var subscribe = function subscribe(stream) {
+  return new Promise(function (resolve, reject) {
+    var streamMap = state.getStreamMap();
+    if (streamMap[stream.id]) {
+      // Are we already subscribing to the stream?
+      resolve();
+    } else {
+      (function () {
+        var type = stream.videoType;
+        var container = containers.subscriber[type] || 'subscriberContainer';
+        var options = type === 'camera' ? callProperties : screenProperties;
+        var subscriber = session.subscribe(stream, container, options, function (error) {
+          if (error) {
+            reject(error);
+          } else {
+            state.addSubscriber(subscriber);
+            triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.all()));
+            type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+            resolve();
+          }
+        });
+      })();
+    }
+  });
+};
+
+/**
+ * Unsubscribe from a stream and update the state
+ * @param {Object} subscriber - An OpenTok subscriber object
+ * @returns {Promise} <resolve: empty>
+ */
+var unsubscribe = function unsubscribe(subscriber) {
+  return new Promise(function (resolve) {
+    session.unsubscribe(subscriber);
+    state.removeSubscriber(subscriber);
+    resolve();
   });
 };
 
@@ -111,7 +161,7 @@ var onStreamDestroyed = function onStreamDestroyed(_ref2) {
   state.removeStream(stream);
   var type = stream.videoType;
   type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
-  triggerEvent('unsubscribeFrom' + properCase(type), state.currentPubSub());
+  triggerEvent('unsubscribeFrom' + properCase(type), state.getPubSub());
 };
 
 /**
@@ -127,18 +177,18 @@ var createEventListeners = function createEventListeners() {
  * @returns {Promise} <resolve: Object, reject: Error>
  */
 var startCall = function startCall() {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function (resolve) {
     publish().then(function () {
       var streams = state.getStreams();
-      var initialSubscriptions = Object.keys(state.getStreams()).map(function (streamId) {
-        return subscribe(streams[streamId]);
+      var initialSubscriptions = Object.keys(streams).map(function (id) {
+        return subscribe(streams[id]);
       });
       Promise.all(initialSubscriptions).then(function () {
-        var pubSubData = state.currentPubSub();
+        var pubSubData = state.getPubSub();
         triggerEvent('startCall', pubSubData);
         active = true;
         resolve(pubSubData);
-      }, function (reason) {
+      }).catch(function (reason) {
         return logging.message('Failed to subscribe to all existing streams: ' + reason);
       });
     });
@@ -146,49 +196,12 @@ var startCall = function startCall() {
 };
 
 /**
- * Subscribe to a stream and update the state
- * @param {Object} stream - An OpenTok stream object
- * @returns {Promise} <resolve: >
- */
-var subscribe = function subscribe(stream) {
-  return new Promise(function (resolve, reject) {
-    if (state.getStreams()[stream.id]) {
-      resolve();
-    }
-    var type = stream.videoType;
-    var container = containers.subscriber[type] || 'subscriberContainer';
-    var options = type === 'camera' ? callProperties : screenProperties;
-    var subscriber = session.subscribe(stream, container, options, function (error) {
-      if (error) {
-        reject(error);
-      } else {
-        state.addSubscriber(subscriber);
-        triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.currentPubSub()));
-        type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-        resolve();
-      }
-    });
-  });
-};
-
-/**
- * Unsubscribe from a stream and update the state
- * @param {Object} subscriber - An OpenTok subscriber object
- * @returns {Promise} <resolve: empty>
- */
-var unsubscribe = function unsubscribe(subscriber) {
-  return new Promise(function (resolve) {
-    getSession().unsubscribe(subscriber);
-    state.removeSubscriber(subscriber);
-    resolve();
-  });
-};
-
-/**
  * Stop publishing and unsubscribe from all streams
  */
 var endCall = function endCall() {
-  var publishers = state.currentPubSub().publishers;
+  var _state$getPubSub = state.getPubSub();
+
+  var publishers = _state$getPubSub.publishers;
 
   var unpublish = function unpublish(publisher) {
     return session.unpublish(publisher);
@@ -200,6 +213,7 @@ var endCall = function endCall() {
     return unpublish(publishers.screen[id]);
   });
   state.removeAllPublishers();
+  state.removeAllSubscribers();
   active = false;
 };
 
@@ -211,9 +225,9 @@ var endCall = function endCall() {
 var enableLocalAV = function enableLocalAV(id, source, enable) {
   var method = 'publish' + properCase(source);
 
-  var _state$currentPubSub = state.currentPubSub();
+  var _state$getPubSub2 = state.getPubSub();
 
-  var publishers = _state$currentPubSub.publishers;
+  var publishers = _state$getPubSub2.publishers;
 
   publishers.camera[id][method](enable);
 };
@@ -227,9 +241,9 @@ var enableLocalAV = function enableLocalAV(id, source, enable) {
 var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
   var method = 'subscribeTo' + properCase(source);
 
-  var _state$currentPubSub2 = state.currentPubSub();
+  var _state$getPubSub3 = state.getPubSub();
 
-  var subscribers = _state$currentPubSub2.subscribers;
+  var subscribers = _state$getPubSub3.subscribers;
 
   subscribers.camera[subscriberId][method](enable);
 };
@@ -250,6 +264,7 @@ var init = function init(options) {
   });
 };
 
+/** Exports */
 module.exports = {
   init: init,
   startCall: startCall,

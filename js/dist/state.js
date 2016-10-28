@@ -1,5 +1,9 @@
 "use strict";
 
+/**
+ * Internal variables
+ */
+
 // Map publisher ids to publisher objects
 var publishers = {
   camera: {},
@@ -18,43 +22,13 @@ var streams = {};
 // Map stream ids to subscriber/publisher ids
 var streamMap = {};
 
-/**
- * Getters and setters for session, credentials and options
- */
-
 var session = null;
 var credentials = null;
 var options = null;
 
-// Get the current OpenTok session
-var getSession = function getSession() {
-  return session;
-};
-
-// Set the current OpenTok session
-var setSession = function setSession(otSession) {
-  session = otSession;
-};
-
-// Get the current OpenTok credentials
-var getCredentials = function getCredentials() {
-  return credentials;
-};
-
-// Set the current OpenTok credentials
-var setCredentials = function setCredentials(otCredentials) {
-  credentials = otCredentials;
-};
-
-// Get the current OpenTok credentials
-var getOptions = function getOptions() {
-  return options;
-};
-
-// Set the current OpenTok credentials
-var setOptions = function setOptions(otOptions) {
-  options = otOptions;
-};
+/**
+ * Internal methods
+ */
 
 /**
  * Returns the count of current publishers and subscribers by type
@@ -73,6 +47,7 @@ var setOptions = function setOptions(otOptions) {
  *   }
  */
 var pubSubCount = function pubSubCount() {
+  /* eslint-disable no-param-reassign */
   var pubs = Object.keys(publishers).reduce(function (acc, source) {
     acc[source] = Object.keys(publishers[source]).length;
     acc.total += acc[source];
@@ -84,43 +59,86 @@ var pubSubCount = function pubSubCount() {
     acc.total += acc[source];
     return acc;
   }, { camera: 0, screen: 0, total: 0 });
-
+  /* eslint-enable no-param-reassign */
   return { publisher: pubs, subscriber: subs };
 };
 
 /**
  * Returns the current publishers and subscribers, along with a count of each
+ * @returns {Object}
  */
-var currentPubSub = function currentPubSub() {
+var getPubSub = function getPubSub() {
   return { publishers: publishers, subscribers: subscribers, meta: pubSubCount() };
 };
 
-var addPublisher = function addPublisher(type, publisher) {
-  streamMap[publisher.streamId] = publisher.id;
-  publishers[type][publisher.id] = publisher;
+/**
+ * Get streams, streamMap, publishers, and subscribers
+ * @return {Object}
+ */
+var all = function all() {
+  return Object.assign({}, { streams: streams, streamMap: streamMap }, getPubSub());
 };
 
-var removePublisher = function removePublisher(type, publisher) {
-  var id = publisher.id || streamMap[publisher.streamId];
-  delete publishers[type][id];
+/**
+ * Get the current OpenTok session
+ * @returns {Object}
+ */
+var getSession = function getSession() {
+  return session;
 };
 
-var removeAllPublishers = function removeAllPublishers() {
-  publishers.camera = {};
-  publishers.screen = {};
+/**
+ * Set the current OpenTok session
+ * @param {Object} otSession
+ */
+var setSession = function setSession(otSession) {
+  session = otSession;
 };
 
-var addSubscriber = function addSubscriber(subscriber) {
-  var type = subscriber.stream.videoType;
-  var streamId = subscriber.stream.id;
-  subscribers[type][subscriber.id] = subscriber;
-  streamMap[streamId] = subscriber.id;
+/**
+ * Get the current OpenTok credentials
+ * @returns {Object}
+ */
+var getCredentials = function getCredentials() {
+  return credentials;
 };
 
+/**
+ * Set the current OpenTok credentials
+ * @param {Object} otCredentials
+ */
+var setCredentials = function setCredentials(otCredentials) {
+  credentials = otCredentials;
+};
+
+/**
+ * Get the options defined for core
+ * @returns {Object}
+ */
+var getOptions = function getOptions() {
+  return options;
+};
+
+/**
+ * Set the options defined for core
+ * @param {Object} otOptions
+ */
+var setOptions = function setOptions(otOptions) {
+  options = otOptions;
+};
+
+/**
+ * Add a stream to state
+ * @param {Object} stream - An OpenTok stream object
+ */
 var addStream = function addStream(stream) {
   streams[stream.id] = stream;
 };
 
+/**
+ * Remove a stream from state and any associated subscribers
+ * @param {Object} stream - An OpenTok stream object
+ */
 var removeStream = function removeStream(stream) {
   var type = stream.videoType;
   var subscriberId = streamMap[stream.id];
@@ -129,28 +147,100 @@ var removeStream = function removeStream(stream) {
   delete streams[stream.id];
 };
 
+/**
+ * Get all remote streams
+ * @returns {Object}
+ */
 var getStreams = function getStreams() {
   return streams;
 };
 
-var all = function all() {
-  return Object.assign({}, currentPubSub(), { streams: streams, streamMap: streamMap });
+/**
+ * Get the map of stream ids to publisher/subscriber ids
+ * @returns {Object}
+ */
+var getStreamMap = function getStreamMap() {
+  return streamMap;
 };
 
+/**
+ * Add a publisher to state
+ * @param {String} type - 'camera' or 'screen'
+ * @param {Object} publisher - The OpenTok publisher object
+ */
+var addPublisher = function addPublisher(type, publisher) {
+  streamMap[publisher.streamId] = publisher.id;
+  publishers[type][publisher.id] = publisher;
+};
+
+/**
+ * Remove a publisher from state
+ * @param {String} type - 'camera' or 'screen'
+ * @param {Object} publisher - The OpenTok publisher object
+ */
+var removePublisher = function removePublisher(type, publisher) {
+  var id = publisher.id || streamMap[publisher.streamId];
+  delete publishers[type][id];
+};
+
+/**
+ * Remove all publishers from state
+ */
+var removeAllPublishers = function removeAllPublishers() {
+  publishers.camera = {};
+  publishers.screen = {};
+};
+
+/**
+ * Add a subscriber to state
+ * @param {Object} - An OpenTok subscriber object
+ */
+var addSubscriber = function addSubscriber(subscriber) {
+  var type = subscriber.stream.videoType;
+  var streamId = subscriber.stream.id;
+  subscribers[type][subscriber.id] = subscriber;
+  streamMap[streamId] = subscriber.id;
+};
+
+/**
+ * Remove all subscribers from state
+ */
+var removeAllSubscribers = function removeAllSubscribers() {
+  subscribers.camera = {};
+  subscribers.screen = {};
+};
+
+/**
+ * Reset state
+ */
+var reset = function reset() {
+  removeAllPublishers();
+  removeAllSubscribers();
+  [streams, streamMap].forEach(function (streamObj) {
+    Object.keys(streamObj).forEach(function (streamId) {
+      delete streamObj[streamId]; // eslint-disable-line no-param-reassign
+    });
+  });
+};
+
+/** Exports */
 module.exports = {
-  addStream: addStream,
-  removeStream: removeStream,
-  getStreams: getStreams,
+  all: all,
   getSession: getSession,
   setSession: setSession,
   getCredentials: getCredentials,
   setCredentials: setCredentials,
   getOptions: getOptions,
   setOptions: setOptions,
+  addStream: addStream,
+  removeStream: removeStream,
+  getStreams: getStreams,
+  getStreamMap: getStreamMap,
   addPublisher: addPublisher,
   removePublisher: removePublisher,
   removeAllPublishers: removeAllPublishers,
   addSubscriber: addSubscriber,
-  currentPubSub: currentPubSub,
-  all: all
+  removeAllSubscribers: removeAllSubscribers,
+  getPubSub: getPubSub,
+  reset: reset
 };

@@ -1,9 +1,17 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-/* eslint-disable */
+/* global OT */
+
+/** Dependencies */
 var logging = require('./logging');
 var state = require('./state');
+
+var _require = require('./util');
+
+var properCase = _require.properCase;
+
+
 var session = void 0;
 var accPack = void 0;
 var callProperties = void 0;
@@ -12,6 +20,10 @@ var containers = {};
 var autoSubscribe = void 0;
 var active = false;
 
+/**
+ * Default UI propties
+ * https://tokbox.com/developer/guides/customize-ui/js/
+ */
 var defaultCallProperties = {
   insertMode: 'append',
   width: '100%',
@@ -23,15 +35,6 @@ var defaultCallProperties = {
 };
 
 /**
- * Converts a string to proper case (e.g. 'camera' => 'Camera')
- * @param {String} text
- * @returns {String}
- */
-var properCase = function properCase(text) {
-  return '' + text[0].toUpperCase() + text.slice(1);
-};
-
-/**
  * Trigger an event through the API layer
  * @param {String} event - The name of the event
  * @param {*} [data]
@@ -40,7 +43,10 @@ var triggerEvent = function triggerEvent(event, data) {
   return accPack.triggerEvent(event, data);
 };
 
-/** Create a camera publisher object */
+/**
+ * Create a camera publisher object
+ * @returns {Promise} <resolve: Object, reject: Error>
+ */
 var createPublisher = function createPublisher() {
   return new Promise(function (resolve, reject) {
     // TODO: Handle adding 'name' option to props
@@ -55,7 +61,7 @@ var createPublisher = function createPublisher() {
 
 /**
  * Publish the local camera stream and update state
- * @returns {Promise} <resolve: -, reject: Error>
+ * @returns {Promise} <resolve: empty, reject: Error>
  */
 var publish = function publish() {
   return new Promise(function (resolve, reject) {
@@ -68,6 +74,50 @@ var publish = function publish() {
       triggerEvent('error', errorMessage);
       reject(error);
     });
+  });
+};
+
+/**
+ * Subscribe to a stream and update the state
+ * @param {Object} stream - An OpenTok stream object
+ * @returns {Promise} <resolve: empty reject: Error >
+ */
+var subscribe = function subscribe(stream) {
+  return new Promise(function (resolve, reject) {
+    var streamMap = state.getStreamMap();
+    if (streamMap[stream.id]) {
+      // Are we already subscribing to the stream?
+      resolve();
+    } else {
+      (function () {
+        var type = stream.videoType;
+        var container = containers.subscriber[type] || 'subscriberContainer';
+        var options = type === 'camera' ? callProperties : screenProperties;
+        var subscriber = session.subscribe(stream, container, options, function (error) {
+          if (error) {
+            reject(error);
+          } else {
+            state.addSubscriber(subscriber);
+            triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.all()));
+            type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+            resolve();
+          }
+        });
+      })();
+    }
+  });
+};
+
+/**
+ * Unsubscribe from a stream and update the state
+ * @param {Object} subscriber - An OpenTok subscriber object
+ * @returns {Promise} <resolve: empty>
+ */
+var unsubscribe = function unsubscribe(subscriber) {
+  return new Promise(function (resolve) {
+    session.unsubscribe(subscriber);
+    state.removeSubscriber(subscriber);
+    resolve();
   });
 };
 
@@ -112,7 +162,7 @@ var onStreamDestroyed = function onStreamDestroyed(_ref2) {
   state.removeStream(stream);
   var type = stream.videoType;
   type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
-  triggerEvent('unsubscribeFrom' + properCase(type), state.currentPubSub());
+  triggerEvent('unsubscribeFrom' + properCase(type), state.getPubSub());
 };
 
 /**
@@ -128,18 +178,18 @@ var createEventListeners = function createEventListeners() {
  * @returns {Promise} <resolve: Object, reject: Error>
  */
 var startCall = function startCall() {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function (resolve) {
     publish().then(function () {
       var streams = state.getStreams();
-      var initialSubscriptions = Object.keys(state.getStreams()).map(function (streamId) {
-        return subscribe(streams[streamId]);
+      var initialSubscriptions = Object.keys(streams).map(function (id) {
+        return subscribe(streams[id]);
       });
       Promise.all(initialSubscriptions).then(function () {
-        var pubSubData = state.currentPubSub();
+        var pubSubData = state.getPubSub();
         triggerEvent('startCall', pubSubData);
         active = true;
         resolve(pubSubData);
-      }, function (reason) {
+      }).catch(function (reason) {
         return logging.message('Failed to subscribe to all existing streams: ' + reason);
       });
     });
@@ -147,49 +197,12 @@ var startCall = function startCall() {
 };
 
 /**
- * Subscribe to a stream and update the state
- * @param {Object} stream - An OpenTok stream object
- * @returns {Promise} <resolve: >
- */
-var subscribe = function subscribe(stream) {
-  return new Promise(function (resolve, reject) {
-    if (state.getStreams()[stream.id]) {
-      resolve();
-    }
-    var type = stream.videoType;
-    var container = containers.subscriber[type] || 'subscriberContainer';
-    var options = type === 'camera' ? callProperties : screenProperties;
-    var subscriber = session.subscribe(stream, container, options, function (error) {
-      if (error) {
-        reject(error);
-      } else {
-        state.addSubscriber(subscriber);
-        triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.currentPubSub()));
-        type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-        resolve();
-      }
-    });
-  });
-};
-
-/**
- * Unsubscribe from a stream and update the state
- * @param {Object} subscriber - An OpenTok subscriber object
- * @returns {Promise} <resolve: empty>
- */
-var unsubscribe = function unsubscribe(subscriber) {
-  return new Promise(function (resolve) {
-    getSession().unsubscribe(subscriber);
-    state.removeSubscriber(subscriber);
-    resolve();
-  });
-};
-
-/**
  * Stop publishing and unsubscribe from all streams
  */
 var endCall = function endCall() {
-  var publishers = state.currentPubSub().publishers;
+  var _state$getPubSub = state.getPubSub();
+
+  var publishers = _state$getPubSub.publishers;
 
   var unpublish = function unpublish(publisher) {
     return session.unpublish(publisher);
@@ -201,6 +214,7 @@ var endCall = function endCall() {
     return unpublish(publishers.screen[id]);
   });
   state.removeAllPublishers();
+  state.removeAllSubscribers();
   active = false;
 };
 
@@ -212,9 +226,9 @@ var endCall = function endCall() {
 var enableLocalAV = function enableLocalAV(id, source, enable) {
   var method = 'publish' + properCase(source);
 
-  var _state$currentPubSub = state.currentPubSub();
+  var _state$getPubSub2 = state.getPubSub();
 
-  var publishers = _state$currentPubSub.publishers;
+  var publishers = _state$getPubSub2.publishers;
 
   publishers.camera[id][method](enable);
 };
@@ -228,9 +242,9 @@ var enableLocalAV = function enableLocalAV(id, source, enable) {
 var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
   var method = 'subscribeTo' + properCase(source);
 
-  var _state$currentPubSub2 = state.currentPubSub();
+  var _state$getPubSub3 = state.getPubSub();
 
-  var subscribers = _state$currentPubSub2.subscribers;
+  var subscribers = _state$getPubSub3.subscribers;
 
   subscribers.camera[subscriberId][method](enable);
 };
@@ -251,6 +265,7 @@ var init = function init(options) {
   });
 };
 
+/** Exports */
 module.exports = {
   init: init,
   startCall: startCall,
@@ -261,9 +276,13 @@ module.exports = {
   enableRemoteAV: enableRemoteAV
 };
 
-},{"./logging":4,"./state":5}],2:[function(require,module,exports){
+},{"./logging":4,"./state":5,"./util":6}],2:[function(require,module,exports){
 (function (global){
 'use strict';
+
+var _arguments = arguments;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -274,25 +293,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 var logging = require('./logging');
 var communication = require('./communication');
 var accPackEvents = require('./events');
-var state = require('./state');
+var internalState = require('./state');
 
 var _require = require('./util');
 
 var dom = _require.dom;
 var path = _require.path;
+var properCase = _require.properCase;
 
 /**
  * Individual Accelerator Packs
  */
 
-var textChat = void 0;
-var screenSharing = void 0;
+var textChat = void 0; // eslint-disable-line no-unused-vars
+var screenSharing = void 0; // eslint-disable-line no-unused-vars
 var annotation = void 0;
-var archiving = void 0;
+var archiving = void 0; // eslint-disable-line no-unused-vars
 
 /** Eventing */
 
-var registeredEvents = {};
+var eventListeners = {};
 
 /**
  * Register events that can be listened to be other components/modules
@@ -303,19 +323,26 @@ var registeredEvents = {};
 var registerEvents = function registerEvents(events) {
   var eventList = Array.isArray(events) ? events : [events];
   eventList.forEach(function (event) {
-    if (!registeredEvents[event]) {
-      registeredEvents[event] = new Set();
+    if (!eventListeners[event]) {
+      eventListeners[event] = new Set();
     }
   });
 };
 
 /**
- * Register a callback for a specific event
- * @param {String} event - The name of the event
+ * Register a callback for a specific event or pass an object with
+ * with event => callback key/value pairs to register listeners for
+ * multiple events.
+ * @param {String | Object} event - The name of the event
  * @param {Function} callback
  */
 var on = function on(event, callback) {
-  var eventCallbacks = registeredEvents[event];
+  if ((typeof event === 'undefined' ? 'undefined' : _typeof(event)) === 'object') {
+    Object.keys(event).forEach(function (eventName) {
+      on(eventName, event[eventName]);
+    });
+  }
+  var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(event + ' is not a registered event.');
   } else {
@@ -324,12 +351,18 @@ var on = function on(event, callback) {
 };
 
 /**
- * Remove a callback for a specific event
+ * Remove a callback for a specific event.  If no parameters are passed,
+ * all event listeners will be removed.
  * @param {String} event - The name of the event
  * @param {Function} callback
  */
 var off = function off(event, callback) {
-  var eventCallbacks = registeredEvents[event];
+  if (_arguments.lenth === 0) {
+    Object.keys(eventListeners).forEach(function (eventType) {
+      eventListeners[eventType].clear();
+    });
+  }
+  var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(event + ' is not a registered event.');
   } else {
@@ -343,7 +376,7 @@ var off = function off(event, callback) {
  * @param {*} data - Data to be passed to callback functions
  */
 var triggerEvent = function triggerEvent(event, data) {
-  var eventCallbacks = registeredEvents[event];
+  var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     registerEvents(event);
     logging.message(event + ' has been registered as a new event.');
@@ -355,13 +388,13 @@ var triggerEvent = function triggerEvent(event, data) {
 };
 
 /** Returns the current OpenTok session object */
-var getSession = state.getSession;
+var getSession = internalState.getSession;
 
 /** Returns the current OpenTok session credentials */
-var getCredentials = state.getCredentials;
+var getCredentials = internalState.getCredentials;
 
 /** Returns the options used for initialization */
-var getOptions = state.getOptions;
+var getOptions = internalState.getOptions;
 
 var createEventListeners = function createEventListeners(session, options) {
   Object.keys(accPackEvents).forEach(function (type) {
@@ -376,16 +409,16 @@ var createEventListeners = function createEventListeners(session, options) {
   var internalAnnotation = usingAnnotation && !options.screenSharing.externalWindow;
 
   /**
-   * Wrap session events and update state when streams are created
+   * Wrap session events and update internalState when streams are created
    * or destroyed
    */
   accPackEvents.session.forEach(function (eventName) {
     session.on(eventName, function (event) {
       if (eventName === 'streamCreated') {
-        state.addStream(event.stream);
+        internalState.addStream(event.stream);
       }
       if (eventName === 'streamDestroyed') {
-        state.removeStream(event.stream);
+        internalState.removeStream(event.stream);
       }
       triggerEvent(eventName, event);
     });
@@ -408,8 +441,8 @@ var createEventListeners = function createEventListeners(session, options) {
   }
 
   on('startScreenSharing', function (publisher) {
-    state.addPublisher('screen', publisher);
-    triggerEvent('startScreenShare', Object.assign({}, { publisher: publisher }, state.currentPubSub()));
+    internalState.addPublisher('screen', publisher);
+    triggerEvent('startScreenShare', Object.assign({}, { publisher: publisher }, internalState.getPubSub()));
     if (internalAnnotation) {
       annotation.start(getSession()).then(function () {
         var absoluteParent = dom.query(path('annotation.absoluteParent.publisher', options));
@@ -421,8 +454,8 @@ var createEventListeners = function createEventListeners(session, options) {
 
   on('endScreenSharing', function (publisher) {
     // delete publishers.screen[publisher.id];
-    state.removePublisher('screen', publisher);
-    triggerEvent('endScreenShare', state.currentPubSub());
+    internalState.removePublisher('screen', publisher);
+    triggerEvent('endScreenShare', internalState.getPubSub());
     if (internalAnnotation) {
       annotation.end();
     }
@@ -443,7 +476,7 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
   if (externalWindow) {
     (function () {
       // Add subscribers to the external window
-      var streams = state.getStreams();
+      var streams = internalState.getStreams();
       var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
         var stream = streams[streamId];
         return stream.videoType === 'camera' ? acc.concat(stream) : acc;
@@ -459,8 +492,8 @@ var initPackages = function initPackages() {
 
   /**
    * Try to require a package.  If 'require' is unavailable, look for
-   * the package in global scope.  A switch statement is used because
-   * webpack and Browserify aren't able to resolve require statements
+   * the package in global scope.  A switch internalStatement is used because
+   * webpack and Browserify aren't able to resolve require internalStatements
    * that use variable names.
    * @param {String} packageName - The name of the npm package
    * @param {String} globalName - The name of the package if exposed on global/window
@@ -468,7 +501,7 @@ var initPackages = function initPackages() {
    */
   var optionalRequire = function optionalRequire(packageName, globalName) {
     var result = void 0;
-    /* eslint-disable global-require, import/no-extraneous-dependencies */
+    /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
     try {
       switch (packageName) {
         case 'opentok-text-chat':
@@ -515,8 +548,7 @@ var initPackages = function initPackages() {
   options.packages.forEach(function (acceleratorPack) {
     if (availablePackages[acceleratorPack]) {
       // eslint-disable-next-line no-param-reassign
-      var packageName = '' + acceleratorPack[0].toUpperCase() + acceleratorPack.slice(1);
-      packages[packageName] = availablePackages[acceleratorPack]();
+      packages[properCase(acceleratorPack)] = availablePackages[acceleratorPack]();
     } else {
       logging.message(acceleratorPack + ' is not a valid accelerator pack');
     }
@@ -553,12 +585,12 @@ var initPackages = function initPackages() {
    * @returns {Object}
    */
   var packageOptions = function packageOptions(packageName) {
-    var _state$all = state.all();
+    var _internalState$all = internalState.all();
 
-    var streams = _state$all.streams;
-    var streamMap = _state$all.streamMap;
-    var publishers = _state$all.publishers;
-    var subscribers = _state$all.subscribers;
+    var streams = _internalState$all.streams;
+    var streamMap = _internalState$all.streamMap;
+    var publishers = _internalState$all.publishers;
+    var subscribers = _internalState$all.subscribers;
 
     var accPack = {
       registerEventListener: on,
@@ -631,21 +663,69 @@ var connect = function connect() {
 };
 
 /**
- * Wrapper for syncronous session methods that ensures an OpenTok
- * session is available before invoking the method.
- * @param {String} method - The OpenTok session method
- * @params {Array} [args]
- */
-var sessionMethods = function sessionMethods(method) {
-  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    args[_key - 1] = arguments[_key];
-  }
+* Disconnect from the session
+* @returns {Promise} <resolve: -, reject: Error>
+*/
+var disconnect = function disconnect() {
+  getSession().disconnect();
+  internalState.reset();
+};
 
-  var session = getSession();
-  if (!session) {
-    logging.message('Could not call ' + method + '. No OpenTok session is available');
-  }
-  session[method].apply(session, args);
+/**
+ * Force a remote connection to leave the session
+ * @param {Object} connection
+ * @returns {Promise} <resolve: empty, reject: Error>
+ */
+var forceDisconnect = function forceDisconnect(connection) {
+  return new Promise(function (resolve, reject) {
+    getSession().forceDisconnect(connection, function (error) {
+      error ? reject(error) : resolve();
+    });
+  });
+};
+
+/**
+ * Force the publisher of a stream to stop publishing the stream
+ * @param {Object} stream
+ * @returns {Promise} <resolve: empty, reject: Error>
+ */
+var forceUnpublish = function forceUnpublish(stream) {
+  return new Promise(function (resolve, reject) {
+    getSession().forceUnpublish(stream, function (error) {
+      error ? reject(error) : resolve();
+    });
+  });
+};
+
+/**
+ * Get the local publisher object for a stream
+ * @param {Object} stream - An OpenTok stream object
+ * @returns {Object} - The publisher object
+ */
+var getPublisherForStream = function getPublisherForStream(stream) {
+  return getSession().getPublisherForStream(stream);
+};
+
+/**
+ * Get the local subscriber objects for a stream
+ * @param {Object} stream - An OpenTok stream object
+ * @returns {Array} - An array of subscriber object
+ */
+var getSubscribersForStream = function getSubscribersForStream(stream) {
+  return getSession().getSubscribersForStream(stream);
+};
+
+/**
+ * Send a signal using the OpenTok signaling apiKey
+ * @param {Object} signal
+ * @returns {Promise} <resolve: empty, reject: Error>
+ */
+var signal = function signal(signalObj) {
+  return new Promise(function (resolve, reject) {
+    getSession().signal(signalObj, function (error) {
+      error ? reject(error) : resolve();
+    });
+  });
 };
 
 /**
@@ -653,9 +733,9 @@ var sessionMethods = function sessionMethods(method) {
  * @param {Boolean} enable
  */
 var toggleLocalAudio = function toggleLocalAudio(enable) {
-  var _state$currentPubSub = state.currentPubSub();
+  var _internalState$getPub = internalState.getPubSub();
 
-  var publishers = _state$currentPubSub.publishers;
+  var publishers = _internalState$getPub.publishers;
 
   var toggleAudio = function toggleAudio(id) {
     return communication.enableLocalAV(id, 'audio', enable);
@@ -668,9 +748,9 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
  * @param {Boolean} enable
  */
 var toggleLocalVideo = function toggleLocalVideo(enable) {
-  var _state$currentPubSub2 = state.currentPubSub();
+  var _internalState$getPub2 = internalState.getPubSub();
 
-  var publishers = _state$currentPubSub2.publishers;
+  var publishers = _internalState$getPub2.publishers;
 
   var toggleVideo = function toggleVideo(id) {
     return communication.enableLocalAV(id, 'video', enable);
@@ -712,61 +792,33 @@ var init = function init(options) {
   validateCredentials(options.credentials);
   var session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
-  state.setSession(session);
-  state.setCredentials(credentials);
-  state.setOptions(options);
+  internalState.setSession(session);
+  internalState.setCredentials(credentials);
+  internalState.setOptions(options);
 };
 
 var opentokCore = {
   init: init,
   connect: connect,
-  forceDisconnect: function forceDisconnect() {
-    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      args[_key2] = arguments[_key2];
-    }
-
-    return sessionMethods.apply(undefined, ['forceDisconnect'].concat(args));
-  },
-  forceUnpublish: function forceUnpublish() {
-    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-      args[_key3] = arguments[_key3];
-    }
-
-    return sessionMethods.apply(undefined, ['forceUnpublish'].concat(args));
-  },
+  disconnect: disconnect,
+  forceDisconnect: forceDisconnect,
+  forceUnpublish: forceUnpublish,
   getOptions: getOptions,
   getSession: getSession,
-  getPublisherForStream: function getPublisherForStream() {
-    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-      args[_key4] = arguments[_key4];
-    }
-
-    return sessionMethods.apply(undefined, ['getPublisherForStream'].concat(args));
-  },
-  getSubscribersForStream: function getSubscribersForStream() {
-    for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-      args[_key5] = arguments[_key5];
-    }
-
-    return sessionMethods.apply(undefined, ['getSubscribersForStream'].concat(args));
-  },
+  getPublisherForStream: getPublisherForStream,
+  getSubscribersForStream: getSubscribersForStream,
   on: on,
   off: off,
   registerEventListener: on,
   triggerEvent: triggerEvent,
+  signal: signal,
+  state: internalState.all,
   startCall: communication.startCall,
   endCall: communication.endCall,
   toggleLocalAudio: toggleLocalAudio,
   toggleLocalVideo: toggleLocalVideo,
   toggleRemoteAudio: toggleRemoteAudio,
   toggleRemoteVideo: toggleRemoteVideo,
-  signal: function signal() {
-    for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
-      args[_key6] = arguments[_key6];
-    }
-
-    return sessionMethods.apply(undefined, ['signal'].concat(args));
-  },
   subscribe: communication.subscribe,
   unsubscribe: communication.unsubscribe
 };
@@ -813,6 +865,10 @@ module.exports = {
 },{}],5:[function(require,module,exports){
 "use strict";
 
+/**
+ * Internal variables
+ */
+
 // Map publisher ids to publisher objects
 var publishers = {
   camera: {},
@@ -831,43 +887,13 @@ var streams = {};
 // Map stream ids to subscriber/publisher ids
 var streamMap = {};
 
-/**
- * Getters and setters for session, credentials and options
- */
-
 var session = null;
 var credentials = null;
 var options = null;
 
-// Get the current OpenTok session
-var getSession = function getSession() {
-  return session;
-};
-
-// Set the current OpenTok session
-var setSession = function setSession(otSession) {
-  session = otSession;
-};
-
-// Get the current OpenTok credentials
-var getCredentials = function getCredentials() {
-  return credentials;
-};
-
-// Set the current OpenTok credentials
-var setCredentials = function setCredentials(otCredentials) {
-  credentials = otCredentials;
-};
-
-// Get the current OpenTok credentials
-var getOptions = function getOptions() {
-  return options;
-};
-
-// Set the current OpenTok credentials
-var setOptions = function setOptions(otOptions) {
-  options = otOptions;
-};
+/**
+ * Internal methods
+ */
 
 /**
  * Returns the count of current publishers and subscribers by type
@@ -886,6 +912,7 @@ var setOptions = function setOptions(otOptions) {
  *   }
  */
 var pubSubCount = function pubSubCount() {
+  /* eslint-disable no-param-reassign */
   var pubs = Object.keys(publishers).reduce(function (acc, source) {
     acc[source] = Object.keys(publishers[source]).length;
     acc.total += acc[source];
@@ -897,43 +924,86 @@ var pubSubCount = function pubSubCount() {
     acc.total += acc[source];
     return acc;
   }, { camera: 0, screen: 0, total: 0 });
-
+  /* eslint-enable no-param-reassign */
   return { publisher: pubs, subscriber: subs };
 };
 
 /**
  * Returns the current publishers and subscribers, along with a count of each
+ * @returns {Object}
  */
-var currentPubSub = function currentPubSub() {
+var getPubSub = function getPubSub() {
   return { publishers: publishers, subscribers: subscribers, meta: pubSubCount() };
 };
 
-var addPublisher = function addPublisher(type, publisher) {
-  streamMap[publisher.streamId] = publisher.id;
-  publishers[type][publisher.id] = publisher;
+/**
+ * Get streams, streamMap, publishers, and subscribers
+ * @return {Object}
+ */
+var all = function all() {
+  return Object.assign({}, { streams: streams, streamMap: streamMap }, getPubSub());
 };
 
-var removePublisher = function removePublisher(type, publisher) {
-  var id = publisher.id || streamMap[publisher.streamId];
-  delete publishers[type][id];
+/**
+ * Get the current OpenTok session
+ * @returns {Object}
+ */
+var getSession = function getSession() {
+  return session;
 };
 
-var removeAllPublishers = function removeAllPublishers() {
-  publishers.camera = {};
-  publishers.screen = {};
+/**
+ * Set the current OpenTok session
+ * @param {Object} otSession
+ */
+var setSession = function setSession(otSession) {
+  session = otSession;
 };
 
-var addSubscriber = function addSubscriber(subscriber) {
-  var type = subscriber.stream.videoType;
-  var streamId = subscriber.stream.id;
-  subscribers[type][subscriber.id] = subscriber;
-  streamMap[streamId] = subscriber.id;
+/**
+ * Get the current OpenTok credentials
+ * @returns {Object}
+ */
+var getCredentials = function getCredentials() {
+  return credentials;
 };
 
+/**
+ * Set the current OpenTok credentials
+ * @param {Object} otCredentials
+ */
+var setCredentials = function setCredentials(otCredentials) {
+  credentials = otCredentials;
+};
+
+/**
+ * Get the options defined for core
+ * @returns {Object}
+ */
+var getOptions = function getOptions() {
+  return options;
+};
+
+/**
+ * Set the options defined for core
+ * @param {Object} otOptions
+ */
+var setOptions = function setOptions(otOptions) {
+  options = otOptions;
+};
+
+/**
+ * Add a stream to state
+ * @param {Object} stream - An OpenTok stream object
+ */
 var addStream = function addStream(stream) {
   streams[stream.id] = stream;
 };
 
+/**
+ * Remove a stream from state and any associated subscribers
+ * @param {Object} stream - An OpenTok stream object
+ */
 var removeStream = function removeStream(stream) {
   var type = stream.videoType;
   var subscriberId = streamMap[stream.id];
@@ -942,30 +1012,102 @@ var removeStream = function removeStream(stream) {
   delete streams[stream.id];
 };
 
+/**
+ * Get all remote streams
+ * @returns {Object}
+ */
 var getStreams = function getStreams() {
   return streams;
 };
 
-var all = function all() {
-  return Object.assign({}, currentPubSub(), { streams: streams, streamMap: streamMap });
+/**
+ * Get the map of stream ids to publisher/subscriber ids
+ * @returns {Object}
+ */
+var getStreamMap = function getStreamMap() {
+  return streamMap;
 };
 
+/**
+ * Add a publisher to state
+ * @param {String} type - 'camera' or 'screen'
+ * @param {Object} publisher - The OpenTok publisher object
+ */
+var addPublisher = function addPublisher(type, publisher) {
+  streamMap[publisher.streamId] = publisher.id;
+  publishers[type][publisher.id] = publisher;
+};
+
+/**
+ * Remove a publisher from state
+ * @param {String} type - 'camera' or 'screen'
+ * @param {Object} publisher - The OpenTok publisher object
+ */
+var removePublisher = function removePublisher(type, publisher) {
+  var id = publisher.id || streamMap[publisher.streamId];
+  delete publishers[type][id];
+};
+
+/**
+ * Remove all publishers from state
+ */
+var removeAllPublishers = function removeAllPublishers() {
+  publishers.camera = {};
+  publishers.screen = {};
+};
+
+/**
+ * Add a subscriber to state
+ * @param {Object} - An OpenTok subscriber object
+ */
+var addSubscriber = function addSubscriber(subscriber) {
+  var type = subscriber.stream.videoType;
+  var streamId = subscriber.stream.id;
+  subscribers[type][subscriber.id] = subscriber;
+  streamMap[streamId] = subscriber.id;
+};
+
+/**
+ * Remove all subscribers from state
+ */
+var removeAllSubscribers = function removeAllSubscribers() {
+  subscribers.camera = {};
+  subscribers.screen = {};
+};
+
+/**
+ * Reset state
+ */
+var reset = function reset() {
+  removeAllPublishers();
+  removeAllSubscribers();
+  [streams, streamMap].forEach(function (streamObj) {
+    Object.keys(streamObj).forEach(function (streamId) {
+      delete streamObj[streamId]; // eslint-disable-line no-param-reassign
+    });
+  });
+};
+
+/** Exports */
 module.exports = {
-  addStream: addStream,
-  removeStream: removeStream,
-  getStreams: getStreams,
+  all: all,
   getSession: getSession,
   setSession: setSession,
   getCredentials: getCredentials,
   setCredentials: setCredentials,
   getOptions: getOptions,
   setOptions: setOptions,
+  addStream: addStream,
+  removeStream: removeStream,
+  getStreams: getStreams,
+  getStreamMap: getStreamMap,
   addPublisher: addPublisher,
   removePublisher: removePublisher,
   removeAllPublishers: removeAllPublishers,
   addSubscriber: addSubscriber,
-  currentPubSub: currentPubSub,
-  all: all
+  removeAllSubscribers: removeAllSubscribers,
+  getPubSub: getPubSub,
+  reset: reset
 };
 
 },{}],6:[function(require,module,exports){
@@ -996,20 +1138,50 @@ var dom = {
 var path = function path(props, obj) {
   var nested = obj;
   var properties = typeof props === 'string' ? props.split('.') : props;
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
 
-  for (var i = 0; i < properties.length; i++) {
-    nested = nested[properties[i]];
-    if (nested === undefined) {
-      return nested;
+  try {
+    for (var _iterator = properties[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var property = _step.value;
+
+      nested = nested[property];
+      if (nested === undefined) {
+        return nested;
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
     }
   }
 
   return nested;
 };
 
+/**
+ * Converts a string to proper case (e.g. 'camera' => 'Camera')
+ * @param {String} text
+ * @returns {String}
+ */
+var properCase = function properCase(text) {
+  return '' + text[0].toUpperCase() + text.slice(1);
+};
+
 module.exports = {
   dom: dom,
-  path: path
+  path: path,
+  properCase: properCase
 };
 
 },{}]},{},[2]);
