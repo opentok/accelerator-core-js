@@ -1,6 +1,10 @@
-/* eslint-disable */
+/* global OT */
+
+/** Dependencies */
 const logging = require('./logging');
 const state = require('./state');
+const { properCase } = require('./util');
+
 let session;
 let accPack;
 let callProperties;
@@ -9,6 +13,10 @@ let containers = {};
 let autoSubscribe;
 let active = false;
 
+/**
+ * Default UI propties
+ * https://tokbox.com/developer/guides/customize-ui/js/
+ */
 const defaultCallProperties = {
   insertMode: 'append',
   width: '100%',
@@ -20,27 +28,23 @@ const defaultCallProperties = {
 };
 
 /**
- * Converts a string to proper case (e.g. 'camera' => 'Camera')
- * @param {String} text
- * @returns {String}
- */
-const properCase = text => `${text[0].toUpperCase()}${text.slice(1)}`;
-
-/**
  * Trigger an event through the API layer
  * @param {String} event - The name of the event
  * @param {*} [data]
  */
 const triggerEvent = (event, data) => accPack.triggerEvent(event, data);
 
-/** Create a camera publisher object */
+/**
+ * Create a camera publisher object
+ * @returns {Promise} <resolve: Object, reject: Error>
+ */
 const createPublisher = () =>
   new Promise((resolve, reject) => {
     // TODO: Handle adding 'name' option to props
     const props = Object.assign({}, callProperties);
     // TODO: Figure out how to handle common vs package-specific options
     const container = containers.publisher.camera || 'publisherContainer';
-    const publisher = OT.initPublisher(container, props, error => {
+    const publisher = OT.initPublisher(container, props, (error) => {
       error ? reject(error) : resolve(publisher);
     });
   });
@@ -48,7 +52,7 @@ const createPublisher = () =>
 
 /**
  * Publish the local camera stream and update state
- * @returns {Promise} <resolve: -, reject: Error>
+ * @returns {Promise} <resolve: empty, reject: Error>
  */
 const publish = () =>
   new Promise((resolve, reject) => {
@@ -56,13 +60,53 @@ const publish = () =>
       .then((publisher) => {
         state.addPublisher('camera', publisher);
         session.publish(publisher);
-        resolve()
+        resolve();
       })
       .catch((error) => {
         const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
         triggerEvent('error', errorMessage);
         reject(error);
       });
+  });
+
+/**
+ * Subscribe to a stream and update the state
+ * @param {Object} stream - An OpenTok stream object
+ * @returns {Promise} <resolve: empty reject: Error >
+ */
+const subscribe = stream =>
+  new Promise((resolve, reject) => {
+    const streamMap = state.getStreamMap();
+    if (streamMap[stream.id]) {
+      // Are we already subscribing to the stream?
+      resolve();
+    } else {
+      const type = stream.videoType;
+      const container = containers.subscriber[type] || 'subscriberContainer';
+      const options = type === 'camera' ? callProperties : screenProperties;
+      const subscriber = session.subscribe(stream, container, options, (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          state.addSubscriber(subscriber);
+          triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, state.all()));
+          type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+          resolve();
+        }
+      });
+    }
+  });
+
+/**
+ * Unsubscribe from a stream and update the state
+ * @param {Object} subscriber - An OpenTok subscriber object
+ * @returns {Promise} <resolve: empty>
+ */
+const unsubscribe = subscriber =>
+  new Promise((resolve) => {
+    session.unsubscribe(subscriber);
+    state.removeSubscriber(subscriber);
+    resolve();
   });
 
 /**
@@ -100,10 +144,10 @@ const onStreamCreated = ({ stream }) => active && autoSubscribe && subscribe(str
  * @param {Object} stream
  */
 const onStreamDestroyed = ({ stream }) => {
-  state.removeStream(stream)
+  state.removeStream(stream);
   const type = stream.videoType;
   type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
-  triggerEvent(`unsubscribeFrom${properCase(type)}`, state.currentPubSub());
+  triggerEvent(`unsubscribeFrom${properCase(type)}`, state.getPubSub());
 };
 
 /**
@@ -119,68 +163,30 @@ const createEventListeners = () => {
  * @returns {Promise} <resolve: Object, reject: Error>
  */
 const startCall = () =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
     publish()
       .then(() => {
         const streams = state.getStreams();
-        const initialSubscriptions = Object.keys(state.getStreams()).map(streamId => subscribe(streams[streamId]));
+        const initialSubscriptions = Object.keys(streams).map(id => subscribe(streams[id]));
         Promise.all(initialSubscriptions).then(() => {
-          const pubSubData = state.currentPubSub();
+          const pubSubData = state.getPubSub();
           triggerEvent('startCall', pubSubData);
           active = true;
           resolve(pubSubData);
-        }, (reason) => logging.message(`Failed to subscribe to all existing streams: ${reason}`));
+        }).catch(reason => logging.message(`Failed to subscribe to all existing streams: ${reason}`));
       });
   });
-
-/**
- * Subscribe to a stream and update the state
- * @param {Object} stream - An OpenTok stream object
- * @returns {Promise} <resolve: >
- */
-const subscribe = stream =>
-  new Promise((resolve, reject) => {
-    if (state.getStreams()[stream.id]) {
-      resolve();
-    }
-    const type = stream.videoType;
-    const container = containers.subscriber[type] || 'subscriberContainer';
-    const options = type === 'camera' ? callProperties : screenProperties;
-    const subscriber = session.subscribe(stream, container, options, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        state.addSubscriber(subscriber);
-        triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, state.currentPubSub()));
-        type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-        resolve();
-      }
-    });
-  })
-
-/**
- * Unsubscribe from a stream and update the state
- * @param {Object} subscriber - An OpenTok subscriber object
- * @returns {Promise} <resolve: empty>
- */
-  const unsubscribe = subscriber =>
-  new Promise((resolve) => {
-    getSession().unsubscribe(subscriber);
-    state.removeSubscriber(subscriber);
-    resolve();
-  });
-
 
 /**
  * Stop publishing and unsubscribe from all streams
  */
 const endCall = () => {
-  const publishers = state.currentPubSub().publishers;
-
+  const { publishers } = state.getPubSub();
   const unpublish = publisher => session.unpublish(publisher);
   Object.keys(publishers.camera).forEach(id => unpublish(publishers.camera[id]));
   Object.keys(publishers.screen).forEach(id => unpublish(publishers.screen[id]));
   state.removeAllPublishers();
+  state.removeAllSubscribers();
   active = false;
 };
 
@@ -191,7 +197,7 @@ const endCall = () => {
  */
 const enableLocalAV = (id, source, enable) => {
   const method = `publish${properCase(source)}`;
-  const { publishers } = state.currentPubSub()
+  const { publishers } = state.getPubSub();
   publishers.camera[id][method](enable);
 };
 
@@ -203,7 +209,7 @@ const enableLocalAV = (id, source, enable) => {
  */
 const enableRemoteAV = (subscriberId, source, enable) => {
   const method = `subscribeTo${properCase(source)}`;
-  const { subscribers } = state.currentPubSub();
+  const { subscribers } = state.getPubSub();
   subscribers.camera[subscriberId][method](enable);
 };
 
@@ -215,13 +221,15 @@ const enableRemoteAV = (subscriberId, source, enable) => {
  * @param {Object} options.subscribers
  * @param {Object} options.streams
  */
-const init = (options) =>
+const init = options =>
   new Promise((resolve) => {
     validateOptions(options);
     createEventListeners();
     resolve();
   });
 
+
+/** Exports */
 module.exports = {
   init,
   startCall,
