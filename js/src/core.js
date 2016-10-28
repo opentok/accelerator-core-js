@@ -6,15 +6,15 @@ const logging = require('./logging');
 const communication = require('./communication');
 const accPackEvents = require('./events');
 const internalState = require('./state');
-const { dom, path } = require('./util');
+const { dom, path, properCase } = require('./util');
 
 /**
  * Individual Accelerator Packs
  */
-let textChat;
-let screenSharing;
+let textChat; // eslint-disable-line no-unused-vars
+let screenSharing; // eslint-disable-line no-unused-vars
 let annotation;
-let archiving;
+let archiving; // eslint-disable-line no-unused-vars
 
 /** Eventing */
 
@@ -139,7 +139,7 @@ const createEventListeners = (session, options) => {
 
   on('startScreenSharing', (publisher) => {
     internalState.addPublisher('screen', publisher);
-    triggerEvent('startScreenShare', Object.assign({}, { publisher }, internalState.currentPubSub()));
+    triggerEvent('startScreenShare', Object.assign({}, { publisher }, internalState.getPubSub()));
     if (internalAnnotation) {
       annotation.start(getSession())
         .then(() => {
@@ -153,7 +153,7 @@ const createEventListeners = (session, options) => {
   on('endScreenSharing', (publisher) => {
     // delete publishers.screen[publisher.id];
     internalState.removePublisher('screen', publisher);
-    triggerEvent('endScreenShare', internalState.currentPubSub());
+    triggerEvent('endScreenShare', internalState.getPubSub());
     if (internalAnnotation) {
       annotation.end();
     }
@@ -196,7 +196,7 @@ const initPackages = () => {
    */
   const optionalRequire = (packageName, globalName) => {
     let result;
-    /* eslint-disable global-require, import/no-extraneous-dependencies */
+    /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
     try {
       switch (packageName) {
         case 'opentok-text-chat':
@@ -242,8 +242,7 @@ const initPackages = () => {
   const packages = {};
   options.packages.forEach((acceleratorPack) => {
     if (availablePackages[acceleratorPack]) { // eslint-disable-next-line no-param-reassign
-      const packageName = `${acceleratorPack[0].toUpperCase()}${acceleratorPack.slice(1)}`;
-      packages[packageName] = availablePackages[acceleratorPack]();
+      packages[properCase(acceleratorPack)] = availablePackages[acceleratorPack]();
     } else {
       logging.message(`${acceleratorPack} is not a valid accelerator pack`);
     }
@@ -358,6 +357,16 @@ const connect = () =>
     });
   });
 
+  /**
+ * Disconnect from the session
+ * @returns {Promise} <resolve: -, reject: Error>
+ */
+const disconnect = () => {
+  getSession().disconnect();
+  internalState.reset();
+};
+
+
 /**
  * Force a remote connection to leave the session
  * @param {Object} connection
@@ -415,7 +424,7 @@ const signal = signalObj =>
  * @param {Boolean} enable
  */
 const toggleLocalAudio = (enable) => {
-  const { publishers } = internalState.currentPubSub();
+  const { publishers } = internalState.getPubSub();
   const toggleAudio = id => communication.enableLocalAV(id, 'audio', enable);
   Object.keys(publishers.camera).forEach(toggleAudio);
 };
@@ -425,7 +434,7 @@ const toggleLocalAudio = (enable) => {
  * @param {Boolean} enable
  */
 const toggleLocalVideo = (enable) => {
-  const { publishers } = internalState.currentPubSub();
+  const { publishers } = internalState.getPubSub();
   const toggleVideo = id => communication.enableLocalAV(id, 'video', enable);
   Object.keys(publishers.camera).forEach(toggleVideo);
 };
@@ -468,6 +477,7 @@ const init = (options) => {
 const opentokCore = {
   init,
   connect,
+  disconnect,
   forceDisconnect,
   forceUnpublish,
   getOptions,
