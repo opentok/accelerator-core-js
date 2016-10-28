@@ -5,7 +5,7 @@
 const logging = require('./logging');
 const communication = require('./communication');
 const accPackEvents = require('./events');
-const state = require('./state');
+const internalState = require('./state');
 const { dom, path } = require('./util');
 
 /**
@@ -18,7 +18,7 @@ let archiving;
 
 /** Eventing */
 
-const registeredEvents = {};
+const eventListeners = {};
 
 /**
  * Register events that can be listened to be other components/modules
@@ -29,19 +29,26 @@ const registeredEvents = {};
 const registerEvents = (events) => {
   const eventList = Array.isArray(events) ? events : [events];
   eventList.forEach((event) => {
-    if (!registeredEvents[event]) {
-      registeredEvents[event] = new Set();
+    if (!eventListeners[event]) {
+      eventListeners[event] = new Set();
     }
   });
 };
 
 /**
- * Register a callback for a specific event
- * @param {String} event - The name of the event
+ * Register a callback for a specific event or pass an object with
+ * with event => callback key/value pairs to register listeners for
+ * multiple events.
+ * @param {String | Object} event - The name of the event
  * @param {Function} callback
  */
 const on = (event, callback) => {
-  const eventCallbacks = registeredEvents[event];
+  if (typeof event === 'object') {
+    Object.keys(event).forEach((eventName) => {
+      on(eventName, event[eventName]);
+    });
+  }
+  const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(`${event} is not a registered event.`);
   } else {
@@ -50,12 +57,18 @@ const on = (event, callback) => {
 };
 
 /**
- * Remove a callback for a specific event
+ * Remove a callback for a specific event.  If no parameters are passed,
+ * all event listeners will be removed.
  * @param {String} event - The name of the event
  * @param {Function} callback
  */
 const off = (event, callback) => {
-  const eventCallbacks = registeredEvents[event];
+  if (arguments.lenth === 0) {
+    Object.keys(eventListeners).forEach((eventType) => {
+      eventListeners[eventType].clear();
+    });
+  }
+  const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(`${event} is not a registered event.`);
   } else {
@@ -69,7 +82,7 @@ const off = (event, callback) => {
  * @param {*} data - Data to be passed to callback functions
  */
 const triggerEvent = (event, data) => {
-  const eventCallbacks = registeredEvents[event];
+  const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     registerEvents(event);
     logging.message(`${event} has been registered as a new event.`);
@@ -79,13 +92,13 @@ const triggerEvent = (event, data) => {
 };
 
 /** Returns the current OpenTok session object */
-const getSession = state.getSession;
+const getSession = internalState.getSession;
 
 /** Returns the current OpenTok session credentials */
-let getCredentials = state.getCredentials;
+const getCredentials = internalState.getCredentials;
 
 /** Returns the options used for initialization */
-let getOptions = state.getOptions;
+const getOptions = internalState.getOptions;
 
 const createEventListeners = (session, options) => {
   Object.keys(accPackEvents).forEach(type => registerEvents(accPackEvents[type]));
@@ -98,13 +111,13 @@ const createEventListeners = (session, options) => {
   const internalAnnotation = usingAnnotation && !options.screenSharing.externalWindow;
 
   /**
-   * Wrap session events and update state when streams are created
+   * Wrap session events and update internalState when streams are created
    * or destroyed
    */
   accPackEvents.session.forEach((eventName) => {
     session.on(eventName, (event) => {
-      if (eventName === 'streamCreated') { state.addStream(event.stream); }
-      if (eventName === 'streamDestroyed') { state.removeStream(event.stream); }
+      if (eventName === 'streamCreated') { internalState.addStream(event.stream); }
+      if (eventName === 'streamDestroyed') { internalState.removeStream(event.stream); }
       triggerEvent(eventName, event);
     });
   });
@@ -125,8 +138,8 @@ const createEventListeners = (session, options) => {
   }
 
   on('startScreenSharing', (publisher) => {
-    state.addPublisher('screen', publisher);
-    triggerEvent('startScreenShare', Object.assign({}, { publisher }, state.currentPubSub()));
+    internalState.addPublisher('screen', publisher);
+    triggerEvent('startScreenShare', Object.assign({}, { publisher }, internalState.currentPubSub()));
     if (internalAnnotation) {
       annotation.start(getSession())
         .then(() => {
@@ -139,8 +152,8 @@ const createEventListeners = (session, options) => {
 
   on('endScreenSharing', (publisher) => {
     // delete publishers.screen[publisher.id];
-    state.removePublisher('screen', publisher);
-    triggerEvent('endScreenShare', state.currentPubSub());
+    internalState.removePublisher('screen', publisher);
+    triggerEvent('endScreenShare', internalState.currentPubSub());
     if (internalAnnotation) {
       annotation.end();
     }
@@ -159,7 +172,7 @@ const linkAnnotation = (pubSub, annotationContainer, externalWindow) => {
 
   if (externalWindow) {
     // Add subscribers to the external window
-    const streams = state.getStreams();
+    const streams = internalState.getStreams();
     const cameraStreams = Object.keys(streams).reduce((acc, streamId) => {
       const stream = streams[streamId];
       return stream.videoType === 'camera' ? acc.concat(stream) : acc;
@@ -174,8 +187,8 @@ const initPackages = () => {
 
   /**
    * Try to require a package.  If 'require' is unavailable, look for
-   * the package in global scope.  A switch statement is used because
-   * webpack and Browserify aren't able to resolve require statements
+   * the package in global scope.  A switch internalStatement is used because
+   * webpack and Browserify aren't able to resolve require internalStatements
    * that use variable names.
    * @param {String} packageName - The name of the npm package
    * @param {String} globalName - The name of the package if exposed on global/window
@@ -268,7 +281,7 @@ const initPackages = () => {
    * @returns {Object}
    */
   const packageOptions = (packageName) => {
-    const { streams, streamMap, publishers, subscribers } = state.all();
+    const { streams, streamMap, publishers, subscribers } = internalState.all();
     const accPack = {
       registerEventListener: on,
       on,
@@ -346,25 +359,63 @@ const connect = () =>
   });
 
 /**
- * Wrapper for syncronous session methods that ensures an OpenTok
- * session is available before invoking the method.
- * @param {String} method - The OpenTok session method
- * @params {Array} [args]
+ * Force a remote connection to leave the session
+ * @param {Object} connection
+ * @returns {Promise} <resolve: empty, reject: Error>
  */
-const sessionMethods = (method, ...args) => {
-  const session = getSession();
-  if (!session) {
-    logging.message(`Could not call ${method}. No OpenTok session is available`);
-  }
-  session[method](...args);
-};
+const forceDisconnect = connection =>
+  new Promise((resolve, reject) => {
+    getSession().forceDisconnect(connection, (error) => {
+      error ? reject(error) : resolve();
+    });
+  });
+
+
+/**
+ * Force the publisher of a stream to stop publishing the stream
+ * @param {Object} stream
+ * @returns {Promise} <resolve: empty, reject: Error>
+ */
+const forceUnpublish = stream =>
+  new Promise((resolve, reject) => {
+    getSession().forceUnpublish(stream, (error) => {
+      error ? reject(error) : resolve();
+    });
+  });
+
+/**
+ * Get the local publisher object for a stream
+ * @param {Object} stream - An OpenTok stream object
+ * @returns {Object} - The publisher object
+ */
+const getPublisherForStream = stream => getSession().getPublisherForStream(stream);
+
+/**
+ * Get the local subscriber objects for a stream
+ * @param {Object} stream - An OpenTok stream object
+ * @returns {Array} - An array of subscriber object
+ */
+const getSubscribersForStream = stream => getSession().getSubscribersForStream(stream);
+
+
+/**
+ * Send a signal using the OpenTok signaling apiKey
+ * @param {Object} signal
+ * @returns {Promise} <resolve: empty, reject: Error>
+ */
+const signal = signalObj =>
+  new Promise((resolve, reject) => {
+    getSession().signal(signalObj, (error) => {
+      error ? reject(error) : resolve();
+    });
+  });
 
 /**
  * Enable or disable local audio
  * @param {Boolean} enable
  */
 const toggleLocalAudio = (enable) => {
-  const { publishers } = state.currentPubSub();
+  const { publishers } = internalState.currentPubSub();
   const toggleAudio = id => communication.enableLocalAV(id, 'audio', enable);
   Object.keys(publishers.camera).forEach(toggleAudio);
 };
@@ -374,7 +425,7 @@ const toggleLocalAudio = (enable) => {
  * @param {Boolean} enable
  */
 const toggleLocalVideo = (enable) => {
-  const { publishers } = state.currentPubSub();
+  const { publishers } = internalState.currentPubSub();
   const toggleVideo = id => communication.enableLocalAV(id, 'video', enable);
   Object.keys(publishers.camera).forEach(toggleVideo);
 };
@@ -409,31 +460,32 @@ const init = (options) => {
   validateCredentials(options.credentials);
   const session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
-  state.setSession(session);
-  state.setCredentials(credentials);
-  state.setOptions(options);
+  internalState.setSession(session);
+  internalState.setCredentials(credentials);
+  internalState.setOptions(options);
 };
 
 const opentokCore = {
   init,
   connect,
-  forceDisconnect: (...args) => sessionMethods('forceDisconnect', ...args),
-  forceUnpublish: (...args) => sessionMethods('forceUnpublish', ...args),
+  forceDisconnect,
+  forceUnpublish,
   getOptions,
   getSession,
-  getPublisherForStream: (...args) => sessionMethods('getPublisherForStream', ...args),
-  getSubscribersForStream: (...args) => sessionMethods('getSubscribersForStream', ...args),
+  getPublisherForStream,
+  getSubscribersForStream,
   on,
   off,
   registerEventListener: on,
   triggerEvent,
+  signal,
+  state: internalState.all,
   startCall: communication.startCall,
   endCall: communication.endCall,
   toggleLocalAudio,
   toggleLocalVideo,
   toggleRemoteAudio,
   toggleRemoteVideo,
-  signal: (...args) => sessionMethods('signal', ...args),
   subscribe: communication.subscribe,
   unsubscribe: communication.unsubscribe,
 };

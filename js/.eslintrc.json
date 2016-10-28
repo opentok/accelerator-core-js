@@ -6,7 +6,8 @@
     },
     "extends": "airbnb",
     "rules": {
-        "no-confusing-arrow": 1
+        "no-confusing-arrow": 1,
+        "no-unused-expressions": 1
     },
     "globals": {
         "OT": true
