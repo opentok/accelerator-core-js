@@ -19,6 +19,15 @@ OpenTok Accelerator Core provides a simple way to integrate real-time audio/vide
  - [Annotation](https://www.npmjs.com/package/opentok-annotation)
  - [Archiving](https://www.npmjs.com/package/opentok-archiving)
 
+`Core` also internally maintains the state of your OpenTok session for you.  Calling `otCore.state()` returns an object containing:
+```javascript
+  streams     => All current streams
+  streamMap   => The map of stream ids to publisher/subscriber ids
+  publishers  => All current publishers
+  subscribers => All current subscribers
+  meta        => The count of all current publishers and subscribers by type
+```
+*See an example of the publisher, subscriber, and meta data [below](#pubSubData).*
 Sample Applications
 -------------------
 There are two sample applications for `Core` .  The [React](https://github.com/opentok/accelerator-core/tree/develop/js/react-sample-app) sample application was built with [Create React App](https://github.com/facebookincubator/create-react-app) and uses [webpack](https://webpack.github.io/) to transpile code.  The other [sample application](https://github.com/opentok/accelerator-core/tree/develop/js/vanilla-js-sample-app) is built with vanilla JavaScript.
@@ -127,17 +136,18 @@ The other `Core` API methods include:
 ```javascript
 startCall               => Publish audio/video and subscribe to streams
 endCall                 => Stop publishing and unsubscribe from all streams
+getSession              => Get the OpenTok Session Object
 forceDisconnect         => Force a remote connection to leave the session
 forceUnpublish          => Force the publisher a stream to stop publishing
-getSession              => Get the OpenTok Session Object
 getPublisherForStream   => Get the local publisher object for a stream
 getSubscribersForStream => Get the local subscriber objects for a stream
 toggleLocalAudio        => Toggle publishing local audio
 toggleLocalVideo        => Toggle publishing local video
 toggleRemoteAudio       => Toggle subscribing to remote audio
 toggleRemoteVideo       => Toggle subscribing to remote video
-subscribe               => Manually subscribe to a stream
 signal                  => Send a signal using the OpenTok signaling API [1]
+state                   => Get the OpenTok session state
+subscribe               => Manually subscribe to a stream
 ```
 [1] [OpenTok Signaling API](https://www.tokbox.com/developer/guides/signaling/js/)
 
@@ -160,7 +170,7 @@ const events = [
 ];
 ```
 will always include the current `publishers`, `subscribers`, and a `meta` object which provides a count of the current `publishers` and `subscribers`, making it easy to keep your UI in sync.  If subscribing to a new stream, the `subscriber` object will be included as well.
-
+<a name="pubSubData"></a>
 ```javascript
   meta: {
     publishers: {
