@@ -24,8 +24,8 @@ const path = (props, obj) => {
   let nested = obj;
   const properties = typeof props === 'string' ? props.split('.') : props;
 
-  for (let i = 0; i < properties.length; i++) {
-    nested = nested[properties[i]];
+  for (const property of properties) {
+    nested = nested[property];
     if (nested === undefined) {
       return nested;
     }
@@ -34,7 +34,15 @@ const path = (props, obj) => {
   return nested;
 };
 
+/**
+ * Converts a string to proper case (e.g. 'camera' => 'Camera')
+ * @param {String} text
+ * @returns {String}
+ */
+const properCase = text => `${text[0].toUpperCase()}${text.slice(1)}`;
+
 module.exports = {
   dom,
   path,
+  properCase,
 };
