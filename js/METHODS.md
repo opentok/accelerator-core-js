@@ -44,6 +44,7 @@ Force the publisher of a stream to stop publishing the stream
 **Parameters**
 
 **stream**: `Object` An OpenTok stream object
+
 **Returns**: `Promise => <resolve: empty, reject: Error>`
 
 
