@@ -1,34 +1,32 @@
-# OpenTok Accelerator Core
-
-
+# OpenTok Accelerator Core Methods
 
 
 
 * * *
 
-### connect()
+### `connect()`
 
-Connect to the session
-
-**Returns**: `Promise => <resolve: empty, reject: Error>`
-
-
-### disconnect()
-
-Disconnect from the session
+*Connect to the session*
 
 **Returns**: `Promise => <resolve: empty, reject: Error>`
 
 
-### endCall()
+### `disconnect()`
 
-Stop publishing and unsubscribe from all streams
+*Disconnect from the session*
+
+**Returns**: `Promise => <resolve: empty, reject: Error>`
+
+
+### `endCall()`
+
+*Stop publishing and unsubscribe from all streams*
 
 
 
-### forceDisconnect(connection)
+### `forceDisconnect(connection)`
 
-Force a remote connection to leave the session
+*Force a remote connection to leave the session*
 
 **Parameters**
 
@@ -37,9 +35,9 @@ Force a remote connection to leave the session
 **Returns**: `Promise => <resolve: empty, reject: Error>`
 
 
-### forceUnpublish(stream)
+### `forceUnpublish(stream)`
 
-Force the publisher of a stream to stop publishing the stream
+*Force the publisher of a stream to stop publishing the stream*
 
 **Parameters**
 
@@ -48,9 +46,9 @@ Force the publisher of a stream to stop publishing the stream
 **Returns**: `Promise => <resolve: empty, reject: Error>`
 
 
-### getAccPack(packageName)
+### `getAccPack(packageName)`
 
-Get access to an accelerator pack
+*Get access to an accelerator pack*
 
 **Parameters**
 
@@ -59,23 +57,23 @@ Get access to an accelerator pack
 **Returns**: `Object` The instance of the accelerator pack
 
 
-### getCredentials()
+### `getCredentials()`
 
-Returns the current OpenTok session credentials
-
-**Returns**: `Object`
-
-
-### getOptions()
-
-Returns the options used for initialization
+*Returns the current OpenTok session credentials*
 
 **Returns**: `Object`
 
 
-### getPublisherForStream(stream)
+### `getOptions()`
 
-Get the local publisher object for a stream
+*Returns the options used for initialization*
+
+**Returns**: `Object`
+
+
+### `getPublisherForStream(stream)`
+
+*Get the local publisher object for a stream*
 
 **Parameters**
 
@@ -84,16 +82,16 @@ Get the local publisher object for a stream
 **Returns**: `Object` The publisher object
 
 
-### getSession()
+### `getSession()`
 
-Get the current OpenTok session object
+*Get the current OpenTok session object*
 
 **Returns**: `Object`
 
 
-### getSubscribersForStream(stream)
+### `getSubscribersForStream(stream)`
 
-Get the local subscriber objects for a stream
+*Get the local subscriber objects for a stream*
 
 **Parameters**
 
@@ -102,9 +100,9 @@ Get the local subscriber objects for a stream
 **Returns**: `Array` An array of subscriber object
 
 
-### init(options)
+### `init(options)`
 
-Initialize the accelerator pack
+*Initialize accelerator core*
 
 **Parameters**
 
@@ -118,10 +116,9 @@ Initialize the accelerator pack
 
 
 
-### off(event, callback)
+### `off(event, callback)`
 
-Remove a callback for a specific event.  If no parameters are passed,
-all event listeners will be removed.
+*Remove a callback for a specific event.  If no parameters are passed, all event listeners will be removed.*
 
 **Parameters**
 
@@ -131,11 +128,9 @@ all event listeners will be removed.
 
 
 
-### on(event, callback)
+### `on(event, callback)`
 
-Register a callback for a specific event or pass an object with
-with event => callback key/value pairs to register listeners for
-multiple events.
+*Register a callback for a specific event or pass an object with event => callback key/value pairs to register listeners for multiple events.*
 
 **Parameters**
 
@@ -144,9 +139,9 @@ multiple events.
 **callback**: `function`
 
 
-### signal(type, data, to)
+### `signal(type, data, to)`
 
-Send a signal using the OpenTok signaling apiKey
+*Send a signal using the OpenTok signaling apiKey*
 
 **Parameters**
 
@@ -159,24 +154,23 @@ Send a signal using the OpenTok signaling apiKey
 **Returns**: `Promise => <resolve: empty, reject: Error>`
 
 
-### startCall()
+### `startCall()`
 
-Start publishing the local camera feed and subscribing to streams in the session
+*Start publishing the local camera feed and subscribing to streams in the session*
 
 **Returns**: `Promise => <resolve: Object, reject: Error>`
 
 
-### state()
+### `state()`
 
-Get the internal state of acc-core, including streams, publishers, subscribers,
-a map of stream ids to publisher/subscriber ids, and meta data.
+*Get the internal state of acc-core, including streams, publishers, subscribers, a map of stream ids to publisher/subscriber ids, and meta data.*
 
 **Returns**: `Object`
 
 
-### subscribe(stream)
+### `subscribe(stream)`
 
-Subscribe to a stream and update the state
+*Subscribe to a stream and update the state*
 
 **Parameters**
 
@@ -185,9 +179,9 @@ Subscribe to a stream and update the state
 **Returns**: `Promise => <resolve: empty reject: Error >`
 
 
-### toggleLocalAudio(enable)
+### `toggleLocalAudio(enable)`
 
-Enable or disable local audio
+*Enable or disable local audio*
 
 **Parameters**
 
@@ -195,9 +189,9 @@ Enable or disable local audio
 
 
 
-### toggleLocalVideo(enable)
+### `toggleLocalVideo(enable)`
 
-Enable or disable local video
+*Enable or disable local video*
 
 **Parameters**
 
@@ -205,9 +199,9 @@ Enable or disable local video
 
 
 
-### toggleRemoteAudio(id, enable)
+### `toggleRemoteAudio(id, enable)`
 
-Enable or disable remote audio
+*Enable or disable remote audio*
 
 **Parameters**
 
@@ -217,9 +211,9 @@ Enable or disable remote audio
 
 
 
-### toggleRemoteVideo(id, enable)
+### `toggleRemoteVideo(id, enable)`
 
-Enable or disable local video
+*Enable or disable local video*
 
 **Parameters**
 
@@ -229,9 +223,9 @@ Enable or disable local video
 
 
 
-### unsubscribe(subscriber)
+### `unsubscribe(subscriber)`
 
-Unsubscribe from a stream and update the state
+*Unsubscribe from a stream and update the state*
 
 **Parameters**
 
