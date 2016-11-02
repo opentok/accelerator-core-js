@@ -152,6 +152,8 @@ subscribe               => Manually subscribe to a stream
 ```
 [1] [OpenTok Signaling API](https://www.tokbox.com/developer/guides/signaling/js/)
 
+Full documentation for `Core` methods can be found [here](./METHODS.md).
+
 ----------
 
 `Core` exposes a number of events, including all OpenTok [session events](https://www.tokbox.com/developer/sdks/js/reference/Session.html#events), which can be accessed using the `on` method:
