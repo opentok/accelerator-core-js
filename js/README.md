@@ -134,7 +134,7 @@ otCore.connect().then(() => this.setState({ connected: true }));
 ```
 The other `Core` API methods include:
 ```javascript
-accPack                 => Get a reference to an individual accelerator pack
+getAccPack              => Get a reference to an individual accelerator pack
 startCall               => Publish audio/video and subscribe to streams
 endCall                 => Stop publishing and unsubscribe from all streams
 getSession              => Get the OpenTok Session Object

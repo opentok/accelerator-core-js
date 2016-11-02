@@ -33,9 +33,9 @@ var archiving = undefined; // eslint-disable-line no-unused-vars
 /**
  * Get access to an accelerator pack
  * @param {String} packageName - textChat, screenSharing, annotation, or archiving
- * @returns {Object} - The instance of the accelerator pack
+ * @returns {Object} The instance of the accelerator pack
  */
-var accPack = function accPack(packageName) {
+var getAccPack = function getAccPack(packageName) {
   var packages = {
     textChat: textChat,
     screenSharing: screenSharing,
@@ -122,13 +122,22 @@ var triggerEvent = function triggerEvent(event, data) {
   }
 };
 
-/** Returns the current OpenTok session object */
+/**
+ * Get the current OpenTok session object
+ * @returns {Object}
+ */
 var getSession = internalState.getSession;
 
-/** Returns the current OpenTok session credentials */
+/**
+ * Returns the current OpenTok session credentials
+ * @returns {Object}
+ */
 var getCredentials = internalState.getCredentials;
 
-/** Returns the options used for initialization */
+/**
+ * Returns the options used for initialization
+ * @returns {Object}
+ */
 var getOptions = internalState.getOptions;
 
 var createEventListeners = function createEventListeners(session, options) {
@@ -539,11 +548,11 @@ var init = function init(options) {
 
 var opentokCore = {
   init: init,
-  accPack: accPack,
   connect: connect,
   disconnect: disconnect,
   forceDisconnect: forceDisconnect,
   forceUnpublish: forceUnpublish,
+  getAccPack: getAccPack,
   getOptions: getOptions,
   getSession: getSession,
   getPublisherForStream: getPublisherForStream,
