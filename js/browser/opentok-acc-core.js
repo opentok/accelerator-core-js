@@ -310,6 +310,21 @@ var screenSharing = void 0; // eslint-disable-line no-unused-vars
 var annotation = void 0;
 var archiving = void 0; // eslint-disable-line no-unused-vars
 
+/**
+ * Get access to an accelerator pack
+ * @param {String} packageName - textChat, screenSharing, annotation, or archiving
+ * @returns {Object} - The instance of the accelerator pack
+ */
+var accPack = function accPack(packageName) {
+  var packages = {
+    textChat: textChat,
+    screenSharing: screenSharing,
+    annotation: annotation,
+    archiving: archiving
+  };
+  return packages[packageName];
+};
+
 /** Eventing */
 
 var eventListeners = {};
@@ -663,9 +678,9 @@ var connect = function connect() {
 };
 
 /**
-* Disconnect from the session
-* @returns {Promise} <resolve: -, reject: Error>
-*/
+ * Disconnect from the session
+ * @returns {Promise} <resolve: -, reject: Error>
+ */
 var disconnect = function disconnect() {
   getSession().disconnect();
   internalState.reset();
@@ -717,12 +732,17 @@ var getSubscribersForStream = function getSubscribersForStream(stream) {
 
 /**
  * Send a signal using the OpenTok signaling apiKey
- * @param {Object} signal
+ * @param {String} type
+ * @param {*} [data]
+ * @param {Object} to - An OpenTok connection object
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-var signal = function signal(signalObj) {
+var signal = function signal(type, signalData, to) {
   return new Promise(function (resolve, reject) {
-    getSession().signal(signalObj, function (error) {
+    var session = getSession();
+    var data = JSON.stringify(signalData);
+    var signalObj = to ? { type: type, data: data, to: to } : { type: type, data: data };
+    session.signal(signalObj, function (error) {
       error ? reject(error) : resolve();
     });
   });
@@ -760,7 +780,7 @@ var toggleLocalVideo = function toggleLocalVideo(enable) {
 
 /**
  * Enable or disable remote audio
- * @param {String} id - Publisher id
+ * @param {String} id - Subscriber id
  * @param {Boolean} enable
  */
 var toggleRemoteAudio = function toggleRemoteAudio(id, enable) {
@@ -769,7 +789,7 @@ var toggleRemoteAudio = function toggleRemoteAudio(id, enable) {
 
 /**
  * Enable or disable local video
- * @param {String} id - Publisher id
+ * @param {String} id - Subscriber id
  * @param {Boolean} enable
  */
 var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
@@ -799,6 +819,7 @@ var init = function init(options) {
 
 var opentokCore = {
   init: init,
+  accPack: accPack,
   connect: connect,
   disconnect: disconnect,
   forceDisconnect: forceDisconnect,
@@ -1138,6 +1159,7 @@ var dom = {
 var path = function path(props, obj) {
   var nested = obj;
   var properties = typeof props === 'string' ? props.split('.') : props;
+
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
   var _iteratorError = undefined;

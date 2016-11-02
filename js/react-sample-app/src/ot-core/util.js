@@ -25,6 +25,7 @@ var dom = {
 var path = function path(props, obj) {
   var nested = obj;
   var properties = typeof props === 'string' ? props.split('.') : props;
+
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
   var _iteratorError = undefined;

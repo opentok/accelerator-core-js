@@ -16,6 +16,21 @@ let screenSharing; // eslint-disable-line no-unused-vars
 let annotation;
 let archiving; // eslint-disable-line no-unused-vars
 
+/**
+ * Get access to an accelerator pack
+ * @param {String} packageName - textChat, screenSharing, annotation, or archiving
+ * @returns {Object} - The instance of the accelerator pack
+ */
+const accPack = (packageName) => {
+  const packages = {
+    textChat,
+    screenSharing,
+    annotation,
+    archiving,
+  };
+  return packages[packageName];
+};
+
 /** Eventing */
 
 const eventListeners = {};
@@ -357,7 +372,7 @@ const connect = () =>
     });
   });
 
-  /**
+/**
  * Disconnect from the session
  * @returns {Promise} <resolve: -, reject: Error>
  */
@@ -409,12 +424,17 @@ const getSubscribersForStream = stream => getSession().getSubscribersForStream(s
 
 /**
  * Send a signal using the OpenTok signaling apiKey
- * @param {Object} signal
+ * @param {String} type
+ * @param {*} [data]
+ * @param {Object} to - An OpenTok connection object
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-const signal = signalObj =>
+const signal = (type, signalData, to) =>
   new Promise((resolve, reject) => {
-    getSession().signal(signalObj, (error) => {
+    const session = getSession();
+    const data = JSON.stringify(signalData);
+    const signalObj = to ? { type, data, to } : { type, data };
+    session.signal(signalObj, (error) => {
       error ? reject(error) : resolve();
     });
   });
@@ -441,7 +461,7 @@ const toggleLocalVideo = (enable) => {
 
 /**
  * Enable or disable remote audio
- * @param {String} id - Publisher id
+ * @param {String} id - Subscriber id
  * @param {Boolean} enable
  */
 const toggleRemoteAudio = (id, enable) => communication.enableRemoteAV(id, 'audio', enable);
@@ -449,7 +469,7 @@ const toggleRemoteAudio = (id, enable) => communication.enableRemoteAV(id, 'audi
 
 /**
  * Enable or disable local video
- * @param {String} id - Publisher id
+ * @param {String} id - Subscriber id
  * @param {Boolean} enable
  */
 const toggleRemoteVideo = (id, enable) => communication.enableRemoteAV(id, 'video', enable);
@@ -476,6 +496,7 @@ const init = (options) => {
 
 const opentokCore = {
   init,
+  accPack,
   connect,
   disconnect,
   forceDisconnect,
