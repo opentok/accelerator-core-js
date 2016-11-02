@@ -17,7 +17,7 @@ Connect to the session
 
 Disconnect from the session
 
-**Returns**: `Promise =><resolve: -, reject: Error>`
+**Returns**: `Promise => <resolve: empty, reject: Error>`
 
 
 ### endCall()
@@ -34,7 +34,7 @@ Force a remote connection to leave the session
 
 **connection**: `Object` An OpenTok connection object
 
-**Returns**: `Promise`, <resolve: empty, reject: Error>
+**Returns**: `Promise => <resolve: empty, reject: Error>`
 
 
 ### forceUnpublish(stream)
