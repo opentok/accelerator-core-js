@@ -3,7 +3,7 @@
 # OpenTok Accelerator Core<br/>Version 0.0.1
 
 
-```javascript
+```
 otCore.init(options) =>
 	Multi-Party Audio/Video +
 	Text Chat +
@@ -20,7 +20,7 @@ OpenTok Accelerator Core provides a simple way to integrate real-time audio/vide
  - [Archiving](https://www.npmjs.com/package/opentok-archiving)
 
 `Core` also internally maintains the state of your OpenTok session for you.  Calling `otCore.state()` returns an object containing:
-```javascript
+```
   streams     => All current streams
   streamMap   => The map of stream ids to publisher/subscriber ids
   publishers  => All current publishers
