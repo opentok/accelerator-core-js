@@ -141,7 +141,7 @@
 
 ### `signal(type, data, to)`
 
-*Send a signal using the OpenTok signaling apiKey*
+*Send a signal using the OpenTok Signaling API*
 
 **Parameters**
 
