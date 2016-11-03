@@ -152,7 +152,7 @@ subscribe               => Manually subscribe to a stream
 ```
 [1] [OpenTok Signaling API](https://www.tokbox.com/developer/guides/signaling/js/)
 
-Full documentation for `Core` methods can be found [here](./METHODS.md).
+Full documentation for the `Core` API can be found [here](./API.md).
 
 ----------
 

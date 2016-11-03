@@ -1,4 +1,4 @@
-# OpenTok Accelerator Core Methods
+# OpenTok Accelerator Core API Methods
 
 
 
