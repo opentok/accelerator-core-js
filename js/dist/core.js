@@ -4,8 +4,6 @@ var _arguments = arguments;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 /* global OT */
 /**
  * Dependencies
@@ -299,27 +297,16 @@ var initPackages = function initPackages() {
   });
 
   /**
-   * Build video containers object
+   * Get containers for streams, controls, and the chat widget
    */
-  var containerOptions = options.containers || {};
   var getDefaultContainer = function getDefaultContainer(pubSub) {
     return document.getElementById(pubSub + 'Container');
   };
-  var getContainerElement = function getContainerElement(pubSub, type) {
-    var definedContainer = containerOptions[pubSub] ? containerOptions[pubSub][type] : null;
-    if (definedContainer) {
-      return typeof definedContainer === 'string' ? document.querySelector(definedContainer) : definedContainer;
-    }
-    return getDefaultContainer(pubSub);
-  };
   var getContainerElements = function getContainerElements() {
     var controls = options.controlsContainer || '#videoControls';
-    var chat = containerOptions.chat || '#chat';
-    return ['publisher', 'subscriber'].reduce(function (acc, pubSub) {
-      return Object.assign({}, acc, _defineProperty({}, pubSub, ['camera', 'screen'].reduce(function (containerAcc, type) {
-        return Object.assign({}, containerAcc, _defineProperty({}, type, getContainerElement(pubSub, type)));
-      }, {})));
-    }, { controls: controls, chat: chat });
+    var chat = options.textChat.container || '#chat';
+    var stream = options.streamContainers || getDefaultContainer;
+    return { stream: stream, controls: controls, chat: chat };
   };
   /** *** *** *** *** */
 
@@ -345,13 +332,13 @@ var initPackages = function initPackages() {
       linkAnnotation: linkAnnotation
     };
     var containers = getContainerElements();
-    var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { publishers: publishers, subscribers: subscribers, streams: streams, streamMap: streamMap, containers: containers }) : {};
+    var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { publishers: publishers, subscribers: subscribers, streams: streams, streamMap: streamMap, streamContainers: containers.stream }) : {};
     var chatOptions = packageName === 'textChat' ? {
       textChatContainer: options.textChat.container,
       waitingMessage: options.textChat.waitingMessage,
       sender: { alias: options.textChat.name }
     } : {};
-    var screenSharingOptions = packageName === 'screenSharing' ? Object.assign({}, options.screenSharing, { screenSharingContainer: containers.publisher.screen }) : {};
+    var screenSharingOptions = packageName === 'screenSharing' ? Object.assign({}, options.screenSharing, { screenSharingContainer: dom.element(containers.stream('publisher', 'screen')) }) : {};
     var controlsContainer = containers.controls; // Legacy option
     return Object.assign({}, options[packageName], commOptions, chatOptions, { session: session, accPack: accPack, controlsContainer: controlsContainer }, screenSharingOptions);
   };

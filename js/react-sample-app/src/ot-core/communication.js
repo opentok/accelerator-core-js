@@ -8,6 +8,8 @@ var state = require('./state');
 
 var _require = require('./util');
 
+var dom = _require.dom;
+var path = _require.path;
 var properCase = _require.properCase;
 
 
@@ -15,7 +17,7 @@ var session = undefined;
 var accPack = undefined;
 var callProperties = undefined;
 var screenProperties = undefined;
-var containers = {};
+var streamContainers = undefined;
 var autoSubscribe = undefined;
 var active = false;
 
@@ -32,6 +34,21 @@ var defaultCallProperties = {
     buttonDisplayMode: 'off'
   }
 };
+
+// /**
+//  * Get the container element based for a publisher or subscriber, based on
+//  * the stream type and connection data.
+//  * @param {String} pubSub - 'publisher' or 'subscriber'
+//  * @param {String} [type] - 'camera' or 'screen'
+//  * @param {Object} [data] - The connection data
+//  */
+// const getContainerElement = (pubSub, type, data) => {
+//   const element = streamContainers(pubSub, type, data);
+//   if (typeof element === 'string') {
+//     return dom.query(element);
+//   }
+//   return element;
+// };
 
 /**
  * Trigger an event through the API layer
@@ -51,7 +68,7 @@ var createPublisher = function createPublisher() {
     // TODO: Handle adding 'name' option to props
     var props = Object.assign({}, callProperties);
     // TODO: Figure out how to handle common vs package-specific options
-    var container = containers.publisher.camera || 'publisherContainer';
+    var container = dom.element(streamContainers('publisher', 'camera'));
     var publisher = OT.initPublisher(container, props, function (error) {
       error ? reject(error) : resolve(publisher);
     });
@@ -90,7 +107,8 @@ var subscribe = function subscribe(stream) {
     } else {
       (function () {
         var type = stream.videoType;
-        var container = containers.subscriber[type] || 'subscriberContainer';
+        var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
+        var container = dom.query(streamContainers('subscriber', type, connectionData));
         var options = type === 'camera' ? callProperties : screenProperties;
         var subscriber = session.subscribe(stream, container, options, function (error) {
           if (error) {
@@ -135,7 +153,7 @@ var validateOptions = function validateOptions(options) {
 
   session = options.session;
   accPack = options.accPack;
-  containers = options.containers;
+  streamContainers = options.streamContainers;
   callProperties = options.callProperties || defaultCallProperties;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
@@ -255,6 +273,7 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
  * @param {Object} options.publishers
  * @param {Object} options.subscribers
  * @param {Object} options.streams
+ * @param {Function} options.streamContainer
  */
 var init = function init(options) {
   return new Promise(function (resolve) {

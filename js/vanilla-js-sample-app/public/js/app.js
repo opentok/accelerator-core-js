@@ -2,15 +2,17 @@
 
 const options = {
   // A container can either be a query selector or an HTMLElement
-  containers: {
-    publisher: {
-      camera: '#cameraPublisherContainer',
-      screen: '#screenPublisherContainer',
-    },
-    subscriber: {
-      camera: '#cameraSubscriberContainer',
-      screen: '#screenSubscriberContainer',
-    },
+  streamContainers: function streamContainers(pubSub, type, data) {
+    return {
+      publisher: {
+        camera: '#cameraPublisherContainer',
+        screen: '#screenPublisherContainer',
+      },
+      subscriber: {
+        camera: '#cameraSubscriberContainer',
+        screen: '#screenSubscriberContainer',
+      },
+    }[pubSub][type];
   },
   controlsContainer: '#controls',
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],

@@ -274,27 +274,14 @@ const initPackages = () => {
   });
 
   /**
-   * Build video containers object
+   * Get containers for streams, controls, and the chat widget
    */
-  const containerOptions = options.containers || {};
   const getDefaultContainer = pubSub => document.getElementById(`${pubSub}Container`);
-  const getContainerElement = (pubSub, type) => {
-    const definedContainer = containerOptions[pubSub] ? containerOptions[pubSub][type] : null;
-    if (definedContainer) {
-      return typeof definedContainer === 'string' ? document.querySelector(definedContainer) : definedContainer;
-    }
-    return getDefaultContainer(pubSub);
-  };
   const getContainerElements = () => {
     const controls = options.controlsContainer || '#videoControls';
-    const chat = containerOptions.chat || '#chat';
-    return ['publisher', 'subscriber'].reduce((acc, pubSub) =>
-      Object.assign({}, acc, {
-        [pubSub]: ['camera', 'screen'].reduce((containerAcc, type) =>
-          Object.assign({}, containerAcc, {
-            [type]: getContainerElement(pubSub, type),
-          }), {}),
-      }), { controls, chat });
+    const chat = options.textChat.container || '#chat';
+    const stream = options.streamContainers || getDefaultContainer;
+    return { stream, controls, chat };
   };
   /** *** *** *** *** */
 
@@ -318,7 +305,9 @@ const initPackages = () => {
     const commOptions =
       packageName === 'communication' ?
       Object.assign({},
-        options.communication, { publishers, subscribers, streams, streamMap, containers }) : {};
+        options.communication,
+        { publishers, subscribers, streams, streamMap, streamContainers: containers.stream }
+      ) : {};
     const chatOptions =
       packageName === 'textChat' ? {
         textChatContainer: options.textChat.container,
@@ -328,7 +317,7 @@ const initPackages = () => {
     const screenSharingOptions =
       packageName === 'screenSharing' ?
       Object.assign({},
-        options.screenSharing, { screenSharingContainer: containers.publisher.screen }) : {};
+        options.screenSharing, { screenSharingContainer: dom.element(containers.stream('publisher', 'screen')) }) : {};
     const controlsContainer = containers.controls; // Legacy option
     return Object.assign({},
       options[packageName],

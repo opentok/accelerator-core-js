@@ -3,13 +3,13 @@
 /** Dependencies */
 const logging = require('./logging');
 const state = require('./state');
-const { properCase } = require('./util');
+const { dom, path, properCase } = require('./util');
 
 let session;
 let accPack;
 let callProperties;
 let screenProperties;
-let containers = {};
+let streamContainers;
 let autoSubscribe;
 let active = false;
 
@@ -43,7 +43,7 @@ const createPublisher = () =>
     // TODO: Handle adding 'name' option to props
     const props = Object.assign({}, callProperties);
     // TODO: Figure out how to handle common vs package-specific options
-    const container = containers.publisher.camera || 'publisherContainer';
+    const container = dom.element(streamContainers('publisher', 'camera'));
     const publisher = OT.initPublisher(container, props, (error) => {
       error ? reject(error) : resolve(publisher);
     });
@@ -82,7 +82,8 @@ const subscribe = stream =>
       resolve();
     } else {
       const type = stream.videoType;
-      const container = containers.subscriber[type] || 'subscriberContainer';
+      const connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
+      const container = dom.query(streamContainers('subscriber', type, connectionData));
       const options = type === 'camera' ? callProperties : screenProperties;
       const subscriber = session.subscribe(stream, container, options, (error) => {
         if (error) {
@@ -124,7 +125,7 @@ const validateOptions = (options) => {
 
   session = options.session;
   accPack = options.accPack;
-  containers = options.containers;
+  streamContainers = options.streamContainers;
   callProperties = options.callProperties || defaultCallProperties;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
@@ -220,6 +221,7 @@ const enableRemoteAV = (subscriberId, source, enable) => {
  * @param {Object} options.publishers
  * @param {Object} options.subscribers
  * @param {Object} options.streams
+ * @param {Function} options.streamContainer
  */
 const init = options =>
   new Promise((resolve) => {

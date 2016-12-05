@@ -1,7 +1,8 @@
 /** Wrap DOM selector methods:
- * document.querySelector,
- * document.getElementById,
- * document.getElementsByClassName]
+ *  document.querySelector,
+ *  document.getElementById,
+ *  document.getElementsByClassName
+ *  'element' checks for a string before returning an element with `query`
  */
 const dom = {
   query(arg) {
@@ -12,6 +13,9 @@ const dom = {
   },
   class(arg) {
     return document.getElementsByClassName(arg);
+  },
+  element(el) {
+    return typeof el === 'string' ? this.query(el) : el;
   },
 };
 

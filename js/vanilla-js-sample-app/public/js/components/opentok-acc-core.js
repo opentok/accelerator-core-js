@@ -9,6 +9,8 @@ var state = require('./state');
 
 var _require = require('./util');
 
+var dom = _require.dom;
+var path = _require.path;
 var properCase = _require.properCase;
 
 
@@ -16,7 +18,7 @@ var session = void 0;
 var accPack = void 0;
 var callProperties = void 0;
 var screenProperties = void 0;
-var containers = {};
+var streamContainers = void 0;
 var autoSubscribe = void 0;
 var active = false;
 
@@ -33,6 +35,22 @@ var defaultCallProperties = {
     buttonDisplayMode: 'off'
   }
 };
+
+// /**
+//  * Get the container element based for a publisher or subscriber, based on
+//  * the stream type and connection data.
+//  * @param {String} pubSub - 'publisher' or 'subscriber'
+//  * @param {String} [type] - 'camera' or 'screen'
+//  * @param {Object} [data] - The connection data
+//  */
+// const getContainerElement = (pubSub, type, data) => {
+//   const element = streamContainers(pubSub, type, data);
+//   if (typeof element === 'string') {
+//     return dom.query(element);
+//   }
+//   return element;
+// };
+
 
 /**
  * Trigger an event through the API layer
@@ -52,7 +70,7 @@ var createPublisher = function createPublisher() {
     // TODO: Handle adding 'name' option to props
     var props = Object.assign({}, callProperties);
     // TODO: Figure out how to handle common vs package-specific options
-    var container = containers.publisher.camera || 'publisherContainer';
+    var container = dom.element(streamContainers('publisher', 'camera'));
     var publisher = OT.initPublisher(container, props, function (error) {
       error ? reject(error) : resolve(publisher);
     });
@@ -91,7 +109,8 @@ var subscribe = function subscribe(stream) {
     } else {
       (function () {
         var type = stream.videoType;
-        var container = containers.subscriber[type] || 'subscriberContainer';
+        var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
+        var container = dom.query(streamContainers('subscriber', type, connectionData));
         var options = type === 'camera' ? callProperties : screenProperties;
         var subscriber = session.subscribe(stream, container, options, function (error) {
           if (error) {
@@ -136,7 +155,7 @@ var validateOptions = function validateOptions(options) {
 
   session = options.session;
   accPack = options.accPack;
-  containers = options.containers;
+  streamContainers = options.streamContainers;
   callProperties = options.callProperties || defaultCallProperties;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
@@ -256,6 +275,7 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
  * @param {Object} options.publishers
  * @param {Object} options.subscribers
  * @param {Object} options.streams
+ * @param {Function} options.streamContainer
  */
 var init = function init(options) {
   return new Promise(function (resolve) {
@@ -283,8 +303,6 @@ module.exports = {
 var _arguments = arguments;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /* global OT */
 /**
@@ -579,27 +597,16 @@ var initPackages = function initPackages() {
   });
 
   /**
-   * Build video containers object
+   * Get containers for streams, controls, and the chat widget
    */
-  var containerOptions = options.containers || {};
   var getDefaultContainer = function getDefaultContainer(pubSub) {
     return document.getElementById(pubSub + 'Container');
   };
-  var getContainerElement = function getContainerElement(pubSub, type) {
-    var definedContainer = containerOptions[pubSub] ? containerOptions[pubSub][type] : null;
-    if (definedContainer) {
-      return typeof definedContainer === 'string' ? document.querySelector(definedContainer) : definedContainer;
-    }
-    return getDefaultContainer(pubSub);
-  };
   var getContainerElements = function getContainerElements() {
     var controls = options.controlsContainer || '#videoControls';
-    var chat = containerOptions.chat || '#chat';
-    return ['publisher', 'subscriber'].reduce(function (acc, pubSub) {
-      return Object.assign({}, acc, _defineProperty({}, pubSub, ['camera', 'screen'].reduce(function (containerAcc, type) {
-        return Object.assign({}, containerAcc, _defineProperty({}, type, getContainerElement(pubSub, type)));
-      }, {})));
-    }, { controls: controls, chat: chat });
+    var chat = options.textChat.container || '#chat';
+    var stream = options.streamContainers || getDefaultContainer;
+    return { stream: stream, controls: controls, chat: chat };
   };
   /** *** *** *** *** */
 
@@ -625,13 +632,13 @@ var initPackages = function initPackages() {
       linkAnnotation: linkAnnotation
     };
     var containers = getContainerElements();
-    var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { publishers: publishers, subscribers: subscribers, streams: streams, streamMap: streamMap, containers: containers }) : {};
+    var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { publishers: publishers, subscribers: subscribers, streams: streams, streamMap: streamMap, streamContainers: containers.stream }) : {};
     var chatOptions = packageName === 'textChat' ? {
       textChatContainer: options.textChat.container,
       waitingMessage: options.textChat.waitingMessage,
       sender: { alias: options.textChat.name }
     } : {};
-    var screenSharingOptions = packageName === 'screenSharing' ? Object.assign({}, options.screenSharing, { screenSharingContainer: containers.publisher.screen }) : {};
+    var screenSharingOptions = packageName === 'screenSharing' ? Object.assign({}, options.screenSharing, { screenSharingContainer: dom.element(containers.stream('publisher', 'screen')) }) : {};
     var controlsContainer = containers.controls; // Legacy option
     return Object.assign({}, options[packageName], commOptions, chatOptions, { session: session, accPack: accPack, controlsContainer: controlsContainer }, screenSharingOptions);
   };
@@ -1144,9 +1151,10 @@ module.exports = {
 'use strict';
 
 /** Wrap DOM selector methods:
- * document.querySelector,
- * document.getElementById,
- * document.getElementsByClassName]
+ *  document.querySelector,
+ *  document.getElementById,
+ *  document.getElementsByClassName
+ *  'element' checks for a string before returning an element with `query`
  */
 var dom = {
   query: function query(arg) {
@@ -1157,6 +1165,9 @@ var dom = {
   },
   class: function _class(arg) {
     return document.getElementsByClassName(arg);
+  },
+  element: function element(el) {
+    return typeof el === 'string' ? this.query(el) : el;
   }
 };
 
