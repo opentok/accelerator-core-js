@@ -78,7 +78,6 @@ The `containers` property specifies the DOM elements to be used as containers fo
       screen: '#subscriberContainer',
     },
     controls: '#videoControls',
-    chat: '#chat',
   },
 ```
 The communication properties relate to the multi-party communication provided by `Core`.  `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.  `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI.
@@ -96,6 +95,7 @@ The remainder of the options properties are specific to individual accelerator p
   textChat: {
     name: `David`,
     waitingMessage: 'Messages will be delivered when other users arrive',
+    container: '#chat',
   },
   screenSharing: {
     extensionID: 'yourChromeExtensionId',
