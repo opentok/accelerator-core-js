@@ -321,7 +321,7 @@ const initPackages = () => {
         options.communication, { publishers, subscribers, streams, streamMap, containers }) : {};
     const chatOptions =
       packageName === 'textChat' ? {
-        textChatContainer: containers.chat,
+        textChatContainer: options.textChat.container,
         waitingMessage: options.textChat.waitingMessage,
         sender: { alias: options.textChat.name },
       } : {};

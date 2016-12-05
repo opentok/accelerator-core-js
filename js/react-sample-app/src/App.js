@@ -26,7 +26,6 @@ const otCoreOptions = {
       screen: '#screenSubscriberContainer',
     },
     controls: '#controls',
-    chat: '#chat',
   },
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
   communication: {
@@ -35,6 +34,7 @@ const otCoreOptions = {
   textChat: {
     name: ['David', 'Paul', 'Emma', 'George', 'Amanda'][Math.random() * 5 | 0],
     waitingMessage: 'Messages will be delivered when other users arrive',
+    container: '#chat',
   },
   screenSharing: {
     extensionID: 'plocfffmbcclpdifaikiikgplfnepkpo',

@@ -11,10 +11,6 @@ body {
     box-sizing: inherit;
 }
 
-.App {
-    text-align: center;
-}
-
 .App-header {
     background-color: #222;
     height: 40px;

@@ -1,11 +1,6 @@
 /* global otCore */
 
 const options = {
-  credentials: {
-  "apiKey": "45621172",
-  "sessionId": "1_MX40NTYyMTE3Mn5-MTQ3NjMwMTQ0NzE5MH5lOG9oTWhWWkwvMldEYVpIK3dPdlVTZEl-fg",
-  "token": "T1==cGFydG5lcl9pZD00NTYyMTE3MiZzaWc9ZTFmYzIyNmM4ZDgyYTM1Mzg4NDQxYjc5MjdmMzZhZTNhMWNmMGJlZjpzZXNzaW9uX2lkPTFfTVg0ME5UWXlNVEUzTW41LU1UUTNOak13TVRRME56RTVNSDVsT0c5b1RXaFdXa3d2TWxkRVlWcElLM2RQZGxWVFpFbC1mZyZjcmVhdGVfdGltZT0xNDc3MzQ2MDQ1Jm5vbmNlPTAuODU5NzAzMzQ3Nzg1Mzk4NCZyb2xlPXB1Ymxpc2hlciZleHBpcmVfdGltZT0xNDc5OTQxNjQ1"
-  },
   // A container can either be a query selector or an HTMLElement
   containers: {
     publisher: {
@@ -17,7 +12,6 @@ const options = {
       screen: '#screenSubscriberContainer',
     },
     controls: '#controls',
-    chat: '#chat',
   },
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
   communication: {
@@ -26,6 +20,7 @@ const options = {
   textChat: {
     name: ['David', 'Paul', 'Emma', 'George', 'Amanda'][Math.random() * 5 | 0], // eslint-disable-line no-bitwise
     waitingMessage: 'Messages will be delivered when other users arrive',
+    container: '#chat',
   },
   screenSharing: {
     extensionID: 'plocfffmbcclpdifaikiikgplfnepkpo',

@@ -627,7 +627,7 @@ var initPackages = function initPackages() {
     var containers = getContainerElements();
     var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { publishers: publishers, subscribers: subscribers, streams: streams, streamMap: streamMap, containers: containers }) : {};
     var chatOptions = packageName === 'textChat' ? {
-      textChatContainer: containers.chat,
+      textChatContainer: options.textChat.container,
       waitingMessage: options.textChat.waitingMessage,
       sender: { alias: options.textChat.name }
     } : {};
