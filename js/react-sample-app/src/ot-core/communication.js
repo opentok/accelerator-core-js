@@ -35,21 +35,6 @@ var defaultCallProperties = {
   }
 };
 
-// /**
-//  * Get the container element based for a publisher or subscriber, based on
-//  * the stream type and connection data.
-//  * @param {String} pubSub - 'publisher' or 'subscriber'
-//  * @param {String} [type] - 'camera' or 'screen'
-//  * @param {Object} [data] - The connection data
-//  */
-// const getContainerElement = (pubSub, type, data) => {
-//   const element = streamContainers(pubSub, type, data);
-//   if (typeof element === 'string') {
-//     return dom.query(element);
-//   }
-//   return element;
-// };
-
 /**
  * Trigger an event through the API layer
  * @param {String} event - The name of the event

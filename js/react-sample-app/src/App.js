@@ -15,7 +15,7 @@ const otCoreOptions = {
     sessionId: config.sessionId,
     token: config.token,
   },
-  // A container can either be a query selector or an HTMLElement
+  // A container can either be a query selector or an HTML Element
   streamContainers(pubSub, type, data){
     return {
       publisher: {

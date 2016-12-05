@@ -65,18 +65,25 @@ The `packages` property specifies which accelerator packs should be included in 
 ```javascript
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
 ```
-The `containers` property specifies the DOM elements to be used as containers for video streams.  The `controlsContainer` property specifies the DOM element to be used as the container for the local audio/video and accelerator pack controls.  The containers can either be [query selectors](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) or references to DOM elements.  The default containers are specified below.  If these containers do not exist in the DOM, `Core` will be append new elements to the `body`.
+The `streamContainers` property is a function that specifies which DOM element should be used as a container for a video stream.  The `controlsContainer` property specifies the element to be used as the container for the local audio/video and accelerator pack controls.  These elements can either be [query selectors](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) or references to DOM elements.  The default containers are specified below.  If these containers do not exist in the DOM, `Core` will be append new elements to the `body`.
 
 ```javascript
-  containers: {
-    publisher: {
-      camera: '#publisherContainer',
-      screen: '#publisherContainer',
-    },
-    subscriber: {
-      camera: '#subscriberContainer',
-      screen: '#subscriberContainer',
-    },
+  /**
+   * @param {String} pubSub - 'publisher' or 'subscriber'
+   * @param {String} type - 'camera' or 'screen'
+   * @param {*} data - Parsed connection data associated with the stream
+   */
+  streamContainers(pubSub, type, data){
+    return {
+      publisher: {
+        camera: '#cameraPublisherContainer',
+        screen: '#screenPublisherContainer',
+      },
+      subscriber: {
+        camera: '#cameraSubscriberContainer',
+        screen: '#screenSubscriberContainer',
+      },
+    }[pubSub][type];
   },
   controlsContainer: '#videoControls',
 ```
