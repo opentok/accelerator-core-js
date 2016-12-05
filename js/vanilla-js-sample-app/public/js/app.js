@@ -11,8 +11,8 @@ const options = {
       camera: '#cameraSubscriberContainer',
       screen: '#screenSubscriberContainer',
     },
-    controls: '#controls',
   },
+  controlsContainer: '#controls',
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
   communication: {
     callProperites: null, // Using default

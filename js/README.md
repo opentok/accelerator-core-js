@@ -65,7 +65,7 @@ The `packages` property specifies which accelerator packs should be included in 
 ```javascript
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
 ```
-The `containers` property specifies the DOM elements to be used as containers for video streams and controls.  The containers can either be [query selectors](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) or references to DOM elements.  The default containers are specified below.  If these containers do not exist in the DOM, `Core` will be append new elements to the `body`.
+The `containers` property specifies the DOM elements to be used as containers for video streams.  The `controlsContainer` property specifies the DOM element to be used as the container for the local audio/video and accelerator pack controls.  The containers can either be [query selectors](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) or references to DOM elements.  The default containers are specified below.  If these containers do not exist in the DOM, `Core` will be append new elements to the `body`.
 
 ```javascript
   containers: {
@@ -77,8 +77,8 @@ The `containers` property specifies the DOM elements to be used as containers fo
       camera: '#subscriberContainer',
       screen: '#subscriberContainer',
     },
-    controls: '#videoControls',
   },
+  controlsContainer: '#videoControls',
 ```
 The communication properties relate to the multi-party communication provided by `Core`.  `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.  `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI.
 

@@ -313,7 +313,7 @@ var initPackages = function initPackages() {
     return getDefaultContainer(pubSub);
   };
   var getContainerElements = function getContainerElements() {
-    var controls = containerOptions.controls || '#videoControls';
+    var controls = options.controlsContainer || '#videoControls';
     var chat = containerOptions.chat || '#chat';
     return ['publisher', 'subscriber'].reduce(function (acc, pubSub) {
       return Object.assign({}, acc, _defineProperty({}, pubSub, ['camera', 'screen'].reduce(function (containerAcc, type) {

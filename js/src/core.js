@@ -286,7 +286,7 @@ const initPackages = () => {
     return getDefaultContainer(pubSub);
   };
   const getContainerElements = () => {
-    const controls = containerOptions.controls || '#videoControls';
+    const controls = options.controlsContainer || '#videoControls';
     const chat = containerOptions.chat || '#chat';
     return ['publisher', 'subscriber'].reduce((acc, pubSub) =>
       Object.assign({}, acc, {
