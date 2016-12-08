@@ -132,8 +132,8 @@ const createEventListeners = (session, options) => {
    * If using screen sharing + annotation in an external window, the individual packages
    * will take care of
    */
-  const usingAnnotation = options.screenSharing.annotation;
-  const internalAnnotation = usingAnnotation && !options.screenSharing.externalWindow;
+  const usingAnnotation = path('screenSharing.annotation', options);
+  const internalAnnotation = usingAnnotation && !path('screenSharing.externalWindow', options);
 
   /**
    * Wrap session events and update internalState when streams are created
@@ -265,7 +265,7 @@ const initPackages = () => {
   };
 
   const packages = {};
-  options.packages.forEach((acceleratorPack) => {
+  (path('packages', options) || []).forEach((acceleratorPack) => {
     if (availablePackages[acceleratorPack]) { // eslint-disable-next-line no-param-reassign
       packages[properCase(acceleratorPack)] = availablePackages[acceleratorPack]();
     } else {
@@ -279,7 +279,7 @@ const initPackages = () => {
   const getDefaultContainer = pubSub => document.getElementById(`${pubSub}Container`);
   const getContainerElements = () => {
     const controls = options.controlsContainer || '#videoControls';
-    const chat = options.textChat.container || '#chat';
+    const chat = path('textChat.container', options) || '#chat';
     const stream = options.streamContainers || getDefaultContainer;
     return { stream, controls, chat };
   };
