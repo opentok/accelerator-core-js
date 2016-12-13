@@ -31,7 +31,6 @@ const otCoreOptions = {
   controlsContainer: '#controls',
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
   communication: {
-    connectionLimit: 3,
     callProperites: null, // Using default
   },
   textChat: {
