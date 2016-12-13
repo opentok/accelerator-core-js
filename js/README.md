@@ -87,11 +87,12 @@ The `streamContainers` property is a function that specifies which DOM element s
   },
   controlsContainer: '#videoControls',
 ```
-The communication properties relate to the multi-party communication provided by `Core`.  `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.  `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI.
+The communication properties relate to the multi-party communication provided by `Core`.  `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.  `connectionLimit` limits the number of parties that may publish/subscribe to the session.  `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI.
 
 ```javascript
   communication: {
 	autoSubscribe: true,
+	connectionLimit: null,
     callProperties: myCallProperties,
   },
 ```
