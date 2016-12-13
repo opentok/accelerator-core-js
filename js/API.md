@@ -112,7 +112,9 @@
 
  - **options.packages**: `Array`
 
- - **options.containers**: `Object`
+ - **options.streamContainers**: `Function`
+
+ - **options.controlsContainer**: `String`
 
 
 
