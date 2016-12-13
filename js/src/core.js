@@ -364,10 +364,10 @@ const connect = () =>
     session.connect(token, (error) => {
       if (error) {
         logging.message(error);
-        reject(error);
+        return reject(error);
       }
       initPackages();
-      resolve();
+      return resolve();
     });
   });
 

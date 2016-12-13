@@ -6,12 +6,10 @@
 var logging = require('./logging');
 var state = require('./state');
 
-var _require = require('./util');
-
-var dom = _require.dom;
-var path = _require.path;
-var properCase = _require.properCase;
-
+var _require = require('./util'),
+    dom = _require.dom,
+    path = _require.path,
+    properCase = _require.properCase;
 
 var session = undefined;
 var accPack = undefined;
@@ -19,6 +17,7 @@ var callProperties = undefined;
 var screenProperties = undefined;
 var streamContainers = undefined;
 var autoSubscribe = undefined;
+var connectionLimit = undefined;
 var active = false;
 
 /**
@@ -42,6 +41,21 @@ var defaultCallProperties = {
  */
 var triggerEvent = function triggerEvent(event, data) {
   return accPack.triggerEvent(event, data);
+};
+
+/**
+ * Determine whether or not the party is able to join the call based on
+ * the specified connection limit, if any.
+ * @return {Boolean}
+ */
+var ableToJoin = function ableToJoin() {
+  if (!connectionLimit) {
+    return true;
+  }
+  var cameraStreams = Object.values(state.getStreams()).filter(function (s) {
+    return s.videoType === 'camera';
+  });
+  return cameraStreams.length < connectionLimit;
 };
 
 /**
@@ -140,6 +154,7 @@ var validateOptions = function validateOptions(options) {
   accPack = options.accPack;
   streamContainers = options.streamContainers;
   callProperties = options.callProperties || defaultCallProperties;
+  connectionLimit = options.connectionLimit || null;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
   screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
@@ -180,7 +195,12 @@ var createEventListeners = function createEventListeners() {
  * @returns {Promise} <resolve: Object, reject: Error>
  */
 var startCall = function startCall() {
-  return new Promise(function (resolve) {
+  return new Promise(function (resolve, reject) {
+    if (!ableToJoin()) {
+      var errorMessage = 'Session has reached its connection limit';
+      triggerEvent('error', errorMessage);
+      return reject(new Error(errorMessage));
+    }
     publish().then(function () {
       var streams = state.getStreams();
       var initialSubscriptions = Object.keys(streams).map(function (id) {
@@ -202,9 +222,8 @@ var startCall = function startCall() {
  * Stop publishing and unsubscribe from all streams
  */
 var endCall = function endCall() {
-  var _state$getPubSub = state.getPubSub();
-
-  var publishers = _state$getPubSub.publishers;
+  var _state$getPubSub = state.getPubSub(),
+      publishers = _state$getPubSub.publishers;
 
   var unpublish = function unpublish(publisher) {
     return session.unpublish(publisher);
@@ -228,9 +247,8 @@ var endCall = function endCall() {
 var enableLocalAV = function enableLocalAV(id, source, enable) {
   var method = 'publish' + properCase(source);
 
-  var _state$getPubSub2 = state.getPubSub();
-
-  var publishers = _state$getPubSub2.publishers;
+  var _state$getPubSub2 = state.getPubSub(),
+      publishers = _state$getPubSub2.publishers;
 
   publishers.camera[id][method](enable);
 };
@@ -244,9 +262,8 @@ var enableLocalAV = function enableLocalAV(id, source, enable) {
 var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
   var method = 'subscribeTo' + properCase(source);
 
-  var _state$getPubSub3 = state.getPubSub();
-
-  var subscribers = _state$getPubSub3.subscribers;
+  var _state$getPubSub3 = state.getPubSub(),
+      subscribers = _state$getPubSub3.subscribers;
 
   subscribers.camera[subscriberId][method](enable);
 };
@@ -258,6 +275,7 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
  * @param {Object} options.publishers
  * @param {Object} options.subscribers
  * @param {Object} options.streams
+ * @param {Number} options.connectionLimit
  * @param {Function} options.streamContainer
  */
 var init = function init(options) {

@@ -7,12 +7,10 @@
 var logging = require('./logging');
 var state = require('./state');
 
-var _require = require('./util');
-
-var dom = _require.dom;
-var path = _require.path;
-var properCase = _require.properCase;
-
+var _require = require('./util'),
+    dom = _require.dom,
+    path = _require.path,
+    properCase = _require.properCase;
 
 var session = void 0;
 var accPack = void 0;
@@ -20,6 +18,7 @@ var callProperties = void 0;
 var screenProperties = void 0;
 var streamContainers = void 0;
 var autoSubscribe = void 0;
+var connectionLimit = void 0;
 var active = false;
 
 /**
@@ -43,6 +42,21 @@ var defaultCallProperties = {
  */
 var triggerEvent = function triggerEvent(event, data) {
   return accPack.triggerEvent(event, data);
+};
+
+/**
+ * Determine whether or not the party is able to join the call based on
+ * the specified connection limit, if any.
+ * @return {Boolean}
+ */
+var ableToJoin = function ableToJoin() {
+  if (!connectionLimit) {
+    return true;
+  }
+  var cameraStreams = Object.values(state.getStreams()).filter(function (s) {
+    return s.videoType === 'camera';
+  });
+  return cameraStreams.length < connectionLimit;
 };
 
 /**
@@ -141,6 +155,7 @@ var validateOptions = function validateOptions(options) {
   accPack = options.accPack;
   streamContainers = options.streamContainers;
   callProperties = options.callProperties || defaultCallProperties;
+  connectionLimit = options.connectionLimit || null;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
   screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
@@ -181,7 +196,12 @@ var createEventListeners = function createEventListeners() {
  * @returns {Promise} <resolve: Object, reject: Error>
  */
 var startCall = function startCall() {
-  return new Promise(function (resolve) {
+  return new Promise(function (resolve, reject) {
+    if (!ableToJoin()) {
+      var errorMessage = 'Session has reached its connection limit';
+      triggerEvent('error', errorMessage);
+      return reject(new Error(errorMessage));
+    }
     publish().then(function () {
       var streams = state.getStreams();
       var initialSubscriptions = Object.keys(streams).map(function (id) {
@@ -203,9 +223,8 @@ var startCall = function startCall() {
  * Stop publishing and unsubscribe from all streams
  */
 var endCall = function endCall() {
-  var _state$getPubSub = state.getPubSub();
-
-  var publishers = _state$getPubSub.publishers;
+  var _state$getPubSub = state.getPubSub(),
+      publishers = _state$getPubSub.publishers;
 
   var unpublish = function unpublish(publisher) {
     return session.unpublish(publisher);
@@ -229,9 +248,8 @@ var endCall = function endCall() {
 var enableLocalAV = function enableLocalAV(id, source, enable) {
   var method = 'publish' + properCase(source);
 
-  var _state$getPubSub2 = state.getPubSub();
-
-  var publishers = _state$getPubSub2.publishers;
+  var _state$getPubSub2 = state.getPubSub(),
+      publishers = _state$getPubSub2.publishers;
 
   publishers.camera[id][method](enable);
 };
@@ -245,9 +263,8 @@ var enableLocalAV = function enableLocalAV(id, source, enable) {
 var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
   var method = 'subscribeTo' + properCase(source);
 
-  var _state$getPubSub3 = state.getPubSub();
-
-  var subscribers = _state$getPubSub3.subscribers;
+  var _state$getPubSub3 = state.getPubSub(),
+      subscribers = _state$getPubSub3.subscribers;
 
   subscribers.camera[subscriberId][method](enable);
 };
@@ -259,6 +276,7 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
  * @param {Object} options.publishers
  * @param {Object} options.subscribers
  * @param {Object} options.streams
+ * @param {Number} options.connectionLimit
  * @param {Function} options.streamContainer
  */
 var init = function init(options) {
@@ -297,15 +315,15 @@ var communication = require('./communication');
 var accPackEvents = require('./events');
 var internalState = require('./state');
 
-var _require = require('./util');
-
-var dom = _require.dom;
-var path = _require.path;
-var properCase = _require.properCase;
+var _require = require('./util'),
+    dom = _require.dom,
+    path = _require.path,
+    properCase = _require.properCase;
 
 /**
  * Individual Accelerator Packs
  */
+
 
 var textChat = void 0; // eslint-disable-line no-unused-vars
 var screenSharing = void 0; // eslint-disable-line no-unused-vars
@@ -600,12 +618,11 @@ var initPackages = function initPackages() {
    * @returns {Object}
    */
   var packageOptions = function packageOptions(packageName) {
-    var _internalState$all = internalState.all();
-
-    var streams = _internalState$all.streams;
-    var streamMap = _internalState$all.streamMap;
-    var publishers = _internalState$all.publishers;
-    var subscribers = _internalState$all.subscribers;
+    var _internalState$all = internalState.all(),
+        streams = _internalState$all.streams,
+        streamMap = _internalState$all.streamMap,
+        publishers = _internalState$all.publishers,
+        subscribers = _internalState$all.subscribers;
 
     var accPack = {
       registerEventListener: on,
@@ -662,17 +679,16 @@ var connect = function connect() {
   return new Promise(function (resolve, reject) {
     var session = getSession();
 
-    var _getCredentials = getCredentials();
-
-    var token = _getCredentials.token;
+    var _getCredentials = getCredentials(),
+        token = _getCredentials.token;
 
     session.connect(token, function (error) {
       if (error) {
         logging.message(error);
-        reject(error);
+        return reject(error);
       }
       initPackages();
-      resolve();
+      return resolve();
     });
   });
 };
@@ -753,9 +769,8 @@ var signal = function signal(type, signalData, to) {
  * @param {Boolean} enable
  */
 var toggleLocalAudio = function toggleLocalAudio(enable) {
-  var _internalState$getPub = internalState.getPubSub();
-
-  var publishers = _internalState$getPub.publishers;
+  var _internalState$getPub = internalState.getPubSub(),
+      publishers = _internalState$getPub.publishers;
 
   var toggleAudio = function toggleAudio(id) {
     return communication.enableLocalAV(id, 'audio', enable);
@@ -768,9 +783,8 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
  * @param {Boolean} enable
  */
 var toggleLocalVideo = function toggleLocalVideo(enable) {
-  var _internalState$getPub2 = internalState.getPubSub();
-
-  var publishers = _internalState$getPub2.publishers;
+  var _internalState$getPub2 = internalState.getPubSub(),
+      publishers = _internalState$getPub2.publishers;
 
   var toggleVideo = function toggleVideo(id) {
     return communication.enableLocalAV(id, 'video', enable);

@@ -13,15 +13,15 @@ var communication = require('./communication');
 var accPackEvents = require('./events');
 var internalState = require('./state');
 
-var _require = require('./util');
-
-var dom = _require.dom;
-var path = _require.path;
-var properCase = _require.properCase;
+var _require = require('./util'),
+    dom = _require.dom,
+    path = _require.path,
+    properCase = _require.properCase;
 
 /**
  * Individual Accelerator Packs
  */
+
 
 var textChat = undefined; // eslint-disable-line no-unused-vars
 var screenSharing = undefined; // eslint-disable-line no-unused-vars
@@ -316,12 +316,11 @@ var initPackages = function initPackages() {
    * @returns {Object}
    */
   var packageOptions = function packageOptions(packageName) {
-    var _internalState$all = internalState.all();
-
-    var streams = _internalState$all.streams;
-    var streamMap = _internalState$all.streamMap;
-    var publishers = _internalState$all.publishers;
-    var subscribers = _internalState$all.subscribers;
+    var _internalState$all = internalState.all(),
+        streams = _internalState$all.streams,
+        streamMap = _internalState$all.streamMap,
+        publishers = _internalState$all.publishers,
+        subscribers = _internalState$all.subscribers;
 
     var accPack = {
       registerEventListener: on,
@@ -378,17 +377,16 @@ var connect = function connect() {
   return new Promise(function (resolve, reject) {
     var session = getSession();
 
-    var _getCredentials = getCredentials();
-
-    var token = _getCredentials.token;
+    var _getCredentials = getCredentials(),
+        token = _getCredentials.token;
 
     session.connect(token, function (error) {
       if (error) {
         logging.message(error);
-        reject(error);
+        return reject(error);
       }
       initPackages();
-      resolve();
+      return resolve();
     });
   });
 };
@@ -469,9 +467,8 @@ var signal = function signal(type, signalData, to) {
  * @param {Boolean} enable
  */
 var toggleLocalAudio = function toggleLocalAudio(enable) {
-  var _internalState$getPub = internalState.getPubSub();
-
-  var publishers = _internalState$getPub.publishers;
+  var _internalState$getPub = internalState.getPubSub(),
+      publishers = _internalState$getPub.publishers;
 
   var toggleAudio = function toggleAudio(id) {
     return communication.enableLocalAV(id, 'audio', enable);
@@ -484,9 +481,8 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
  * @param {Boolean} enable
  */
 var toggleLocalVideo = function toggleLocalVideo(enable) {
-  var _internalState$getPub2 = internalState.getPubSub();
-
-  var publishers = _internalState$getPub2.publishers;
+  var _internalState$getPub2 = internalState.getPubSub(),
+      publishers = _internalState$getPub2.publishers;
 
   var toggleVideo = function toggleVideo(id) {
     return communication.enableLocalAV(id, 'video', enable);

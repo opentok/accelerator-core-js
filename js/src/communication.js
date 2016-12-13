@@ -11,6 +11,7 @@ let callProperties;
 let screenProperties;
 let streamContainers;
 let autoSubscribe;
+let connectionLimit;
 let active = false;
 
 /**
@@ -33,6 +34,19 @@ const defaultCallProperties = {
  * @param {*} [data]
  */
 const triggerEvent = (event, data) => accPack.triggerEvent(event, data);
+
+/**
+ * Determine whether or not the party is able to join the call based on
+ * the specified connection limit, if any.
+ * @return {Boolean}
+ */
+const ableToJoin = () => {
+  if (!connectionLimit) {
+    return true;
+  }
+  const cameraStreams = Object.values(state.getStreams()).filter(s => s.videoType === 'camera');
+  return cameraStreams.length < connectionLimit;
+};
 
 /**
  * Create a camera publisher object
@@ -127,6 +141,7 @@ const validateOptions = (options) => {
   accPack = options.accPack;
   streamContainers = options.streamContainers;
   callProperties = options.callProperties || defaultCallProperties;
+  connectionLimit = options.connectionLimit || null;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
 
@@ -164,7 +179,12 @@ const createEventListeners = () => {
  * @returns {Promise} <resolve: Object, reject: Error>
  */
 const startCall = () =>
-  new Promise((resolve) => {
+  new Promise((resolve, reject) => {
+    if (!ableToJoin()) {
+      const errorMessage = 'Session has reached its connection limit';
+      triggerEvent('error', errorMessage);
+      return reject(new Error(errorMessage));
+    }
     publish()
       .then(() => {
         const streams = state.getStreams();
@@ -221,6 +241,7 @@ const enableRemoteAV = (subscriberId, source, enable) => {
  * @param {Object} options.publishers
  * @param {Object} options.subscribers
  * @param {Object} options.streams
+ * @param {Number} options.connectionLimit
  * @param {Function} options.streamContainer
  */
 const init = options =>
