@@ -74,9 +74,11 @@ const publish = () =>
       .then((publisher) => {
         state.addPublisher('camera', publisher);
         session.publish(publisher);
+        logging.log(logging.logAction.startCall, logging.logVariation.success);
         resolve();
       })
       .catch((error) => {
+        logging.log(logging.logAction.startCall, logging.logVariation.fail);
         const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
         triggerEvent('error', errorMessage);
         reject(error);
@@ -180,9 +182,11 @@ const createEventListeners = () => {
  */
 const startCall = () =>
   new Promise((resolve, reject) => {
+    logging.log(logging.logAction.startCall, logging.logVariation.attempt);
     if (!ableToJoin()) {
       const errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
+      logging.log(logging.logAction.startCall, logging.logVariation.fail);
       return reject(new Error(errorMessage));
     }
     publish()
@@ -202,6 +206,7 @@ const startCall = () =>
  * Stop publishing and unsubscribe from all streams
  */
 const endCall = () => {
+  logging.log(logging.logAction.endCall, logging.logVariation.attempt);
   const { publishers } = state.getPubSub();
   const unpublish = publisher => session.unpublish(publisher);
   Object.keys(publishers.camera).forEach(id => unpublish(publishers.camera[id]));
@@ -209,6 +214,7 @@ const endCall = () => {
   state.removeAllPublishers();
   state.removeAllSubscribers();
   active = false;
+  logging.log(logging.logAction.endCall, logging.logVariation.success);
 };
 
 /**
