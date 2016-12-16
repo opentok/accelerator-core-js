@@ -92,6 +92,7 @@ const publish = () =>
  */
 const subscribe = stream =>
   new Promise((resolve, reject) => {
+    logging.log(logging.logAction.subscribe, logging.logVariation.attempt);
     const streamMap = state.getStreamMap();
     if (streamMap[stream.id]) {
       // Are we already subscribing to the stream?
@@ -103,11 +104,13 @@ const subscribe = stream =>
       const options = type === 'camera' ? callProperties : screenProperties;
       const subscriber = session.subscribe(stream, container, options, (error) => {
         if (error) {
+          logging.log(logging.logAction.subscribe, logging.logVariation.fail);
           reject(error);
         } else {
           state.addSubscriber(subscriber);
           triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, state.all()));
           type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+          logging.log(logging.logAction.subscribe, logging.logVariation.success);
           resolve();
         }
       });
@@ -121,8 +124,10 @@ const subscribe = stream =>
  */
 const unsubscribe = subscriber =>
   new Promise((resolve) => {
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
     session.unsubscribe(subscriber);
     state.removeSubscriber(subscriber);
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();
   });
 
