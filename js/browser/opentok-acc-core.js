@@ -1,4 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){var n,e=function(n,e,t){var o,i,r="";return t&&(o=new Date,o.setTime(o.getTime()+24*t*60*60*1e3),r=["; expires=",o.toGMTString()].join("")),i=[n,"=",e,r,"; path=/"].join(""),document.cookie=i,e},t=function(n){var e,t,o=[n,"="].join(""),i=document.cookie.split(";");for(e=0;e<i.length;e++){for(t=i[e];" "===t.charAt(0);)t=t.substring(1,t.length);if(0===t.indexOf(o))return t.substring(o.length,t.length)}return null},o=function(){var n,e=[],t="0123456789abcdef";for(n=0;n<36;n++)e.push(t.substr(Math.floor(16*Math.random()),1));return e[14]="4",e[19]=t.substr(3&e[19]|8,1),e[8]=e[13]=e[18]=e[23]="-",e.join("")},i=function(i){n.analyticsData.guid=t(i)||e(i,o(),7)},r=function(){if(!n.analyticsData.clientVersion)throw console.log("Error. The clientVersion field cannot be null in the log entry"),new Error("The clientVersion field cannot be null in the log entry");if(!n.analyticsData.source)throw console.log("Error. The source field cannot be null in the log entry"),new Error("The source field cannot be null in the log entry");if(!n.analyticsData.componentId)throw console.log("Error. The componentId field cannot be null in the log entry"),new Error("The componentId field cannot be null in the log entry");if(!n.analyticsData.name)throw console.log("Error. The name field cannot be null in the log entry"),new Error("The guid field cannot be null in the log entry");n.analyticsData.logVersion||(n.analyticsData.logVersion="2"),0===n.analyticsData.clientSystemTime&&(n.analyticsData.clientSystemTime=(new Date).getTime())},a=function(){var e=new XMLHttpRequest;e.open("POST",n.url,!0),e.setRequestHeader("Content-type","application/json"),e.send(JSON.stringify(n.analyticsData))},l=function(e){this.url="https://hlg.tokbox.com/prod/logging/ClientEvent",this.analyticsData=e,n=this,i(e.name)};l.prototype={constructor:l,logEvent:function(e){n.analyticsData.action=e.action,n.analyticsData.variation=e.variation,n.analyticsData.clientSystemTime=(new Date).getTime(),r(),a()},addSessionInfo:function(e){if(!e.sessionId)throw console.log("Error. The sessionId field cannot be null in the log entry"),new Error("The sessionId field cannot be null in the log entry");if(n.analyticsData.sessionId=e.sessionId,!e.connectionId)throw console.log("Error. The connectionId field cannot be null in the log entry"),new Error("The connectionId field cannot be null in the log entry");if(n.analyticsData.connectionId=e.connectionId,0===e.partnerId)throw console.log("Error. The partnerId field cannot be null in the log entry"),new Error("The partnerId field cannot be null in the log entry");n.analyticsData.partnerId=e.partnerId}},"object"==typeof exports?module.exports=l:"function"==typeof define&&define.amd?define(function(){return l}):this.OTKAnalytics=l}).call(this);
+},{}],2:[function(require,module,exports){
 'use strict';
 
 /* global OT */
@@ -84,8 +86,10 @@ var publish = function publish() {
     createPublisher().then(function (publisher) {
       state.addPublisher('camera', publisher);
       session.publish(publisher);
+      logging.log(logging.logAction.startCall, logging.logVariation.success);
       resolve();
     }).catch(function (error) {
+      logging.log(logging.logAction.startCall, logging.logVariation.fail);
       var errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
       triggerEvent('error', errorMessage);
       reject(error);
@@ -100,6 +104,7 @@ var publish = function publish() {
  */
 var subscribe = function subscribe(stream) {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.subscribe, logging.logVariation.attempt);
     var streamMap = state.getStreamMap();
     if (streamMap[stream.id]) {
       // Are we already subscribing to the stream?
@@ -112,11 +117,13 @@ var subscribe = function subscribe(stream) {
         var options = type === 'camera' ? callProperties : screenProperties;
         var subscriber = session.subscribe(stream, container, options, function (error) {
           if (error) {
+            logging.log(logging.logAction.subscribe, logging.logVariation.fail);
             reject(error);
           } else {
             state.addSubscriber(subscriber);
             triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.all()));
             type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+            logging.log(logging.logAction.subscribe, logging.logVariation.success);
             resolve();
           }
         });
@@ -132,8 +139,10 @@ var subscribe = function subscribe(stream) {
  */
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
     session.unsubscribe(subscriber);
     state.removeSubscriber(subscriber);
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();
   });
 };
@@ -197,9 +206,11 @@ var createEventListeners = function createEventListeners() {
  */
 var startCall = function startCall() {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.startCall, logging.logVariation.attempt);
     if (!ableToJoin()) {
       var errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
+      logging.log(logging.logAction.startCall, logging.logVariation.fail);
       return reject(new Error(errorMessage));
     }
     publish().then(function () {
@@ -223,6 +234,8 @@ var startCall = function startCall() {
  * Stop publishing and unsubscribe from all streams
  */
 var endCall = function endCall() {
+  logging.log(logging.logAction.endCall, logging.logVariation.attempt);
+
   var _state$getPubSub = state.getPubSub(),
       publishers = _state$getPubSub.publishers;
 
@@ -238,6 +251,7 @@ var endCall = function endCall() {
   state.removeAllPublishers();
   state.removeAllSubscribers();
   active = false;
+  logging.log(logging.logAction.endCall, logging.logVariation.success);
 };
 
 /**
@@ -298,7 +312,7 @@ module.exports = {
   enableRemoteAV: enableRemoteAV
 };
 
-},{"./logging":4,"./state":5,"./util":6}],2:[function(require,module,exports){
+},{"./logging":5,"./state":6,"./util":7}],3:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -336,12 +350,14 @@ var archiving = void 0; // eslint-disable-line no-unused-vars
  * @returns {Object} The instance of the accelerator pack
  */
 var getAccPack = function getAccPack(packageName) {
+  logging.log(logging.logAction.getAccPack, logging.logVariation.attempt);
   var packages = {
     textChat: textChat,
     screenSharing: screenSharing,
     annotation: annotation,
     archiving: archiving
   };
+  logging.log(logging.logAction.getAccPack, logging.logVariation.success);
   return packages[packageName];
 };
 
@@ -372,6 +388,7 @@ var registerEvents = function registerEvents(events) {
  * @param {Function} callback
  */
 var on = function on(event, callback) {
+  //logging.log(logging.logAction.on, logging.logVariation.attempt);
   if ((typeof event === 'undefined' ? 'undefined' : _typeof(event)) === 'object') {
     Object.keys(event).forEach(function (eventName) {
       on(eventName, event[eventName]);
@@ -380,8 +397,10 @@ var on = function on(event, callback) {
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(event + ' is not a registered event.');
+    // logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
     eventCallbacks.add(callback);
+    // logging.log(logging.logAction.on, logging.logVariation.success);
   }
 };
 
@@ -392,6 +411,7 @@ var on = function on(event, callback) {
  * @param {Function} callback
  */
 var off = function off(event, callback) {
+  // logging.log(logging.logAction.off, logging.logVariation.attempt);
   if (_arguments.lenth === 0) {
     Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
@@ -399,9 +419,11 @@ var off = function off(event, callback) {
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
+    // logging.log(logging.logAction.off, logging.logVariation.fail);
     logging.message(event + ' is not a registered event.');
   } else {
     eventCallbacks.delete(callback);
+    // logging.log(logging.logAction.off, logging.logVariation.success);
   }
 };
 
@@ -531,9 +553,10 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
 };
 
 var initPackages = function initPackages() {
+  logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
+
   var session = getSession();
   var options = getOptions();
-
   /**
    * Try to require a package.  If 'require' is unavailable, look for
    * the package in global scope.  A switch internalStatement is used because
@@ -568,8 +591,11 @@ var initPackages = function initPackages() {
       result = window[globalName];
     }
     if (!result) {
+      logging.log(logging.logAction.initPackages, logging.logVariation.fail);
       logging.error('Could not load ' + packageName);
     }
+
+    logging.log(logging.logAction.initPackages, logging.logVariation.success);
     return result;
   };
 
@@ -683,10 +709,17 @@ var connect = function connect() {
         token = _getCredentials.token;
 
     session.connect(token, function (error) {
+      logging.log(logging.logAction.connect, logging.logVariation.attempt);
       if (error) {
         logging.message(error);
+        logging.log(logging.logAction.connect, logging.logVariation.fail);
         return reject(error);
       }
+      var sessionId = session.sessionId,
+          apiKey = session.apiKey;
+
+      logging.updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
+      logging.log(logging.logAction.connect, logging.logVariation.success);
       initPackages();
       return resolve();
     });
@@ -698,8 +731,10 @@ var connect = function connect() {
  * @returns {Promise} <resolve: -, reject: Error>
  */
 var disconnect = function disconnect() {
+  logging.log(logging.logAction.disconnect, logging.logVariation.attempt);
   getSession().disconnect();
   internalState.reset();
+  logging.log(logging.logAction.disconnect, logging.logVariation.success);
 };
 
 /**
@@ -709,8 +744,15 @@ var disconnect = function disconnect() {
  */
 var forceDisconnect = function forceDisconnect(connection) {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.forceDisconnect, logging.logVariation.attempt);
     getSession().forceDisconnect(connection, function (error) {
-      error ? reject(error) : resolve();
+      if (error) {
+        logging.log(logging.logAction.forceDisconnect, logging.logVariation.fail);
+        reject(error);
+      } else {
+        logging.log(logging.logAction.forceDisconnect, logging.logVariation.success);
+        resolve();
+      }
     });
   });
 };
@@ -722,8 +764,15 @@ var forceDisconnect = function forceDisconnect(connection) {
  */
 var forceUnpublish = function forceUnpublish(stream) {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.forceUnpublish, logging.logVariation.attempt);
     getSession().forceUnpublish(stream, function (error) {
-      error ? reject(error) : resolve();
+      if (error) {
+        logging.log(logging.logAction.forceUnpublish, logging.logVariation.fail);
+        reject(error);
+      } else {
+        logging.log(logging.logAction.forceUnpublish, logging.logVariation.success);
+        resolve();
+      }
     });
   });
 };
@@ -755,11 +804,18 @@ var getSubscribersForStream = function getSubscribersForStream(stream) {
  */
 var signal = function signal(type, signalData, to) {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.signal, logging.logVariation.attempt);
     var session = getSession();
     var data = JSON.stringify(signalData);
     var signalObj = to ? { type: type, data: data, to: to } : { type: type, data: data };
     session.signal(signalObj, function (error) {
-      error ? reject(error) : resolve();
+      if (error) {
+        logging.log(logging.logAction.signal, logging.logVariation.fail);
+        reject(error);
+      } else {
+        logging.log(logging.logAction.signal, logging.logVariation.success);
+        resolve();
+      }
     });
   });
 };
@@ -769,6 +825,8 @@ var signal = function signal(type, signalData, to) {
  * @param {Boolean} enable
  */
 var toggleLocalAudio = function toggleLocalAudio(enable) {
+  logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.attempt);
+
   var _internalState$getPub = internalState.getPubSub(),
       publishers = _internalState$getPub.publishers;
 
@@ -776,6 +834,7 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
     return communication.enableLocalAV(id, 'audio', enable);
   };
   Object.keys(publishers.camera).forEach(toggleAudio);
+  logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.success);
 };
 
 /**
@@ -783,6 +842,8 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
  * @param {Boolean} enable
  */
 var toggleLocalVideo = function toggleLocalVideo(enable) {
+  logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.attempt);
+
   var _internalState$getPub2 = internalState.getPubSub(),
       publishers = _internalState$getPub2.publishers;
 
@@ -790,6 +851,7 @@ var toggleLocalVideo = function toggleLocalVideo(enable) {
     return communication.enableLocalAV(id, 'video', enable);
   };
   Object.keys(publishers.camera).forEach(toggleVideo);
+  logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.success);
 };
 
 /**
@@ -798,16 +860,20 @@ var toggleLocalVideo = function toggleLocalVideo(enable) {
  * @param {Boolean} enable
  */
 var toggleRemoteAudio = function toggleRemoteAudio(id, enable) {
-  return communication.enableRemoteAV(id, 'audio', enable);
+  logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.attempt);
+  communication.enableRemoteAV(id, 'audio', enable);
+  logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.success);
 };
 
 /**
- * Enable or disable local video
+ * Enable or disable remote video
  * @param {String} id - Subscriber id
  * @param {Boolean} enable
  */
 var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
-  return communication.enableRemoteAV(id, 'video', enable);
+  logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.attempt);
+  communication.enableRemoteAV(id, 'video', enable);
+  logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.success);
 };
 
 /**
@@ -824,11 +890,16 @@ var init = function init(options) {
   var credentials = options.credentials;
 
   validateCredentials(options.credentials);
+
+  //init analytics
+  logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
+  logging.log(logging.logAction.init, logging.logVariation.attempt);
   var session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
   internalState.setSession(session);
   internalState.setCredentials(credentials);
   internalState.setOptions(options);
+  logging.log(logging.logAction.init, logging.logVariation.success);
 };
 
 var opentokCore = {
@@ -865,7 +936,7 @@ if (global === window) {
 module.exports = opentokCore;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./communication":1,"./events":3,"./logging":4,"./state":5,"./util":6,"opentok-annotation":undefined,"opentok-archiving":undefined,"opentok-screen-sharing":undefined,"opentok-text-chat":undefined}],3:[function(require,module,exports){
+},{"./communication":2,"./events":4,"./logging":5,"./state":6,"./util":7,"opentok-annotation":undefined,"opentok-archiving":undefined,"opentok-screen-sharing":undefined,"opentok-text-chat":undefined}],4:[function(require,module,exports){
 'use strict';
 
 var events = {
@@ -880,24 +951,101 @@ var events = {
 
 module.exports = events;
 
-},{}],4:[function(require,module,exports){
-"use strict";
+},{}],5:[function(require,module,exports){
+'use strict';
+
+var OTKAnalytics = require('opentok-solutions-logging');
+
+var analytics = null;
 
 // eslint-disable-next-line no-console
-var message = function message(_message) {
-  return console.log("otAccCore: " + _message);
+var message = function message(messageText) {
+  return console.log('otAccCore: ' + messageText);
 };
 
-var error = function error(message) {
-  throw new Error("otAccCore: " + message);
+var error = function error(errorMessage) {
+  throw new Error('otAccCore: ' + errorMessage);
+};
+
+var logVariation = {
+  attempt: 'Attempt',
+  success: 'Success',
+  fail: 'Fail'
+};
+
+var logAction = {
+  // vars for the analytics logs. Internal use
+  clientVersion: 'js-vsol-2.0.0',
+  componentId: 'coreAccelerator',
+  name: 'guidCoreAccelerator',
+  init: 'Init',
+  initPackages: 'InitPackages',
+  connect: 'Connect',
+  disconnect: 'Disconnect',
+  forceDisconnect: 'ForceDisconnect',
+  forceUnpublish: 'ForceUnpublish',
+  getAccPack: 'GetAccPack',
+  on: 'On',
+  off: 'Off',
+  signal: 'Signal',
+  startCall: 'StartCall',
+  endCall: 'EndCall',
+  toggleLocalAudio: 'ToggleLocalAudio',
+  toggleLocalVideo: 'ToggleLocalVideo',
+  toggleRemoteAudio: 'ToggleRemoteAudio',
+  toggleRemoteVideo: 'ToggleRemoteVideo',
+  subscribe: 'subscribe',
+  unsubscribe: 'unsubscribe'
+};
+
+var initLogAnalytics = function initLogAnalytics(source, sessionId, connectionId, apikey) {
+  var otkanalyticsData = {
+    clientVersion: 'js-vsol-1.0.0',
+    source: source,
+    componentId: 'coreAccelerator',
+    name: 'coreAccelerator',
+    partnerId: apikey
+  };
+
+  analytics = new OTKAnalytics(otkanalyticsData);
+
+  if (connectionId) {
+    var sessionInfo = {
+      sessionId: sessionId,
+      connectionId: connectionId,
+      partnerId: apikey
+    };
+    analytics.addSessionInfo(sessionInfo);
+  }
+};
+
+var updateLogAnalytics = function updateLogAnalytics(sessionId, connectionId, apiKey) {
+  if (sessionId && connectionId && apiKey) {
+    var sessionInfo = {
+      sessionId: sessionId,
+      connectionId: connectionId,
+      partnerId: apiKey
+    };
+    analytics.addSessionInfo(sessionInfo);
+  }
+};
+
+var log = function log(action, variation) {
+  console.log('OXOXOXO: ', action, variation);
+  analytics.logEvent({ action: action, variation: variation });
 };
 
 module.exports = {
   message: message,
-  error: error
+  error: error,
+  logAction: logAction,
+  logVariation: logVariation,
+  initLogAnalytics: initLogAnalytics,
+  updateLogAnalytics: updateLogAnalytics,
+  log: log
 };
 
-},{}],5:[function(require,module,exports){
+},{"opentok-solutions-logging":1}],6:[function(require,module,exports){
 "use strict";
 
 /**
@@ -1145,7 +1293,7 @@ module.exports = {
   reset: reset
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 /** Wrap DOM selector methods:
@@ -1224,4 +1372,4 @@ module.exports = {
   properCase: properCase
 };
 
-},{}]},{},[2]);
+},{}]},{},[3]);

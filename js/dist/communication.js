@@ -83,8 +83,10 @@ var publish = function publish() {
     createPublisher().then(function (publisher) {
       state.addPublisher('camera', publisher);
       session.publish(publisher);
+      logging.log(logging.logAction.startCall, logging.logVariation.success);
       resolve();
     }).catch(function (error) {
+      logging.log(logging.logAction.startCall, logging.logVariation.fail);
       var errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
       triggerEvent('error', errorMessage);
       reject(error);
@@ -99,6 +101,7 @@ var publish = function publish() {
  */
 var subscribe = function subscribe(stream) {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.subscribe, logging.logVariation.attempt);
     var streamMap = state.getStreamMap();
     if (streamMap[stream.id]) {
       // Are we already subscribing to the stream?
@@ -111,11 +114,13 @@ var subscribe = function subscribe(stream) {
         var options = type === 'camera' ? callProperties : screenProperties;
         var subscriber = session.subscribe(stream, container, options, function (error) {
           if (error) {
+            logging.log(logging.logAction.subscribe, logging.logVariation.fail);
             reject(error);
           } else {
             state.addSubscriber(subscriber);
             triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.all()));
             type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+            logging.log(logging.logAction.subscribe, logging.logVariation.success);
             resolve();
           }
         });
@@ -131,8 +136,10 @@ var subscribe = function subscribe(stream) {
  */
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
     session.unsubscribe(subscriber);
     state.removeSubscriber(subscriber);
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();
   });
 };
@@ -196,9 +203,11 @@ var createEventListeners = function createEventListeners() {
  */
 var startCall = function startCall() {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.startCall, logging.logVariation.attempt);
     if (!ableToJoin()) {
       var errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
+      logging.log(logging.logAction.startCall, logging.logVariation.fail);
       return reject(new Error(errorMessage));
     }
     publish().then(function () {
@@ -222,6 +231,8 @@ var startCall = function startCall() {
  * Stop publishing and unsubscribe from all streams
  */
 var endCall = function endCall() {
+  logging.log(logging.logAction.endCall, logging.logVariation.attempt);
+
   var _state$getPubSub = state.getPubSub(),
       publishers = _state$getPubSub.publishers;
 
@@ -237,6 +248,7 @@ var endCall = function endCall() {
   state.removeAllPublishers();
   state.removeAllSubscribers();
   active = false;
+  logging.log(logging.logAction.endCall, logging.logVariation.success);
 };
 
 /**

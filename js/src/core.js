@@ -69,10 +69,10 @@ const on = (event, callback) => {
   const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(`${event} is not a registered event.`);
-   // logging.log(logging.logAction.on, logging.logVariation.fail);
+    // logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
     eventCallbacks.add(callback);
-   // logging.log(logging.logAction.on, logging.logVariation.success);
+    // logging.log(logging.logAction.on, logging.logVariation.success);
   }
 };
 
@@ -83,7 +83,7 @@ const on = (event, callback) => {
  * @param {Function} callback
  */
 const off = (event, callback) => {
-  //logging.log(logging.logAction.off, logging.logVariation.attempt);
+  // logging.log(logging.logAction.off, logging.logVariation.attempt);
   if (arguments.lenth === 0) {
     Object.keys(eventListeners).forEach((eventType) => {
       eventListeners[eventType].clear();
@@ -91,11 +91,11 @@ const off = (event, callback) => {
   }
   const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-   // logging.log(logging.logAction.off, logging.logVariation.fail);
+    // logging.log(logging.logAction.off, logging.logVariation.fail);
     logging.message(`${event} is not a registered event.`);
   } else {
     eventCallbacks.delete(callback);
-    //logging.log(logging.logAction.off, logging.logVariation.success);
+    // logging.log(logging.logAction.off, logging.logVariation.success);
   }
 };
 
@@ -216,7 +216,7 @@ const linkAnnotation = (pubSub, annotationContainer, externalWindow) => {
 
 const initPackages = () => {
   logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
-  
+
   const session = getSession();
   const options = getOptions();
   /**
@@ -258,7 +258,6 @@ const initPackages = () => {
     }
 
     logging.log(logging.logAction.initPackages, logging.logVariation.success);
-  
     return result;
   };
 
@@ -318,8 +317,7 @@ const initPackages = () => {
     const commOptions =
       packageName === 'communication' ?
       Object.assign({},
-        options.communication,
-        { publishers, subscribers, streams, streamMap, streamContainers: containers.stream }
+        options.communication, { publishers, subscribers, streams, streamMap, streamContainers: containers.stream }
       ) : {};
     const chatOptions =
       packageName === 'textChat' ? {
@@ -381,7 +379,8 @@ const connect = () =>
         logging.log(logging.logAction.connect, logging.logVariation.fail);
         return reject(error);
       }
-      logging.updateLogAnalytics(session.sessionId, session.connection.connectionId, session.apiKey);
+      const { sessionId, apiKey } = session;
+      logging.updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
       logging.log(logging.logAction.connect, logging.logVariation.success);
       initPackages();
       return resolve();
@@ -411,9 +410,10 @@ const forceDisconnect = connection =>
     getSession().forceDisconnect(connection, (error) => {
       if (error) {
         logging.log(logging.logAction.forceDisconnect, logging.logVariation.fail);
-      }
-      else {
+        reject(error);
+      } else {
         logging.log(logging.logAction.forceDisconnect, logging.logVariation.success);
+        resolve();
       }
     });
   });
@@ -427,13 +427,11 @@ const forceDisconnect = connection =>
 const forceUnpublish = stream =>
   new Promise((resolve, reject) => {
     logging.log(logging.logAction.forceUnpublish, logging.logVariation.attempt);
-    
     getSession().forceUnpublish(stream, (error) => {
-      if (error){
+      if (error) {
         logging.log(logging.logAction.forceUnpublish, logging.logVariation.fail);
         reject(error);
-      }
-      else {
+      } else {
         logging.log(logging.logAction.forceUnpublish, logging.logVariation.success);
         resolve();
       }
@@ -472,8 +470,7 @@ const signal = (type, signalData, to) =>
       if (error) {
         logging.log(logging.logAction.signal, logging.logVariation.fail);
         reject(error);
-      }
-      else {
+      } else {
         logging.log(logging.logAction.signal, logging.logVariation.success);
         resolve();
       }
@@ -513,8 +510,7 @@ const toggleRemoteAudio = (id, enable) => {
   logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.attempt);
   communication.enableRemoteAV(id, 'audio', enable);
   logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.success);
-}
-
+};
 
 /**
  * Enable or disable remote video
@@ -540,9 +536,9 @@ const init = (options) => {
   }
   const { credentials } = options;
   validateCredentials(options.credentials);
-  
+
   //init analytics
-  logging.initLogAnalytics( window.location.origin, credentials.sessionId, null, credentials.apiKey);
+  logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
   logging.log(logging.logAction.init, logging.logVariation.attempt);
   const session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
