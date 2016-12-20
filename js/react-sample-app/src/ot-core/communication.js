@@ -131,8 +131,8 @@ var subscribe = function subscribe(stream) {
  */
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
-    session.unsubscribe(subscriber);
     state.removeSubscriber(subscriber);
+    session.unsubscribe(subscriber);
     resolve();
   });
 };
@@ -201,6 +201,7 @@ var startCall = function startCall() {
       triggerEvent('error', errorMessage);
       return reject(new Error(errorMessage));
     }
+
     publish().then(function () {
       var streams = state.getStreams();
       var initialSubscriptions = Object.keys(streams).map(function (id) {
@@ -223,19 +224,18 @@ var startCall = function startCall() {
  */
 var endCall = function endCall() {
   var _state$getPubSub = state.getPubSub(),
-      publishers = _state$getPubSub.publishers;
+      publishers = _state$getPubSub.publishers,
+      subscribers = _state$getPubSub.subscribers;
 
   var unpublish = function unpublish(publisher) {
     return session.unpublish(publisher);
   };
-  Object.keys(publishers.camera).forEach(function (id) {
-    return unpublish(publishers.camera[id]);
-  });
-  Object.keys(publishers.screen).forEach(function (id) {
-    return unpublish(publishers.screen[id]);
-  });
+  Object.values(publishers.camera).forEach(unpublish);
+  Object.values(publishers.screen).forEach(unpublish);
+  // TODO Promise.all for unsubsribing
+  Object.values(subscribers.camera).forEach(unsubscribe);
+  Object.values(subscribers.screen).forEach(unsubscribe);
   state.removeAllPublishers();
-  state.removeAllSubscribers();
   active = false;
 };
 

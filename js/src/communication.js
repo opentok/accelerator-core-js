@@ -119,8 +119,8 @@ const subscribe = stream =>
  */
 const unsubscribe = subscriber =>
   new Promise((resolve) => {
-    session.unsubscribe(subscriber);
     state.removeSubscriber(subscriber);
+    session.unsubscribe(subscriber);
     resolve();
   });
 
@@ -185,6 +185,7 @@ const startCall = () =>
       triggerEvent('error', errorMessage);
       return reject(new Error(errorMessage));
     }
+
     publish()
       .then(() => {
         const streams = state.getStreams();
@@ -202,12 +203,14 @@ const startCall = () =>
  * Stop publishing and unsubscribe from all streams
  */
 const endCall = () => {
-  const { publishers } = state.getPubSub();
+  const { publishers, subscribers } = state.getPubSub();
   const unpublish = publisher => session.unpublish(publisher);
-  Object.keys(publishers.camera).forEach(id => unpublish(publishers.camera[id]));
-  Object.keys(publishers.screen).forEach(id => unpublish(publishers.screen[id]));
+  Object.values(publishers.camera).forEach(unpublish);
+  Object.values(publishers.screen).forEach(unpublish);
+  // TODO Promise.all for unsubsribing
+  Object.values(subscribers.camera).forEach(unsubscribe);
+  Object.values(subscribers.screen).forEach(unsubscribe);
   state.removeAllPublishers();
-  state.removeAllSubscribers();
   active = false;
 };
 
