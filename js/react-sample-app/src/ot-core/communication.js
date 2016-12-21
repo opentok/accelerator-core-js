@@ -11,13 +11,13 @@ var _require = require('./util'),
     path = _require.path,
     properCase = _require.properCase;
 
-var session = undefined;
-var accPack = undefined;
-var callProperties = undefined;
-var screenProperties = undefined;
-var streamContainers = undefined;
-var autoSubscribe = undefined;
-var connectionLimit = undefined;
+var session = void 0;
+var accPack = void 0;
+var callProperties = void 0;
+var screenProperties = void 0;
+var streamContainers = void 0;
+var autoSubscribe = void 0;
+var connectionLimit = void 0;
 var active = false;
 
 /**
@@ -137,8 +137,8 @@ var subscribe = function subscribe(stream) {
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
     logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
-    session.unsubscribe(subscriber);
     state.removeSubscriber(subscriber);
+    session.unsubscribe(subscriber);
     logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();
   });
@@ -210,6 +210,7 @@ var startCall = function startCall() {
       logging.log(logging.logAction.startCall, logging.logVariation.fail);
       return reject(new Error(errorMessage));
     }
+
     publish().then(function () {
       var streams = state.getStreams();
       var initialSubscriptions = Object.keys(streams).map(function (id) {
@@ -234,19 +235,18 @@ var endCall = function endCall() {
   logging.log(logging.logAction.endCall, logging.logVariation.attempt);
 
   var _state$getPubSub = state.getPubSub(),
-      publishers = _state$getPubSub.publishers;
+      publishers = _state$getPubSub.publishers,
+      subscribers = _state$getPubSub.subscribers;
 
   var unpublish = function unpublish(publisher) {
     return session.unpublish(publisher);
   };
-  Object.keys(publishers.camera).forEach(function (id) {
-    return unpublish(publishers.camera[id]);
-  });
-  Object.keys(publishers.screen).forEach(function (id) {
-    return unpublish(publishers.screen[id]);
-  });
+  Object.values(publishers.camera).forEach(unpublish);
+  Object.values(publishers.screen).forEach(unpublish);
+  // TODO Promise.all for unsubsribing
+  Object.values(subscribers.camera).forEach(unsubscribe);
+  Object.values(subscribers.screen).forEach(unsubscribe);
   state.removeAllPublishers();
-  state.removeAllSubscribers();
   active = false;
   logging.log(logging.logAction.endCall, logging.logVariation.success);
 };

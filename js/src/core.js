@@ -215,8 +215,7 @@ const linkAnnotation = (pubSub, annotationContainer, externalWindow) => {
 };
 
 const initPackages = () => {
-  logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
-
+  //logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
   const session = getSession();
   const options = getOptions();
   /**
@@ -253,11 +252,11 @@ const initPackages = () => {
       result = window[globalName];
     }
     if (!result) {
-      logging.log(logging.logAction.initPackages, logging.logVariation.fail);
+      //logging.log(logging.logAction.initPackages, logging.logVariation.fail);
       logging.error(`Could not load ${packageName}`);
     }
 
-    logging.log(logging.logAction.initPackages, logging.logVariation.success);
+    //logging.log(logging.logAction.initPackages, logging.logVariation.success);
     return result;
   };
 
@@ -370,10 +369,10 @@ const validateCredentials = (credentials = []) => {
  */
 const connect = () =>
   new Promise((resolve, reject) => {
+    logging.log(logging.logAction.connect, logging.logVariation.attempt);
     const session = getSession();
     const { token } = getCredentials();
     session.connect(token, (error) => {
-      logging.log(logging.logAction.connect, logging.logVariation.attempt);
       if (error) {
         logging.message(error);
         logging.log(logging.logAction.connect, logging.logVariation.fail);

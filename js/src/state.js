@@ -166,14 +166,18 @@ const addPublisher = (type, publisher) => {
 const removePublisher = (type, publisher) => {
   const id = publisher.id || streamMap[publisher.streamId];
   delete publishers[type][id];
+  delete streamMap[publisher.streamId];
 };
 
 /**
  * Remove all publishers from state
  */
 const removeAllPublishers = () => {
-  publishers.camera = {};
-  publishers.screen = {};
+  ['camera', 'screen'].forEach((type) => {
+    Object.values(publishers[type]).forEach((publisher) => {
+      removePublisher(type, publisher);
+    });
+  });
 };
 
 /**
@@ -188,13 +192,27 @@ const addSubscriber = (subscriber) => {
 };
 
 /**
+ * Remove a publisher from state
+ * @param {String} type - 'camera' or 'screen'
+ * @param {Object} subscriber - The OpenTok subscriber object
+ */
+const removeSubscriber = (subscriber) => {
+  const id = subscriber.id || streamMap[subscriber.streamId];
+  const type = subscriber.stream.videoType;
+  delete subscribers[type][id];
+  delete streamMap[subscriber.streamId];
+};
+
+/**
  * Remove all subscribers from state
  */
 const removeAllSubscribers = () => {
-  subscribers.camera = {};
-  subscribers.screen = {};
+  ['camera', 'screen'].forEach((type) => {
+    Object.values(subscribers[type]).forEach((subscriber) => {
+      removeSubscriber(type, subscriber);
+    });
+  });
 };
-
 
 /**
  * Reset state
@@ -226,6 +244,7 @@ module.exports = {
   removePublisher,
   removeAllPublishers,
   addSubscriber,
+  removeSubscriber,
   removeAllSubscribers,
   getPubSub,
   reset,

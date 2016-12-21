@@ -139,10 +139,8 @@ var subscribe = function subscribe(stream) {
  */
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
-    logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
-    session.unsubscribe(subscriber);
     state.removeSubscriber(subscriber);
-    logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
+    session.unsubscribe(subscriber);
     resolve();
   });
 };
@@ -213,6 +211,7 @@ var startCall = function startCall() {
       logging.log(logging.logAction.startCall, logging.logVariation.fail);
       return reject(new Error(errorMessage));
     }
+
     publish().then(function () {
       var streams = state.getStreams();
       var initialSubscriptions = Object.keys(streams).map(function (id) {
@@ -237,19 +236,18 @@ var endCall = function endCall() {
   logging.log(logging.logAction.endCall, logging.logVariation.attempt);
 
   var _state$getPubSub = state.getPubSub(),
-      publishers = _state$getPubSub.publishers;
+      publishers = _state$getPubSub.publishers,
+      subscribers = _state$getPubSub.subscribers;
 
   var unpublish = function unpublish(publisher) {
     return session.unpublish(publisher);
   };
-  Object.keys(publishers.camera).forEach(function (id) {
-    return unpublish(publishers.camera[id]);
-  });
-  Object.keys(publishers.screen).forEach(function (id) {
-    return unpublish(publishers.screen[id]);
-  });
+  Object.values(publishers.camera).forEach(unpublish);
+  Object.values(publishers.screen).forEach(unpublish);
+  // TODO Promise.all for unsubsribing
+  Object.values(subscribers.camera).forEach(unsubscribe);
+  Object.values(subscribers.screen).forEach(unsubscribe);
   state.removeAllPublishers();
-  state.removeAllSubscribers();
   active = false;
   logging.log(logging.logAction.endCall, logging.logVariation.success);
 };
@@ -1045,8 +1043,8 @@ module.exports = {
   log: log
 };
 
-},{"opentok-solutions-logging":1}],6:[function(require,module,exports){
-"use strict";
+},{}],5:[function(require,module,exports){
+'use strict';
 
 /**
  * Internal variables
@@ -1229,14 +1227,18 @@ var addPublisher = function addPublisher(type, publisher) {
 var removePublisher = function removePublisher(type, publisher) {
   var id = publisher.id || streamMap[publisher.streamId];
   delete publishers[type][id];
+  delete streamMap[publisher.streamId];
 };
 
 /**
  * Remove all publishers from state
  */
 var removeAllPublishers = function removeAllPublishers() {
-  publishers.camera = {};
-  publishers.screen = {};
+  ['camera', 'screen'].forEach(function (type) {
+    Object.values(publishers[type]).forEach(function (publisher) {
+      removePublisher(type, publisher);
+    });
+  });
 };
 
 /**
@@ -1251,11 +1253,26 @@ var addSubscriber = function addSubscriber(subscriber) {
 };
 
 /**
+ * Remove a publisher from state
+ * @param {String} type - 'camera' or 'screen'
+ * @param {Object} subscriber - The OpenTok subscriber object
+ */
+var removeSubscriber = function removeSubscriber(subscriber) {
+  var id = subscriber.id || streamMap[subscriber.streamId];
+  var type = subscriber.stream.videoType;
+  delete subscribers[type][id];
+  delete streamMap[subscriber.streamId];
+};
+
+/**
  * Remove all subscribers from state
  */
 var removeAllSubscribers = function removeAllSubscribers() {
-  subscribers.camera = {};
-  subscribers.screen = {};
+  ['camera', 'screen'].forEach(function (type) {
+    Object.values(subscribers[type]).forEach(function (subscriber) {
+      removeSubscriber(type, subscriber);
+    });
+  });
 };
 
 /**
@@ -1288,6 +1305,7 @@ module.exports = {
   removePublisher: removePublisher,
   removeAllPublishers: removeAllPublishers,
   addSubscriber: addSubscriber,
+  removeSubscriber: removeSubscriber,
   removeAllSubscribers: removeAllSubscribers,
   getPubSub: getPubSub,
   reset: reset

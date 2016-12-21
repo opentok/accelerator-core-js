@@ -2,7 +2,7 @@
 
 var _arguments = arguments;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /* global OT */
 /**
@@ -23,10 +23,10 @@ var _require = require('./util'),
  */
 
 
-var textChat = undefined; // eslint-disable-line no-unused-vars
-var screenSharing = undefined; // eslint-disable-line no-unused-vars
-var annotation = undefined;
-var archiving = undefined; // eslint-disable-line no-unused-vars
+var textChat = void 0; // eslint-disable-line no-unused-vars
+var screenSharing = void 0; // eslint-disable-line no-unused-vars
+var annotation = void 0;
+var archiving = void 0; // eslint-disable-line no-unused-vars
 
 /**
  * Get access to an accelerator pack
@@ -83,9 +83,9 @@ var on = function on(event, callback) {
     logging.message(event + ' is not a registered event.');
     // logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
-      eventCallbacks.add(callback);
-      // logging.log(logging.logAction.on, logging.logVariation.success);
-    }
+    eventCallbacks.add(callback);
+    // logging.log(logging.logAction.on, logging.logVariation.success);
+  }
 };
 
 /**
@@ -237,8 +237,7 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
 };
 
 var initPackages = function initPackages() {
-  logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
-
+  //logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
   var session = getSession();
   var options = getOptions();
   /**
@@ -251,7 +250,7 @@ var initPackages = function initPackages() {
    * @returns {Object}
    */
   var optionalRequire = function optionalRequire(packageName, globalName) {
-    var result = undefined;
+    var result = void 0;
     /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
     try {
       switch (packageName) {
@@ -275,11 +274,11 @@ var initPackages = function initPackages() {
       result = window[globalName];
     }
     if (!result) {
-      logging.log(logging.logAction.initPackages, logging.logVariation.fail);
+      //logging.log(logging.logAction.initPackages, logging.logVariation.fail);
       logging.error('Could not load ' + packageName);
     }
 
-    logging.log(logging.logAction.initPackages, logging.logVariation.success);
+    //logging.log(logging.logAction.initPackages, logging.logVariation.success);
     return result;
   };
 
@@ -387,13 +386,13 @@ var validateCredentials = function validateCredentials() {
  */
 var connect = function connect() {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.connect, logging.logVariation.attempt);
     var session = getSession();
 
     var _getCredentials = getCredentials(),
         token = _getCredentials.token;
 
     session.connect(token, function (error) {
-      logging.log(logging.logAction.connect, logging.logVariation.attempt);
       if (error) {
         logging.message(error);
         logging.log(logging.logAction.connect, logging.logVariation.fail);

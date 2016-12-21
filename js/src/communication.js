@@ -125,8 +125,8 @@ const subscribe = stream =>
 const unsubscribe = subscriber =>
   new Promise((resolve) => {
     logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
-    session.unsubscribe(subscriber);
     state.removeSubscriber(subscriber);
+    session.unsubscribe(subscriber);
     logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();
   });
@@ -194,6 +194,7 @@ const startCall = () =>
       logging.log(logging.logAction.startCall, logging.logVariation.fail);
       return reject(new Error(errorMessage));
     }
+
     publish()
       .then(() => {
         const streams = state.getStreams();
@@ -212,12 +213,14 @@ const startCall = () =>
  */
 const endCall = () => {
   logging.log(logging.logAction.endCall, logging.logVariation.attempt);
-  const { publishers } = state.getPubSub();
+  const { publishers, subscribers } = state.getPubSub();
   const unpublish = publisher => session.unpublish(publisher);
-  Object.keys(publishers.camera).forEach(id => unpublish(publishers.camera[id]));
-  Object.keys(publishers.screen).forEach(id => unpublish(publishers.screen[id]));
+  Object.values(publishers.camera).forEach(unpublish);
+  Object.values(publishers.screen).forEach(unpublish);
+  // TODO Promise.all for unsubsribing
+  Object.values(subscribers.camera).forEach(unsubscribe);
+  Object.values(subscribers.screen).forEach(unsubscribe);
   state.removeAllPublishers();
-  state.removeAllSubscribers();
   active = false;
   logging.log(logging.logAction.endCall, logging.logVariation.success);
 };

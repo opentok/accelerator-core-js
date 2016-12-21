@@ -21,9 +21,6 @@ var logVariation = {
 
 var logAction = {
   // vars for the analytics logs. Internal use
-  clientVersion: 'js-vsol-2.0.0',
-  componentId: 'coreAccelerator',
-  name: 'guidCoreAccelerator',
   init: 'Init',
   initPackages: 'InitPackages',
   connect: 'Connect',
