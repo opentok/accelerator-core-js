@@ -71,7 +71,6 @@ const updateLogAnalytics = (sessionId, connectionId, apiKey) => {
 };
 
 const log = (action, variation) => {
-  console.log('OXOXOXO: ', action, variation);
   analytics.logEvent({ action, variation });
 };
 

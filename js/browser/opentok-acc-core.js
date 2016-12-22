@@ -139,8 +139,10 @@ var subscribe = function subscribe(stream) {
  */
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
     state.removeSubscriber(subscriber);
     session.unsubscribe(subscriber);
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();
   });
 };
@@ -552,7 +554,6 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
 
 var initPackages = function initPackages() {
   logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
-
   var session = getSession();
   var options = getOptions();
   /**
@@ -592,8 +593,6 @@ var initPackages = function initPackages() {
       logging.log(logging.logAction.initPackages, logging.logVariation.fail);
       logging.error('Could not load ' + packageName);
     }
-
-    logging.log(logging.logAction.initPackages, logging.logVariation.success);
     return result;
   };
 
@@ -675,6 +674,8 @@ var initPackages = function initPackages() {
   screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;
   annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
   archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
+
+  logging.log(logging.logAction.initPackages, logging.logVariation.success);
 };
 
 /**
@@ -701,13 +702,13 @@ var validateCredentials = function validateCredentials() {
  */
 var connect = function connect() {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.connect, logging.logVariation.attempt);
     var session = getSession();
 
     var _getCredentials = getCredentials(),
         token = _getCredentials.token;
 
     session.connect(token, function (error) {
-      logging.log(logging.logAction.connect, logging.logVariation.attempt);
       if (error) {
         logging.message(error);
         logging.log(logging.logAction.connect, logging.logVariation.fail);
@@ -973,9 +974,6 @@ var logVariation = {
 
 var logAction = {
   // vars for the analytics logs. Internal use
-  clientVersion: 'js-vsol-2.0.0',
-  componentId: 'coreAccelerator',
-  name: 'guidCoreAccelerator',
   init: 'Init',
   initPackages: 'InitPackages',
   connect: 'Connect',
@@ -1044,7 +1042,7 @@ module.exports = {
 };
 
 },{"opentok-solutions-logging":1}],6:[function(require,module,exports){
-"use strict";
+'use strict';
 
 /**
  * Internal variables

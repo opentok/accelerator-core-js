@@ -215,7 +215,7 @@ const linkAnnotation = (pubSub, annotationContainer, externalWindow) => {
 };
 
 const initPackages = () => {
-  //logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
+  logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
   const session = getSession();
   const options = getOptions();
   /**
@@ -252,11 +252,9 @@ const initPackages = () => {
       result = window[globalName];
     }
     if (!result) {
-      //logging.log(logging.logAction.initPackages, logging.logVariation.fail);
+      logging.log(logging.logAction.initPackages, logging.logVariation.fail);
       logging.error(`Could not load ${packageName}`);
     }
-
-    //logging.log(logging.logAction.initPackages, logging.logVariation.success);
     return result;
   };
 
@@ -344,6 +342,8 @@ const initPackages = () => {
   screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;
   annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
   archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
+
+  logging.log(logging.logAction.initPackages, logging.logVariation.success);
 };
 
 
