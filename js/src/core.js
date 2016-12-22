@@ -69,10 +69,10 @@ const on = (event, callback) => {
   const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(`${event} is not a registered event.`);
-    // logging.log(logging.logAction.on, logging.logVariation.fail);
+    //logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
     eventCallbacks.add(callback);
-    // logging.log(logging.logAction.on, logging.logVariation.success);
+    //logging.log(logging.logAction.on, logging.logVariation.success);
   }
 };
 
@@ -83,7 +83,7 @@ const on = (event, callback) => {
  * @param {Function} callback
  */
 const off = (event, callback) => {
-  // logging.log(logging.logAction.off, logging.logVariation.attempt);
+  //logging.log(logging.logAction.off, logging.logVariation.attempt);
   if (arguments.lenth === 0) {
     Object.keys(eventListeners).forEach((eventType) => {
       eventListeners[eventType].clear();
@@ -91,11 +91,11 @@ const off = (event, callback) => {
   }
   const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    // logging.log(logging.logAction.off, logging.logVariation.fail);
+    //logging.log(logging.logAction.off, logging.logVariation.fail);
     logging.message(`${event} is not a registered event.`);
   } else {
     eventCallbacks.delete(callback);
-    // logging.log(logging.logAction.off, logging.logVariation.success);
+    //logging.log(logging.logAction.off, logging.logVariation.success);
   }
 };
 

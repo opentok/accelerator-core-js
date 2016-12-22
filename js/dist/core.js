@@ -81,10 +81,10 @@ var on = function on(event, callback) {
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(event + ' is not a registered event.');
-    // logging.log(logging.logAction.on, logging.logVariation.fail);
+    //logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
     eventCallbacks.add(callback);
-    // logging.log(logging.logAction.on, logging.logVariation.success);
+    //logging.log(logging.logAction.on, logging.logVariation.success);
   }
 };
 
@@ -95,7 +95,7 @@ var on = function on(event, callback) {
  * @param {Function} callback
  */
 var off = function off(event, callback) {
-  // logging.log(logging.logAction.off, logging.logVariation.attempt);
+  //logging.log(logging.logAction.off, logging.logVariation.attempt);
   if (_arguments.lenth === 0) {
     Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
@@ -103,11 +103,11 @@ var off = function off(event, callback) {
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    // logging.log(logging.logAction.off, logging.logVariation.fail);
+    //logging.log(logging.logAction.off, logging.logVariation.fail);
     logging.message(event + ' is not a registered event.');
   } else {
     eventCallbacks.delete(callback);
-    // logging.log(logging.logAction.off, logging.logVariation.success);
+    //logging.log(logging.logAction.off, logging.logVariation.success);
   }
 };
 

@@ -24,8 +24,6 @@ const logAction = {
   forceDisconnect: 'ForceDisconnect',
   forceUnpublish: 'ForceUnpublish',
   getAccPack: 'GetAccPack',
-  on: 'On',
-  off: 'Off',
   signal: 'Signal',
   startCall: 'StartCall',
   endCall: 'EndCall',
@@ -49,12 +47,7 @@ const initLogAnalytics = (source, sessionId, connectionId, apikey) => {
   analytics = new OTKAnalytics(otkanalyticsData);
 
   if (connectionId) {
-    const sessionInfo = {
-      sessionId,
-      connectionId,
-      partnerId: apikey,
-    };
-    analytics.addSessionInfo(sessionInfo);
+    updateLogAnalytics(sessionId, connectionId, apikey);
   }
 };
 

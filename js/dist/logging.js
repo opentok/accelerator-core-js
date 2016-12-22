@@ -28,8 +28,6 @@ var logAction = {
   forceDisconnect: 'ForceDisconnect',
   forceUnpublish: 'ForceUnpublish',
   getAccPack: 'GetAccPack',
-  on: 'On',
-  off: 'Off',
   signal: 'Signal',
   startCall: 'StartCall',
   endCall: 'EndCall',
@@ -53,12 +51,7 @@ var initLogAnalytics = function initLogAnalytics(source, sessionId, connectionId
   analytics = new OTKAnalytics(otkanalyticsData);
 
   if (connectionId) {
-    var sessionInfo = {
-      sessionId: sessionId,
-      connectionId: connectionId,
-      partnerId: apikey
-    };
-    analytics.addSessionInfo(sessionInfo);
+    updateLogAnalytics(sessionId, connectionId, apikey);
   }
 };
 
@@ -74,7 +67,6 @@ var updateLogAnalytics = function updateLogAnalytics(sessionId, connectionId, ap
 };
 
 var log = function log(action, variation) {
-  console.log('OXOXOXO: ', action, variation);
   analytics.logEvent({ action: action, variation: variation });
 };
 
