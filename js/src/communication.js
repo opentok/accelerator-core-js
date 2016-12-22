@@ -74,9 +74,11 @@ const publish = () =>
       .then((publisher) => {
         state.addPublisher('camera', publisher);
         session.publish(publisher);
+        logging.log(logging.logAction.startCall, logging.logVariation.success);
         resolve();
       })
       .catch((error) => {
+        logging.log(logging.logAction.startCall, logging.logVariation.fail);
         const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
         triggerEvent('error', errorMessage);
         reject(error);
@@ -90,6 +92,7 @@ const publish = () =>
  */
 const subscribe = stream =>
   new Promise((resolve, reject) => {
+    logging.log(logging.logAction.subscribe, logging.logVariation.attempt);
     const streamMap = state.getStreamMap();
     if (streamMap[stream.id]) {
       // Are we already subscribing to the stream?
@@ -101,11 +104,13 @@ const subscribe = stream =>
       const options = type === 'camera' ? callProperties : screenProperties;
       const subscriber = session.subscribe(stream, container, options, (error) => {
         if (error) {
+          logging.log(logging.logAction.subscribe, logging.logVariation.fail);
           reject(error);
         } else {
           state.addSubscriber(subscriber);
           triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, state.all()));
           type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+          logging.log(logging.logAction.subscribe, logging.logVariation.success);
           resolve();
         }
       });
@@ -119,8 +124,10 @@ const subscribe = stream =>
  */
 const unsubscribe = subscriber =>
   new Promise((resolve) => {
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
     state.removeSubscriber(subscriber);
     session.unsubscribe(subscriber);
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();
   });
 
@@ -180,9 +187,11 @@ const createEventListeners = () => {
  */
 const startCall = () =>
   new Promise((resolve, reject) => {
+    logging.log(logging.logAction.startCall, logging.logVariation.attempt);
     if (!ableToJoin()) {
       const errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
+      logging.log(logging.logAction.startCall, logging.logVariation.fail);
       return reject(new Error(errorMessage));
     }
 
@@ -203,6 +212,7 @@ const startCall = () =>
  * Stop publishing and unsubscribe from all streams
  */
 const endCall = () => {
+  logging.log(logging.logAction.endCall, logging.logVariation.attempt);
   const { publishers, subscribers } = state.getPubSub();
   const unpublish = publisher => session.unpublish(publisher);
   Object.values(publishers.camera).forEach(unpublish);
@@ -212,6 +222,7 @@ const endCall = () => {
   Object.values(subscribers.screen).forEach(unsubscribe);
   state.removeAllPublishers();
   active = false;
+  logging.log(logging.logAction.endCall, logging.logVariation.success);
 };
 
 /**
