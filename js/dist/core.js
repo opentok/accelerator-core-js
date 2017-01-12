@@ -2,7 +2,7 @@
 
 var _arguments = arguments;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /* global OT */
 /**
@@ -23,10 +23,10 @@ var _require = require('./util'),
  */
 
 
-var textChat = undefined; // eslint-disable-line no-unused-vars
-var screenSharing = undefined; // eslint-disable-line no-unused-vars
-var annotation = undefined;
-var archiving = undefined; // eslint-disable-line no-unused-vars
+var textChat = void 0; // eslint-disable-line no-unused-vars
+var screenSharing = void 0; // eslint-disable-line no-unused-vars
+var annotation = void 0;
+var archiving = void 0; // eslint-disable-line no-unused-vars
 
 /**
  * Get access to an accelerator pack
@@ -34,12 +34,14 @@ var archiving = undefined; // eslint-disable-line no-unused-vars
  * @returns {Object} The instance of the accelerator pack
  */
 var getAccPack = function getAccPack(packageName) {
+  logging.log(logging.logAction.getAccPack, logging.logVariation.attempt);
   var packages = {
     textChat: textChat,
     screenSharing: screenSharing,
     annotation: annotation,
     archiving: archiving
   };
+  logging.log(logging.logAction.getAccPack, logging.logVariation.success);
   return packages[packageName];
 };
 
@@ -70,6 +72,7 @@ var registerEvents = function registerEvents(events) {
  * @param {Function} callback
  */
 var on = function on(event, callback) {
+  //logging.log(logging.logAction.on, logging.logVariation.attempt);
   if ((typeof event === 'undefined' ? 'undefined' : _typeof(event)) === 'object') {
     Object.keys(event).forEach(function (eventName) {
       on(eventName, event[eventName]);
@@ -78,8 +81,10 @@ var on = function on(event, callback) {
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(event + ' is not a registered event.');
+    //logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
     eventCallbacks.add(callback);
+    //logging.log(logging.logAction.on, logging.logVariation.success);
   }
 };
 
@@ -90,6 +95,7 @@ var on = function on(event, callback) {
  * @param {Function} callback
  */
 var off = function off(event, callback) {
+  //logging.log(logging.logAction.off, logging.logVariation.attempt);
   if (_arguments.lenth === 0) {
     Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
@@ -97,9 +103,11 @@ var off = function off(event, callback) {
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
+    //logging.log(logging.logAction.off, logging.logVariation.fail);
     logging.message(event + ' is not a registered event.');
   } else {
     eventCallbacks.delete(callback);
+    //logging.log(logging.logAction.off, logging.logVariation.success);
   }
 };
 
@@ -229,9 +237,9 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
 };
 
 var initPackages = function initPackages() {
+  logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
   var session = getSession();
   var options = getOptions();
-
   /**
    * Try to require a package.  If 'require' is unavailable, look for
    * the package in global scope.  A switch internalStatement is used because
@@ -242,7 +250,7 @@ var initPackages = function initPackages() {
    * @returns {Object}
    */
   var optionalRequire = function optionalRequire(packageName, globalName) {
-    var result = undefined;
+    var result = void 0;
     /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
     try {
       switch (packageName) {
@@ -266,6 +274,7 @@ var initPackages = function initPackages() {
       result = window[globalName];
     }
     if (!result) {
+      logging.log(logging.logAction.initPackages, logging.logVariation.fail);
       logging.error('Could not load ' + packageName);
     }
     return result;
@@ -349,6 +358,8 @@ var initPackages = function initPackages() {
   screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;
   annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
   archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
+
+  logging.log(logging.logAction.initPackages, logging.logVariation.success);
 };
 
 /**
@@ -375,6 +386,7 @@ var validateCredentials = function validateCredentials() {
  */
 var connect = function connect() {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.connect, logging.logVariation.attempt);
     var session = getSession();
 
     var _getCredentials = getCredentials(),
@@ -383,8 +395,14 @@ var connect = function connect() {
     session.connect(token, function (error) {
       if (error) {
         logging.message(error);
+        logging.log(logging.logAction.connect, logging.logVariation.fail);
         return reject(error);
       }
+      var sessionId = session.sessionId,
+          apiKey = session.apiKey;
+
+      logging.updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
+      logging.log(logging.logAction.connect, logging.logVariation.success);
       initPackages();
       return resolve();
     });
@@ -396,8 +414,10 @@ var connect = function connect() {
  * @returns {Promise} <resolve: -, reject: Error>
  */
 var disconnect = function disconnect() {
+  logging.log(logging.logAction.disconnect, logging.logVariation.attempt);
   getSession().disconnect();
   internalState.reset();
+  logging.log(logging.logAction.disconnect, logging.logVariation.success);
 };
 
 /**
@@ -407,8 +427,15 @@ var disconnect = function disconnect() {
  */
 var forceDisconnect = function forceDisconnect(connection) {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.forceDisconnect, logging.logVariation.attempt);
     getSession().forceDisconnect(connection, function (error) {
-      error ? reject(error) : resolve();
+      if (error) {
+        logging.log(logging.logAction.forceDisconnect, logging.logVariation.fail);
+        reject(error);
+      } else {
+        logging.log(logging.logAction.forceDisconnect, logging.logVariation.success);
+        resolve();
+      }
     });
   });
 };
@@ -420,8 +447,15 @@ var forceDisconnect = function forceDisconnect(connection) {
  */
 var forceUnpublish = function forceUnpublish(stream) {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.forceUnpublish, logging.logVariation.attempt);
     getSession().forceUnpublish(stream, function (error) {
-      error ? reject(error) : resolve();
+      if (error) {
+        logging.log(logging.logAction.forceUnpublish, logging.logVariation.fail);
+        reject(error);
+      } else {
+        logging.log(logging.logAction.forceUnpublish, logging.logVariation.success);
+        resolve();
+      }
     });
   });
 };
@@ -453,11 +487,18 @@ var getSubscribersForStream = function getSubscribersForStream(stream) {
  */
 var signal = function signal(type, signalData, to) {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.signal, logging.logVariation.attempt);
     var session = getSession();
     var data = JSON.stringify(signalData);
     var signalObj = to ? { type: type, data: data, to: to } : { type: type, data: data };
     session.signal(signalObj, function (error) {
-      error ? reject(error) : resolve();
+      if (error) {
+        logging.log(logging.logAction.signal, logging.logVariation.fail);
+        reject(error);
+      } else {
+        logging.log(logging.logAction.signal, logging.logVariation.success);
+        resolve();
+      }
     });
   });
 };
@@ -467,6 +508,8 @@ var signal = function signal(type, signalData, to) {
  * @param {Boolean} enable
  */
 var toggleLocalAudio = function toggleLocalAudio(enable) {
+  logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.attempt);
+
   var _internalState$getPub = internalState.getPubSub(),
       publishers = _internalState$getPub.publishers;
 
@@ -474,6 +517,7 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
     return communication.enableLocalAV(id, 'audio', enable);
   };
   Object.keys(publishers.camera).forEach(toggleAudio);
+  logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.success);
 };
 
 /**
@@ -481,6 +525,8 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
  * @param {Boolean} enable
  */
 var toggleLocalVideo = function toggleLocalVideo(enable) {
+  logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.attempt);
+
   var _internalState$getPub2 = internalState.getPubSub(),
       publishers = _internalState$getPub2.publishers;
 
@@ -488,6 +534,7 @@ var toggleLocalVideo = function toggleLocalVideo(enable) {
     return communication.enableLocalAV(id, 'video', enable);
   };
   Object.keys(publishers.camera).forEach(toggleVideo);
+  logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.success);
 };
 
 /**
@@ -496,16 +543,20 @@ var toggleLocalVideo = function toggleLocalVideo(enable) {
  * @param {Boolean} enable
  */
 var toggleRemoteAudio = function toggleRemoteAudio(id, enable) {
-  return communication.enableRemoteAV(id, 'audio', enable);
+  logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.attempt);
+  communication.enableRemoteAV(id, 'audio', enable);
+  logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.success);
 };
 
 /**
- * Enable or disable local video
+ * Enable or disable remote video
  * @param {String} id - Subscriber id
  * @param {Boolean} enable
  */
 var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
-  return communication.enableRemoteAV(id, 'video', enable);
+  logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.attempt);
+  communication.enableRemoteAV(id, 'video', enable);
+  logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.success);
 };
 
 /**
@@ -522,11 +573,16 @@ var init = function init(options) {
   var credentials = options.credentials;
 
   validateCredentials(options.credentials);
+
+  //init analytics
+  logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
+  logging.log(logging.logAction.init, logging.logVariation.attempt);
   var session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
   internalState.setSession(session);
   internalState.setCredentials(credentials);
   internalState.setOptions(options);
+  logging.log(logging.logAction.init, logging.logVariation.success);
 };
 
 var opentokCore = {

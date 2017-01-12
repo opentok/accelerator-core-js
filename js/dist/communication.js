@@ -11,13 +11,13 @@ var _require = require('./util'),
     path = _require.path,
     properCase = _require.properCase;
 
-var session = undefined;
-var accPack = undefined;
-var callProperties = undefined;
-var screenProperties = undefined;
-var streamContainers = undefined;
-var autoSubscribe = undefined;
-var connectionLimit = undefined;
+var session = void 0;
+var accPack = void 0;
+var callProperties = void 0;
+var screenProperties = void 0;
+var streamContainers = void 0;
+var autoSubscribe = void 0;
+var connectionLimit = void 0;
 var active = false;
 
 /**
@@ -83,8 +83,10 @@ var publish = function publish() {
     createPublisher().then(function (publisher) {
       state.addPublisher('camera', publisher);
       session.publish(publisher);
+      logging.log(logging.logAction.startCall, logging.logVariation.success);
       resolve();
     }).catch(function (error) {
+      logging.log(logging.logAction.startCall, logging.logVariation.fail);
       var errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
       triggerEvent('error', errorMessage);
       reject(error);
@@ -99,6 +101,7 @@ var publish = function publish() {
  */
 var subscribe = function subscribe(stream) {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.subscribe, logging.logVariation.attempt);
     var streamMap = state.getStreamMap();
     if (streamMap[stream.id]) {
       // Are we already subscribing to the stream?
@@ -111,11 +114,13 @@ var subscribe = function subscribe(stream) {
         var options = type === 'camera' ? callProperties : screenProperties;
         var subscriber = session.subscribe(stream, container, options, function (error) {
           if (error) {
+            logging.log(logging.logAction.subscribe, logging.logVariation.fail);
             reject(error);
           } else {
             state.addSubscriber(subscriber);
             triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.all()));
             type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+            logging.log(logging.logAction.subscribe, logging.logVariation.success);
             resolve();
           }
         });
@@ -131,8 +136,10 @@ var subscribe = function subscribe(stream) {
  */
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
-    session.unsubscribe(subscriber);
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
     state.removeSubscriber(subscriber);
+    session.unsubscribe(subscriber);
+    logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();
   });
 };
@@ -196,11 +203,14 @@ var createEventListeners = function createEventListeners() {
  */
 var startCall = function startCall() {
   return new Promise(function (resolve, reject) {
+    logging.log(logging.logAction.startCall, logging.logVariation.attempt);
     if (!ableToJoin()) {
       var errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
+      logging.log(logging.logAction.startCall, logging.logVariation.fail);
       return reject(new Error(errorMessage));
     }
+
     publish().then(function () {
       var streams = state.getStreams();
       var initialSubscriptions = Object.keys(streams).map(function (id) {
@@ -222,21 +232,23 @@ var startCall = function startCall() {
  * Stop publishing and unsubscribe from all streams
  */
 var endCall = function endCall() {
+  logging.log(logging.logAction.endCall, logging.logVariation.attempt);
+
   var _state$getPubSub = state.getPubSub(),
-      publishers = _state$getPubSub.publishers;
+      publishers = _state$getPubSub.publishers,
+      subscribers = _state$getPubSub.subscribers;
 
   var unpublish = function unpublish(publisher) {
     return session.unpublish(publisher);
   };
-  Object.keys(publishers.camera).forEach(function (id) {
-    return unpublish(publishers.camera[id]);
-  });
-  Object.keys(publishers.screen).forEach(function (id) {
-    return unpublish(publishers.screen[id]);
-  });
+  Object.values(publishers.camera).forEach(unpublish);
+  Object.values(publishers.screen).forEach(unpublish);
+  // TODO Promise.all for unsubsribing
+  Object.values(subscribers.camera).forEach(unsubscribe);
+  Object.values(subscribers.screen).forEach(unsubscribe);
   state.removeAllPublishers();
-  state.removeAllSubscribers();
   active = false;
+  logging.log(logging.logAction.endCall, logging.logVariation.success);
 };
 
 /**
