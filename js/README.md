@@ -1,3 +1,4 @@
+
 ![logo](https://raw.githubusercontent.com/opentok/accelerator-core/master/js/tokbox-logo.png)
 
 # OpenTok Accelerator Core<br/>Version 0.0.1
@@ -160,7 +161,7 @@ subscribe               => Manually subscribe to a stream
 ```
 [1] [OpenTok Signaling API](https://www.tokbox.com/developer/guides/signaling/js/)
 
-Full documentation for the `Core` API can be found [here](./API.md).
+Full documentation for the `Core` API can be found [here](https://github.com/opentok/accelerator-core/blob/master/js/API.md).
 
 ----------
 
