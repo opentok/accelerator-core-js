@@ -23,20 +23,20 @@ var logAction = {
   // vars for the analytics logs. Internal use
   init: 'Init',
   initPackages: 'InitPackages',
-  connect: 'Connect',
-  disconnect: 'Disconnect',
-  forceDisconnect: 'ForceDisconnect',
-  forceUnpublish: 'ForceUnpublish',
+  connect: 'ConnectCoreAcc',
+  disconnect: 'DisconnectCoreAcc',
+  forceDisconnect: 'ForceDisconnectCoreAcc',
+  forceUnpublish: 'ForceUnpublishCoreAcc',
   getAccPack: 'GetAccPack',
-  signal: 'Signal',
-  startCall: 'StartCall',
-  endCall: 'EndCall',
+  signal: 'SignalCoreAcc',
+  startCall: 'StartCallCoreAcc',
+  endCall: 'EndCallCoreAcc',
   toggleLocalAudio: 'ToggleLocalAudio',
   toggleLocalVideo: 'ToggleLocalVideo',
   toggleRemoteAudio: 'ToggleRemoteAudio',
   toggleRemoteVideo: 'ToggleRemoteVideo',
-  subscribe: 'subscribe',
-  unsubscribe: 'unsubscribe'
+  subscribe: 'SubscribeCoreAcc',
+  unsubscribe: 'UnsubscribeCoreAcc'
 };
 
 var initLogAnalytics = function initLogAnalytics(source, sessionId, connectionId, apikey) {
