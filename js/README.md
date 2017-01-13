@@ -1,5 +1,5 @@
 
-![logo](https://raw.githubusercontent.com/opentok/accelerator-core/master/tokbox-logo.png)
+![logo](https://github.com/opentok/accelerator-core/blob/master/tokbox-logo.png?raw=true)
 
 # OpenTok Accelerator Core<br/>Version 0.0.1
 
