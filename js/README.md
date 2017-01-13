@@ -1,4 +1,9 @@
 
+
+
+----------
+
+
 ![logo](https://raw.githubusercontent.com/opentok/accelerator-core/master/tokbox-logo.png)
 
 # OpenTok Accelerator Core<br/>Version 0.0.1
@@ -6,11 +11,11 @@
 
 ```javascript
 otCore.init(options) =>
-	Multi-Party Audio/Video +
-	Text Chat +
-	Screen Sharing +
-	Annotation +
-	Archiving
+  Multi-Party Audio/Video +
+  Text Chat +
+  Screen Sharing +
+  Annotation +
+  Archiving
 ```
 
 OpenTok Accelerator Core provides a simple way to integrate real-time audio/video into your web application using the OpenTok Platform.  `Core` also integrates with, manages, and provides a single API for the following accelerator packs:
@@ -92,8 +97,8 @@ The communication properties relate to the multi-party communication provided by
 
 ```javascript
   communication: {
-	autoSubscribe: true,
-	connectionLimit: null,
+  autoSubscribe: true,
+  connectionLimit: null,
     callProperties: myCallProperties,
   },
 ```
