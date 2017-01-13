@@ -10,19 +10,16 @@ then
 	exit 1
 fi
 
-if [[ -d src ]]
-then
-	gulp dist
-	gulp zip
-else
-	echo "Please run this script from 'JS'."
-	exit 1
+if [ "$task" == "-t" ]; then
+	grunt karma:prod
+	exit 0
 fi
 
-if [[ $task == "-np" ]]
+if [[ $task == "-np" ]];
 then
 	npm version $reltype
 	git add .
 	git commit -m "New build. Bump npm version."
 	npm publish
+	exit 0
 fi
