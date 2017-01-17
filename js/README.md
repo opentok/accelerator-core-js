@@ -6,7 +6,7 @@
 
 ![logo](https://raw.githubusercontent.com/opentok/accelerator-core/master/tokbox-logo.png)
 
-# OpenTok Accelerator Core<br/>Version 0.0.1
+# OpenTok Accelerator Core
 
 
 ```javascript
