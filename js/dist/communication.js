@@ -11,13 +11,13 @@ var _require = require('./util'),
     path = _require.path,
     properCase = _require.properCase;
 
-var session = void 0;
-var accPack = void 0;
-var callProperties = void 0;
-var screenProperties = void 0;
-var streamContainers = void 0;
-var autoSubscribe = void 0;
-var connectionLimit = void 0;
+var session = undefined;
+var accPack = undefined;
+var callProperties = undefined;
+var screenProperties = undefined;
+var streamContainers = undefined;
+var autoSubscribe = undefined;
+var connectionLimit = undefined;
 var active = false;
 
 /**
@@ -137,7 +137,8 @@ var subscribe = function subscribe(stream) {
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
     logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
-    state.removeSubscriber(subscriber);
+    var type = path('stream.videoType', subscriber);
+    state.removeSubscriber(type, subscriber);
     session.unsubscribe(subscriber);
     logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();

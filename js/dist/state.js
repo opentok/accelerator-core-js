@@ -211,9 +211,8 @@ var addSubscriber = function addSubscriber(subscriber) {
  * @param {String} type - 'camera' or 'screen'
  * @param {Object} subscriber - The OpenTok subscriber object
  */
-var removeSubscriber = function removeSubscriber(subscriber) {
+var removeSubscriber = function removeSubscriber(type, subscriber) {
   var id = subscriber.id || streamMap[subscriber.streamId];
-  var type = subscriber.stream.videoType;
   delete subscribers[type][id];
   delete streamMap[subscriber.streamId];
 };

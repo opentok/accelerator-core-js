@@ -125,7 +125,8 @@ const subscribe = stream =>
 const unsubscribe = subscriber =>
   new Promise((resolve) => {
     logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
-    state.removeSubscriber(subscriber);
+    const type = path('stream.videoType', subscriber);
+    state.removeSubscriber(type, subscriber);
     session.unsubscribe(subscriber);
     logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();

@@ -140,7 +140,8 @@ var subscribe = function subscribe(stream) {
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
     logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
-    state.removeSubscriber(subscriber);
+    var type = path('stream.videoType', subscriber);
+    state.removeSubscriber(type, subscriber);
     session.unsubscribe(subscriber);
     logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
     resolve();
@@ -1247,9 +1248,8 @@ var addSubscriber = function addSubscriber(subscriber) {
  * @param {String} type - 'camera' or 'screen'
  * @param {Object} subscriber - The OpenTok subscriber object
  */
-var removeSubscriber = function removeSubscriber(subscriber) {
+var removeSubscriber = function removeSubscriber(type, subscriber) {
   var id = subscriber.id || streamMap[subscriber.streamId];
-  var type = subscriber.stream.videoType;
   delete subscribers[type][id];
   delete streamMap[subscriber.streamId];
 };

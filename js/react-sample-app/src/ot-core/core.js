@@ -2,7 +2,7 @@
 
 var _arguments = arguments;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 /* global OT */
 /**
@@ -23,10 +23,10 @@ var _require = require('./util'),
  */
 
 
-var textChat = void 0; // eslint-disable-line no-unused-vars
-var screenSharing = void 0; // eslint-disable-line no-unused-vars
-var annotation = void 0;
-var archiving = void 0; // eslint-disable-line no-unused-vars
+var textChat = undefined; // eslint-disable-line no-unused-vars
+var screenSharing = undefined; // eslint-disable-line no-unused-vars
+var annotation = undefined;
+var archiving = undefined; // eslint-disable-line no-unused-vars
 
 /**
  * Get access to an accelerator pack
@@ -83,9 +83,9 @@ var on = function on(event, callback) {
     logging.message(event + ' is not a registered event.');
     //logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
-    eventCallbacks.add(callback);
-    //logging.log(logging.logAction.on, logging.logVariation.success);
-  }
+      eventCallbacks.add(callback);
+      //logging.log(logging.logAction.on, logging.logVariation.success);
+    }
 };
 
 /**
@@ -250,7 +250,7 @@ var initPackages = function initPackages() {
    * @returns {Object}
    */
   var optionalRequire = function optionalRequire(packageName, globalName) {
-    var result = void 0;
+    var result = undefined;
     /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
     try {
       switch (packageName) {

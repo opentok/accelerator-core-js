@@ -34,7 +34,6 @@ const path = (props, obj) => {
       return nested;
     }
   }
-
   return nested;
 };
 

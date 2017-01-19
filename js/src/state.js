@@ -196,9 +196,8 @@ const addSubscriber = (subscriber) => {
  * @param {String} type - 'camera' or 'screen'
  * @param {Object} subscriber - The OpenTok subscriber object
  */
-const removeSubscriber = (subscriber) => {
+const removeSubscriber = (type, subscriber) => {
   const id = subscriber.id || streamMap[subscriber.streamId];
-  const type = subscriber.stream.videoType;
   delete subscribers[type][id];
   delete streamMap[subscriber.streamId];
 };
