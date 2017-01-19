@@ -1,5 +1,7 @@
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 /* global OT */
 
 /** Dependencies */
@@ -213,11 +215,22 @@ var startCall = function startCall() {
     }
 
     publish().then(function () {
-      var streams = state.getStreams();
-      var initialSubscriptions = Object.keys(streams).map(function (id) {
-        return subscribe(streams[id]);
-      });
-      Promise.all(initialSubscriptions).then(function () {
+      var initialSubscriptions = function initialSubscriptions() {
+        if (autoSubscribe) {
+          var _ret2 = function () {
+            var streams = state.getStreams();
+            return {
+              v: Object.keys(streams).map(function (id) {
+                return subscribe(streams[id]);
+              })
+            };
+          }();
+
+          if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+        }
+        return [Promise.resolve()];
+      };
+      Promise.all(initialSubscriptions()).then(function () {
         var pubSubData = state.getPubSub();
         triggerEvent('startCall', pubSubData);
         active = true;

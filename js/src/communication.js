@@ -198,9 +198,14 @@ const startCall = () =>
 
     publish()
       .then(() => {
-        const streams = state.getStreams();
-        const initialSubscriptions = Object.keys(streams).map(id => subscribe(streams[id]));
-        Promise.all(initialSubscriptions).then(() => {
+        const initialSubscriptions = () => {
+          if (autoSubscribe) {
+            const streams = state.getStreams();
+            return Object.keys(streams).map(id => subscribe(streams[id]));
+          }
+          return [Promise.resolve()];
+        }
+        Promise.all(initialSubscriptions()).then(() => {
           const pubSubData = state.getPubSub();
           triggerEvent('startCall', pubSubData);
           active = true;
