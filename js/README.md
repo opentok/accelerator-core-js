@@ -34,6 +34,7 @@ OpenTok Accelerator Core provides a simple way to integrate real-time audio/vide
   meta        => The count of all current publishers and subscribers by type
 ```
 *See an example of the publisher, subscriber, and meta data [below](#pubSubData).*
+
 Sample Applications
 -------------------
 There are two sample applications for `Core` .  The [React](https://github.com/opentok/accelerator-core/tree/develop/js/react-sample-app) sample application was built with [Create React App](https://github.com/facebookincubator/create-react-app) and uses [webpack](https://webpack.github.io/) to transpile code.  The other [sample application](https://github.com/opentok/accelerator-core/tree/develop/js/vanilla-js-sample-app) is built with vanilla JavaScript.
