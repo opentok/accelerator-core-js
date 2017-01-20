@@ -325,7 +325,7 @@ const initPackages = () => {
     const screenSharingOptions =
       packageName === 'screenSharing' ?
       Object.assign({},
-        options.screenSharing, { screenSharingContainer: dom.element(containers.stream('publisher', 'screen')) }) : {};
+        options.screenSharing, { screenSharingContainer: containers.stream }) : {};
     const controlsContainer = containers.controls; // Legacy option
     return Object.assign({},
       options[packageName],

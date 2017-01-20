@@ -676,7 +676,7 @@ var initPackages = function initPackages() {
       waitingMessage: options.textChat.waitingMessage,
       sender: { alias: options.textChat.name }
     } : {};
-    var screenSharingOptions = packageName === 'screenSharing' ? Object.assign({}, options.screenSharing, { screenSharingContainer: dom.element(containers.stream('publisher', 'screen')) }) : {};
+    var screenSharingOptions = packageName === 'screenSharing' ? Object.assign({}, options.screenSharing, { screenSharingContainer: containers.stream }) : {};
     var controlsContainer = containers.controls; // Legacy option
     return Object.assign({}, options[packageName], commOptions, chatOptions, { session: session, accPack: accPack, controlsContainer: controlsContainer }, screenSharingOptions);
   };
