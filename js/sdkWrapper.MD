@@ -1,4 +1,4 @@
-![logo](./tokbox-logo.png)
+![logo](https://raw.githubusercontent.com/opentok/accelerator-core/master/tokbox-logo.png)
 
 # OpenTok JS SDK Wrapper<br/>Version 0.0.1
 
