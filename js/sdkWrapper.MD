@@ -1,6 +1,6 @@
 ![logo](https://raw.githubusercontent.com/opentok/accelerator-core/master/tokbox-logo.png)
 
-# OpenTok JS SDK Wrapper<br/>Version 0.0.1
+# OpenTok JS SDK Wrapper
 
 The OpenTok SDK Wrapper provides a wrapper around the [OpenTok.js Client Library](https://tokbox.com/developer/sdks/js/).  The `sdk-wrapper` exposes the same functionality and a (near) identical API as the client library with the added benefit of built-in state management.  Invoking the `state()` method of the `sdk-wrapper` returns an object containing:
 
