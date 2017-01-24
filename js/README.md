@@ -18,7 +18,7 @@ otCore.init(options) =>
   Archiving
 ```
 
-OpenTok Accelerator Core provides a simple way to integrate real-time audio/video into your web application using the OpenTok Platform.  `Core` also integrates with, manages, and provides a single API for the following accelerator packs:
+OpenTok Accelerator Core provides a simple way to integrate real-time audio/video into your web application using the OpenTok Platform.  `Core` provides real-time, multi-party audio/video out of the box, and also integrates with, manages, and provides a single API for the following accelerator packs:
 
  - [Text Chat](https://www.npmjs.com/package/opentok-text-chat)
  - [Screen Sharing](https://www.npmjs.com/package/opentok-screen-sharing)
@@ -235,3 +235,7 @@ otCore.on('streamCreated', ({ stream }) => {
 UI Styling
 -------
 Default icons and styling for accelerator pack components are provided by `opentok-solutions-css`, which is available as an [npm](https://www.npmjs.com/package/opentok-solutions-css) module or from our [CDN](https://assets.tokbox.com/solutions/css/style.css).  To customize the layout and styling in your application, simply override these CSS rules with your own.
+
+SDK-Wrapper
+-------
+One of the primary advantages of `Core` is that it maintains the state of your OpenTok session.  However, there may be instances where you'd like more fine-grained control over your application. Or you may be using an OpenTok session merely to manage presence and don't need any audio/video.  If this is the case, you may consider using the [`sdk-wrapper`](./sdkWrapper.MD) instead.
