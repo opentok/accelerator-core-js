@@ -6,6 +6,7 @@ const logging = require('./logging');
 const communication = require('./communication');
 const accPackEvents = require('./events');
 const internalState = require('./state');
+const OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
 const { dom, path, properCase } = require('./util');
 
 /**
@@ -566,6 +567,7 @@ const opentokCore = {
   state: internalState.all,
   startCall: communication.startCall,
   endCall: communication.endCall,
+  OpenTokSDK,
   toggleLocalAudio,
   toggleLocalVideo,
   toggleRemoteAudio,

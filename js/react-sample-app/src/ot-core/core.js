@@ -12,6 +12,7 @@ var logging = require('./logging');
 var communication = require('./communication');
 var accPackEvents = require('./events');
 var internalState = require('./state');
+var OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
 
 var _require = require('./util'),
     dom = _require.dom,
@@ -604,6 +605,7 @@ var opentokCore = {
   state: internalState.all,
   startCall: communication.startCall,
   endCall: communication.endCall,
+  OpenTokSDK: OpenTokSDK,
   toggleLocalAudio: toggleLocalAudio,
   toggleLocalVideo: toggleLocalVideo,
   toggleRemoteAudio: toggleRemoteAudio,
