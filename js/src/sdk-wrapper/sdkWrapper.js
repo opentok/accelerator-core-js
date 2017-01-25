@@ -153,7 +153,7 @@ class OpenTokSDK {
    * @param {Boolean} enable
    */
   enablePublisherAudio(enable) {
-    const { publishers } = stateMap.get(this).currentPubSub();
+    const { publishers } = stateMap.get(this).getPubSub();
     Object.keys(publishers.camera).forEach((publisherId) => {
       publishers.camera[publisherId].publishAudio(enable);
     });
@@ -164,7 +164,7 @@ class OpenTokSDK {
    * @param {Boolean} enable
    */
   enablePublisherVideo(enable) {
-    const { publishers } = stateMap.get(this).currentPubSub();
+    const { publishers } = stateMap.get(this).getPubSub();
     Object.keys(publishers.camera).forEach((publisherId) => {
       publishers.camera[publisherId].publishVideo(enable);
     });

@@ -195,8 +195,8 @@ var OpenTokSDK = function () {
   }, {
     key: 'enablePublisherAudio',
     value: function enablePublisherAudio(enable) {
-      var _stateMap$get$current = stateMap.get(this).currentPubSub(),
-          publishers = _stateMap$get$current.publishers;
+      var _stateMap$get$getPubS = stateMap.get(this).getPubSub(),
+          publishers = _stateMap$get$getPubS.publishers;
 
       Object.keys(publishers.camera).forEach(function (publisherId) {
         publishers.camera[publisherId].publishAudio(enable);
@@ -211,8 +211,8 @@ var OpenTokSDK = function () {
   }, {
     key: 'enablePublisherVideo',
     value: function enablePublisherVideo(enable) {
-      var _stateMap$get$current2 = stateMap.get(this).currentPubSub(),
-          publishers = _stateMap$get$current2.publishers;
+      var _stateMap$get$getPubS2 = stateMap.get(this).getPubSub(),
+          publishers = _stateMap$get$getPubS2.publishers;
 
       Object.keys(publishers.camera).forEach(function (publisherId) {
         publishers.camera[publisherId].publishVideo(enable);

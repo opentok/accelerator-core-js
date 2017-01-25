@@ -78,7 +78,7 @@ class State {
   /**
    * Returns the current publishers and subscribers, along with a count of each
    */
-  currentPubSub() {
+  getPubSub() {
     const { publishers, subscribers } = this;
     return { publishers, subscribers, meta: this.pubSubCount() };
   }
@@ -137,7 +137,7 @@ class State {
 
   all() {
     const { streams, streamMap } = this;
-    return Object.assign({}, this.currentPubSub(), { streams, streamMap });
+    return Object.assign({}, this.getPubSub(), { streams, streamMap });
   }
 }
 

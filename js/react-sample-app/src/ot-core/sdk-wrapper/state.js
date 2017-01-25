@@ -106,8 +106,8 @@ var State = function () {
      */
 
   }, {
-    key: "currentPubSub",
-    value: function currentPubSub() {
+    key: "getPubSub",
+    value: function getPubSub() {
       var publishers = this.publishers,
           subscribers = this.subscribers;
 
@@ -184,7 +184,7 @@ var State = function () {
       var streams = this.streams,
           streamMap = this.streamMap;
 
-      return Object.assign({}, this.currentPubSub(), { streams: streams, streamMap: streamMap });
+      return Object.assign({}, this.getPubSub(), { streams: streams, streamMap: streamMap });
     }
   }]);
 
