@@ -75,7 +75,7 @@ const publish = () =>
         state.addPublisher('camera', publisher);
         session.publish(publisher);
         logging.log(logging.logAction.startCall, logging.logVariation.success);
-        resolve();
+        resolve(publisher);
       })
       .catch((error) => {
         logging.log(logging.logAction.startCall, logging.logVariation.fail);
@@ -197,16 +197,16 @@ const startCall = () =>
     }
 
     publish()
-      .then(() => {
+      .then((publisher) => {
         const initialSubscriptions = () => {
           if (autoSubscribe) {
             const streams = state.getStreams();
             return Object.keys(streams).map(id => subscribe(streams[id]));
           }
           return [Promise.resolve()];
-        }
+        };
         Promise.all(initialSubscriptions()).then(() => {
-          const pubSubData = state.getPubSub();
+          const pubSubData = Object.assign({}, state.getPubSub(), { publisher });
           triggerEvent('startCall', pubSubData);
           active = true;
           resolve(pubSubData);
