@@ -1,8 +1,8 @@
 {
   "name": "opentok-accelerator-core",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Opentok Accelerator Core",
-  "repository": "https://github.com/opentok/accelerator-core/tree/master/js",
+  "repository": "https://github.com/opentok/accelerator-core-js",
   "main": "dist/core.js",
   "scripts": {
     "build:node": "babel -d ./dist/ ./src/",
