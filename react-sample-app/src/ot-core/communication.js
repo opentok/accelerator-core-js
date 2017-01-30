@@ -82,17 +82,31 @@ var createPublisher = function createPublisher() {
  */
 var publish = function publish() {
   return new Promise(function (resolve, reject) {
-    createPublisher().then(function (publisher) {
-      state.addPublisher('camera', publisher);
-      session.publish(publisher);
-      logging.log(logging.logAction.startCall, logging.logVariation.success);
-      resolve(publisher);
-    }).catch(function (error) {
+    var onPublish = function onPublish(publisher) {
+      return function (error) {
+        if (error) {
+          reject(error);
+          logging.log(logging.logAction.startCall, logging.logVariation.fail);
+        } else {
+          logging.log(logging.logAction.startCall, logging.logVariation.success);
+          state.addPublisher('camera', publisher);
+          resolve(publisher);
+        }
+      };
+    };
+
+    var publishToSession = function publishToSession(publisher) {
+      return session.publish(publisher, onPublish(publisher));
+    };
+
+    var handleError = function handleError(error) {
       logging.log(logging.logAction.startCall, logging.logVariation.fail);
       var errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
       triggerEvent('error', errorMessage);
       reject(error);
-    });
+    };
+
+    createPublisher().then(publishToSession).catch(handleError);
   });
 };
 
@@ -206,6 +220,7 @@ var createEventListeners = function createEventListeners() {
  */
 var startCall = function startCall() {
   return new Promise(function (resolve, reject) {
+    // eslint-disable-line consistent-return
     logging.log(logging.logAction.startCall, logging.logVariation.attempt);
     if (!ableToJoin()) {
       var errorMessage = 'Session has reached its connection limit';

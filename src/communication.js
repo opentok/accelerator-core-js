@@ -70,19 +70,29 @@ const createPublisher = () =>
  */
 const publish = () =>
   new Promise((resolve, reject) => {
-    createPublisher()
-      .then((publisher) => {
-        state.addPublisher('camera', publisher);
-        session.publish(publisher);
-        logging.log(logging.logAction.startCall, logging.logVariation.success);
-        resolve(publisher);
-      })
-      .catch((error) => {
-        logging.log(logging.logAction.startCall, logging.logVariation.fail);
-        const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
-        triggerEvent('error', errorMessage);
+    const onPublish = publisher => (error) => {
+      if (error) {
         reject(error);
-      });
+        logging.log(logging.logAction.startCall, logging.logVariation.fail);
+      } else {
+        logging.log(logging.logAction.startCall, logging.logVariation.success);
+        state.addPublisher('camera', publisher);
+        resolve(publisher);
+      }
+    };
+
+    const publishToSession = publisher => session.publish(publisher, onPublish(publisher));
+
+    const handleError = (error) => {
+      logging.log(logging.logAction.startCall, logging.logVariation.fail);
+      const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
+      triggerEvent('error', errorMessage);
+      reject(error);
+    };
+
+    createPublisher()
+      .then(publishToSession)
+      .catch(handleError);
   });
 
 /**
@@ -187,7 +197,7 @@ const createEventListeners = () => {
  * @returns {Promise} <resolve: Object, reject: Error>
  */
 const startCall = () =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve, reject) => { // eslint-disable-line consistent-return
     logging.log(logging.logAction.startCall, logging.logVariation.attempt);
     if (!ableToJoin()) {
       const errorMessage = 'Session has reached its connection limit';

@@ -139,6 +139,7 @@ class App extends Component {
     this.setState({ active: true });
     otCore.startCall()
       .then(({ publisher, publishers, subscribers, meta }) => {
+        console.log(publisher.stream.connection.data);
         this.setState({ publishers, subscribers, meta });
       }).catch(error => console.log(error));
   }
