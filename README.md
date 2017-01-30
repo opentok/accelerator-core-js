@@ -37,7 +37,7 @@ OpenTok Accelerator Core provides a simple way to integrate real-time audio/vide
 
 Sample Applications
 -------------------
-There are two sample applications for `Core` .  The [React](https://github.com/opentok/accelerator-core/tree/develop/js/react-sample-app) sample application was built with [Create React App](https://github.com/facebookincubator/create-react-app) and uses [webpack](https://webpack.github.io/) to transpile code.  The other [sample application](https://github.com/opentok/accelerator-core/tree/develop/js/vanilla-js-sample-app) is built with vanilla JavaScript.
+There are two sample applications for `Core` .  The [React](https://github.com/opentok/accelerator-core-js/tree/master/react-sample-app) sample application was built with [Create React App](https://github.com/facebookincubator/create-react-app) and uses [webpack](https://webpack.github.io/) to transpile code.  The other [sample application](https://github.com/opentok/accelerator-core-js/tree/master/vanilla-js-sample-app) is built with vanilla JavaScript.
 
 Installation
 ------------
@@ -167,7 +167,7 @@ subscribe               => Manually subscribe to a stream
 ```
 [1] [OpenTok Signaling API](https://www.tokbox.com/developer/guides/signaling/js/)
 
-Full documentation for the `Core` API can be found [here](https://github.com/opentok/accelerator-core/blob/master/js/API.md).
+Full documentation for the `Core` API can be found [here](https://github.com/opentok/accelerator-core-js/blob/master/API.md).
 
 ----------
 
@@ -218,7 +218,7 @@ will always include the current `publishers`, `subscribers`, and a `meta` object
     },
   }
 ```
-The full list of events can be seen [here](https://github.com/opentok/accelerator-core/blob/develop/js/src/events.js).
+The full list of events can be seen [here](https://github.com/opentok/accelerator-core-js/blob/master/src/events.js).
 
 ----------
 <a name="autoSubscribe"></a>
