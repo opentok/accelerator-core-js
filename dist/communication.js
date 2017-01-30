@@ -86,7 +86,7 @@ var publish = function publish() {
       state.addPublisher('camera', publisher);
       session.publish(publisher);
       logging.log(logging.logAction.startCall, logging.logVariation.success);
-      resolve();
+      resolve(publisher);
     }).catch(function (error) {
       logging.log(logging.logAction.startCall, logging.logVariation.fail);
       var errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
@@ -214,7 +214,7 @@ var startCall = function startCall() {
       return reject(new Error(errorMessage));
     }
 
-    publish().then(function () {
+    publish().then(function (publisher) {
       var initialSubscriptions = function initialSubscriptions() {
         if (autoSubscribe) {
           var _ret2 = function () {
@@ -231,7 +231,7 @@ var startCall = function startCall() {
         return [Promise.resolve()];
       };
       Promise.all(initialSubscriptions()).then(function () {
-        var pubSubData = state.getPubSub();
+        var pubSubData = Object.assign({}, state.getPubSub(), { publisher: publisher });
         triggerEvent('startCall', pubSubData);
         active = true;
         resolve(pubSubData);

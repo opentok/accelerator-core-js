@@ -138,7 +138,7 @@ class App extends Component {
   startCall() {
     this.setState({ active: true });
     otCore.startCall()
-      .then(({ publishers, subscribers, meta }) => {
+      .then(({ publisher, publishers, subscribers, meta }) => {
         this.setState({ publishers, subscribers, meta });
       }).catch(error => console.log(error));
   }
