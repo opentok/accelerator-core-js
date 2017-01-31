@@ -222,6 +222,10 @@ var startCall = function startCall() {
   return new Promise(function (resolve, reject) {
     // eslint-disable-line consistent-return
     logging.log(logging.logAction.startCall, logging.logVariation.attempt);
+
+    /**
+     * Determine if we're able to join the session based on an existing connection limit
+     */
     if (!ableToJoin()) {
       var errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
@@ -229,7 +233,11 @@ var startCall = function startCall() {
       return reject(new Error(errorMessage));
     }
 
-    publish().then(function (publisher) {
+    /**
+     * Subscribe to any streams that existed before we start the call from our side.
+     */
+    var subscribeToInitialStreams = function subscribeToInitialStreams(publisher) {
+      // Get an array of initial subscription promises
       var initialSubscriptions = function initialSubscriptions() {
         if (autoSubscribe) {
           var _ret2 = function () {
@@ -245,15 +253,26 @@ var startCall = function startCall() {
         }
         return [Promise.resolve()];
       };
-      Promise.all(initialSubscriptions()).then(function () {
+
+      // Handle success
+      var onSubscribeToAll = function onSubscribeToAll() {
         var pubSubData = Object.assign({}, state.getPubSub(), { publisher: publisher });
         triggerEvent('startCall', pubSubData);
         active = true;
         resolve(pubSubData);
-      }).catch(function (reason) {
-        return logging.message('Failed to subscribe to all existing streams: ' + reason);
-      });
-    });
+      };
+
+      // Handle error
+      var onError = function onError(reason) {
+        logging.message('Failed to subscribe to all existing streams: ' + reason);
+        // We do not reject here in case we still successfully publish to the session
+        resolve(Object.assign({}, state.getPubSub(), { publisher: publisher }));
+      };
+
+      Promise.all(initialSubscriptions()).then(onSubscribeToAll).catch(onError);
+    };
+
+    publish().then(subscribeToInitialStreams).catch(reject);
   });
 };
 

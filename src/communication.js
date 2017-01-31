@@ -199,6 +199,10 @@ const createEventListeners = () => {
 const startCall = () =>
   new Promise((resolve, reject) => { // eslint-disable-line consistent-return
     logging.log(logging.logAction.startCall, logging.logVariation.attempt);
+
+    /**
+     * Determine if we're able to join the session based on an existing connection limit
+     */
     if (!ableToJoin()) {
       const errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
@@ -206,22 +210,42 @@ const startCall = () =>
       return reject(new Error(errorMessage));
     }
 
+    /**
+     * Subscribe to any streams that existed before we start the call from our side.
+     */
+    const subscribeToInitialStreams = (publisher) => {
+      // Get an array of initial subscription promises
+      const initialSubscriptions = () => {
+        if (autoSubscribe) {
+          const streams = state.getStreams();
+          return Object.keys(streams).map(id => subscribe(streams[id]));
+        }
+        return [Promise.resolve()];
+      };
+
+      // Handle success
+      const onSubscribeToAll = () => {
+        const pubSubData = Object.assign({}, state.getPubSub(), { publisher });
+        triggerEvent('startCall', pubSubData);
+        active = true;
+        resolve(pubSubData);
+      };
+
+      // Handle error
+      const onError = (reason) => {
+        logging.message(`Failed to subscribe to all existing streams: ${reason}`);
+        // We do not reject here in case we still successfully publish to the session
+        resolve(Object.assign({}, state.getPubSub(), { publisher }));
+      };
+
+      Promise.all(initialSubscriptions())
+        .then(onSubscribeToAll)
+        .catch(onError);
+    };
+
     publish()
-      .then((publisher) => {
-        const initialSubscriptions = () => {
-          if (autoSubscribe) {
-            const streams = state.getStreams();
-            return Object.keys(streams).map(id => subscribe(streams[id]));
-          }
-          return [Promise.resolve()];
-        };
-        Promise.all(initialSubscriptions()).then(() => {
-          const pubSubData = Object.assign({}, state.getPubSub(), { publisher });
-          triggerEvent('startCall', pubSubData);
-          active = true;
-          resolve(pubSubData);
-        }).catch(reason => logging.message(`Failed to subscribe to all existing streams: ${reason}`));
-      });
+      .then(subscribeToInitialStreams)
+      .catch(reject);
   });
 
 /**
