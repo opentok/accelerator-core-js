@@ -296,6 +296,7 @@ var endCall = function endCall() {
   Object.values(subscribers.screen).forEach(unsubscribe);
   state.removeAllPublishers();
   active = false;
+  triggerEvent('endCall');
   logging.log(logging.logAction.endCall, logging.logVariation.success);
 };
 
