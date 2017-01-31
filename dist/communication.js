@@ -168,15 +168,13 @@ var unsubscribe = function unsubscribe(subscriber) {
  * @param {Object} options
  */
 var validateOptions = function validateOptions(options) {
-  var requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
-
+  var requiredOptions = ['accPack'];
   requiredOptions.forEach(function (option) {
     if (!options[option]) {
       logging.error(option + ' is a required option.');
     }
   });
 
-  session = options.session;
   accPack = options.accPack;
   streamContainers = options.streamContainers;
   callProperties = options.callProperties || defaultCallProperties;
@@ -184,6 +182,13 @@ var validateOptions = function validateOptions(options) {
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
   screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+};
+
+/**
+ * Set session in module scope
+ */
+var setSession = function setSession() {
+  session = state.getSession();
 };
 
 /**
@@ -335,16 +340,14 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
 /**
  * Initialize the communication component
  * @param {Object} options
- * @param {Object} options.session
- * @param {Object} options.publishers
- * @param {Object} options.subscribers
- * @param {Object} options.streams
+ * @param {Object} options.accPack
  * @param {Number} options.connectionLimit
  * @param {Function} options.streamContainer
  */
 var init = function init(options) {
   return new Promise(function (resolve) {
     validateOptions(options);
+    setSession();
     createEventListeners();
     resolve();
   });

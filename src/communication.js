@@ -53,7 +53,7 @@ const ableToJoin = () => {
  * @param {Object} publisherProperties
  * @returns {Promise} <resolve: Object, reject: Error>
  */
-const createPublisher = (publisherProperties) =>
+const createPublisher = publisherProperties =>
   new Promise((resolve, reject) => {
     // TODO: Handle adding 'name' option to props
     const props = Object.assign({}, callProperties, publisherProperties);
@@ -70,7 +70,7 @@ const createPublisher = (publisherProperties) =>
  * @param {Object} publisherProperties
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-const publish = (publisherProperties) =>
+const publish = publisherProperties =>
   new Promise((resolve, reject) => {
     const onPublish = publisher => (error) => {
       if (error) {
@@ -149,15 +149,13 @@ const unsubscribe = subscriber =>
  * @param {Object} options
  */
 const validateOptions = (options) => {
-  const requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
-
+  const requiredOptions = ['accPack'];
   requiredOptions.forEach((option) => {
     if (!options[option]) {
       logging.error(`${option} is a required option.`);
     }
   });
 
-  session = options.session;
   accPack = options.accPack;
   streamContainers = options.streamContainers;
   callProperties = options.callProperties || defaultCallProperties;
@@ -167,6 +165,13 @@ const validateOptions = (options) => {
 
   screenProperties = options.screenProperties ||
     Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+};
+
+/**
+ * Set session in module scope
+ */
+const setSession = () => {
+  session = state.getSession();
 };
 
 /**
@@ -295,16 +300,14 @@ const enableRemoteAV = (subscriberId, source, enable) => {
 /**
  * Initialize the communication component
  * @param {Object} options
- * @param {Object} options.session
- * @param {Object} options.publishers
- * @param {Object} options.subscribers
- * @param {Object} options.streams
+ * @param {Object} options.accPack
  * @param {Number} options.connectionLimit
  * @param {Function} options.streamContainer
  */
 const init = options =>
   new Promise((resolve) => {
     validateOptions(options);
+    setSession();
     createEventListeners();
     resolve();
   });

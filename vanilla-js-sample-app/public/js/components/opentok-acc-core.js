@@ -171,15 +171,13 @@ var unsubscribe = function unsubscribe(subscriber) {
  * @param {Object} options
  */
 var validateOptions = function validateOptions(options) {
-  var requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
-
+  var requiredOptions = ['accPack'];
   requiredOptions.forEach(function (option) {
     if (!options[option]) {
       logging.error(option + ' is a required option.');
     }
   });
 
-  session = options.session;
   accPack = options.accPack;
   streamContainers = options.streamContainers;
   callProperties = options.callProperties || defaultCallProperties;
@@ -187,6 +185,13 @@ var validateOptions = function validateOptions(options) {
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
   screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+};
+
+/**
+ * Set session in module scope
+ */
+var setSession = function setSession() {
+  session = state.getSession();
 };
 
 /**
@@ -338,16 +343,14 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
 /**
  * Initialize the communication component
  * @param {Object} options
- * @param {Object} options.session
- * @param {Object} options.publishers
- * @param {Object} options.subscribers
- * @param {Object} options.streams
+ * @param {Object} options.accPack
  * @param {Number} options.connectionLimit
  * @param {Function} options.streamContainer
  */
 var init = function init(options) {
   return new Promise(function (resolve) {
     validateOptions(options);
+    setSession();
     createEventListeners();
     resolve();
   });
@@ -384,6 +387,7 @@ var internalState = require('./state');
 var _require = require('./util'),
     dom = _require.dom,
     path = _require.path,
+    pathOr = _require.pathOr,
     properCase = _require.properCase;
 
 /**
@@ -449,10 +453,10 @@ var on = function on(event, callback) {
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(event + ' is not a registered event.');
-    //logging.log(logging.logAction.on, logging.logVariation.fail);
+    // logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
     eventCallbacks.add(callback);
-    //logging.log(logging.logAction.on, logging.logVariation.success);
+    // logging.log(logging.logAction.on, logging.logVariation.success);
   }
 };
 
@@ -463,7 +467,7 @@ var on = function on(event, callback) {
  * @param {Function} callback
  */
 var off = function off(event, callback) {
-  //logging.log(logging.logAction.off, logging.logVariation.attempt);
+  // logging.log(logging.logAction.off, logging.logVariation.attempt);
   if (_arguments.lenth === 0) {
     Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
@@ -471,11 +475,11 @@ var off = function off(event, callback) {
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    //logging.log(logging.logAction.off, logging.logVariation.fail);
+    // logging.log(logging.logAction.off, logging.logVariation.fail);
     logging.message(event + ' is not a registered event.');
   } else {
     eventCallbacks.delete(callback);
-    //logging.log(logging.logAction.off, logging.logVariation.success);
+    // logging.log(logging.logAction.off, logging.logVariation.success);
   }
 };
 
@@ -680,9 +684,10 @@ var initPackages = function initPackages() {
     return document.getElementById(pubSub + 'Container');
   };
   var getContainerElements = function getContainerElements() {
-    var controls = options.controlsContainer || '#videoControls';
-    var chat = path('textChat.container', options) || '#chat';
-    var stream = options.streamContainers || getDefaultContainer;
+    // Need to use path to check for null values
+    var controls = pathOr('#videoControls', 'controlsContainer', options);
+    var chat = pathOr('#chat', 'textChat.container', options);
+    var stream = pathOr(getDefaultContainer, 'streamContainers', options);
     return { stream: stream, controls: controls, chat: chat };
   };
   /** *** *** *** *** */
@@ -691,14 +696,9 @@ var initPackages = function initPackages() {
    * Return options for the specified package
    * @param {String} packageName
    * @returns {Object}
+   * TODO: Simplify packageOptions (switch statment?)
    */
   var packageOptions = function packageOptions(packageName) {
-    var _internalState$all = internalState.all(),
-        streams = _internalState$all.streams,
-        streamMap = _internalState$all.streamMap,
-        publishers = _internalState$all.publishers,
-        subscribers = _internalState$all.subscribers;
-
     var accPack = {
       registerEventListener: on,
       on: on,
@@ -708,15 +708,18 @@ var initPackages = function initPackages() {
       linkAnnotation: linkAnnotation
     };
     var containers = getContainerElements();
-    var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { publishers: publishers, subscribers: subscribers, streams: streams, streamMap: streamMap, streamContainers: containers.stream }) : {};
+    var appendControl = !!containers.controls;
+    var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { streamContainers: containers.stream }) : {};
     var chatOptions = packageName === 'textChat' ? {
       textChatContainer: options.textChat.container,
       waitingMessage: options.textChat.waitingMessage,
       sender: { alias: options.textChat.name }
     } : {};
     var screenSharingOptions = packageName === 'screenSharing' ? Object.assign({}, options.screenSharing, { screenSharingContainer: containers.stream }) : {};
+
     var controlsContainer = containers.controls; // Legacy option
-    return Object.assign({}, options[packageName], commOptions, chatOptions, { session: session, accPack: accPack, controlsContainer: controlsContainer }, screenSharingOptions);
+    return Object.assign({}, options[packageName], commOptions, chatOptions, screenSharingOptions, { session: session, accPack: accPack, controlsContainer: controlsContainer, appendControl: appendControl } // eslint-disable-line comma-dangle
+    );
   };
 
   /** Create instances of each package */
@@ -942,7 +945,7 @@ var init = function init(options) {
 
   validateCredentials(options.credentials);
 
-  //init analytics
+  // Init analytics
   logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
   logging.log(logging.logAction.init, logging.logVariation.attempt);
   var session = OT.initSession(credentials.apiKey, credentials.sessionId);
@@ -1417,6 +1420,18 @@ var path = function path(props, obj) {
 };
 
 /**
+ * Checks for a (nested) propery in an object and returns the property if
+ * it exists.  Otherwise, it returns a default value.
+ * @param {*} d - Default value
+ * @param {String | Array} props - An array of properties or a single property
+ * @param {Object | Array} obj
+ */
+var pathOr = function pathOr(d, props, obj) {
+  var value = path(props, obj);
+  return value === undefined ? d : value;
+};
+
+/**
  * Converts a string to proper case (e.g. 'camera' => 'Camera')
  * @param {String} text
  * @returns {String}
@@ -1428,6 +1443,7 @@ var properCase = function properCase(text) {
 module.exports = {
   dom: dom,
   path: path,
+  pathOr: pathOr,
   properCase: properCase
 };
 
