@@ -98,8 +98,8 @@ The communication properties relate to the multi-party communication provided by
 
 ```javascript
   communication: {
-  autoSubscribe: true,
-  connectionLimit: null,
+    autoSubscribe: true,
+    connectionLimit: null,
     callProperties: myCallProperties,
   },
 ```
