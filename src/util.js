@@ -38,6 +38,18 @@ const path = (props, obj) => {
 };
 
 /**
+ * Checks for a (nested) propery in an object and returns the property if
+ * it exists.  Otherwise, it returns a default value.
+ * @param {*} d - Default value
+ * @param {String | Array} props - An array of properties or a single property
+ * @param {Object | Array} obj
+ */
+const pathOr = (d, props, obj) => {
+  const value = path(props, obj);
+  return value === undefined ? d : value;
+};
+
+/**
  * Converts a string to proper case (e.g. 'camera' => 'Camera')
  * @param {String} text
  * @returns {String}
@@ -47,5 +59,6 @@ const properCase = text => `${text[0].toUpperCase()}${text.slice(1)}`;
 module.exports = {
   dom,
   path,
+  pathOr,
   properCase,
 };
