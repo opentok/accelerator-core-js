@@ -160,6 +160,10 @@
 
 *Start publishing the local camera feed and subscribing to streams in the session*
 
+**Parameters**
+
+**publisherProperties**: `Object`
+
 **Returns**: `Promise => <resolve: Object, reject: Error>`
 
 

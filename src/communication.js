@@ -50,12 +50,13 @@ const ableToJoin = () => {
 
 /**
  * Create a camera publisher object
+ * @param {Object} publisherProperties
  * @returns {Promise} <resolve: Object, reject: Error>
  */
-const createPublisher = () =>
+const createPublisher = (publisherProperties) =>
   new Promise((resolve, reject) => {
     // TODO: Handle adding 'name' option to props
-    const props = Object.assign({}, callProperties);
+    const props = Object.assign({}, callProperties, publisherProperties);
     // TODO: Figure out how to handle common vs package-specific options
     const container = dom.element(streamContainers('publisher', 'camera'));
     const publisher = OT.initPublisher(container, props, (error) => {
@@ -66,9 +67,10 @@ const createPublisher = () =>
 
 /**
  * Publish the local camera stream and update state
+ * @param {Object} publisherProperties
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-const publish = () =>
+const publish = (publisherProperties) =>
   new Promise((resolve, reject) => {
     const onPublish = publisher => (error) => {
       if (error) {
@@ -90,7 +92,7 @@ const publish = () =>
       reject(error);
     };
 
-    createPublisher()
+    createPublisher(publisherProperties)
       .then(publishToSession)
       .catch(handleError);
   });
@@ -194,9 +196,10 @@ const createEventListeners = () => {
 
 /**
  * Start publishing the local camera feed and subscribing to streams in the session
+ * @param {Object} publisherProperties
  * @returns {Promise} <resolve: Object, reject: Error>
  */
-const startCall = () =>
+const startCall = (publisherProperties) =>
   new Promise((resolve, reject) => { // eslint-disable-line consistent-return
     logging.log(logging.logAction.startCall, logging.logVariation.attempt);
 
@@ -243,7 +246,7 @@ const startCall = () =>
         .catch(onError);
     };
 
-    publish()
+    publish(publisherProperties)
       .then(subscribeToInitialStreams)
       .catch(reject);
   });

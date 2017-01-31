@@ -65,12 +65,13 @@ var ableToJoin = function ableToJoin() {
 
 /**
  * Create a camera publisher object
+ * @param {Object} publisherProperties
  * @returns {Promise} <resolve: Object, reject: Error>
  */
-var createPublisher = function createPublisher() {
+var createPublisher = function createPublisher(publisherProperties) {
   return new Promise(function (resolve, reject) {
     // TODO: Handle adding 'name' option to props
-    var props = Object.assign({}, callProperties);
+    var props = Object.assign({}, callProperties, publisherProperties);
     // TODO: Figure out how to handle common vs package-specific options
     var container = dom.element(streamContainers('publisher', 'camera'));
     var publisher = OT.initPublisher(container, props, function (error) {
@@ -81,9 +82,10 @@ var createPublisher = function createPublisher() {
 
 /**
  * Publish the local camera stream and update state
+ * @param {Object} publisherProperties
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-var publish = function publish() {
+var publish = function publish(publisherProperties) {
   return new Promise(function (resolve, reject) {
     var onPublish = function onPublish(publisher) {
       return function (error) {
@@ -109,7 +111,7 @@ var publish = function publish() {
       reject(error);
     };
 
-    createPublisher().then(publishToSession).catch(handleError);
+    createPublisher(publisherProperties).then(publishToSession).catch(handleError);
   });
 };
 
@@ -219,9 +221,10 @@ var createEventListeners = function createEventListeners() {
 
 /**
  * Start publishing the local camera feed and subscribing to streams in the session
+ * @param {Object} publisherProperties
  * @returns {Promise} <resolve: Object, reject: Error>
  */
-var startCall = function startCall() {
+var startCall = function startCall(publisherProperties) {
   return new Promise(function (resolve, reject) {
     // eslint-disable-line consistent-return
     logging.log(logging.logAction.startCall, logging.logVariation.attempt);
@@ -275,7 +278,7 @@ var startCall = function startCall() {
       Promise.all(initialSubscriptions()).then(onSubscribeToAll).catch(onError);
     };
 
-    publish().then(subscribeToInitialStreams).catch(reject);
+    publish(publisherProperties).then(subscribeToInitialStreams).catch(reject);
   });
 };
 
