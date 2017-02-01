@@ -301,9 +301,8 @@ const initPackages = () => {
    * Return options for the specified package
    * @param {String} packageName
    * @returns {Object}
-   * TODO: Simplify packageOptions (switch statment?)
    */
-  const getPackageOptions = (packageName) => {
+  const packageOptions = (packageName) => {
     /**
      * Methods to expose to accelerator packs
      */
@@ -355,11 +354,11 @@ const initPackages = () => {
 
   /** Create instances of each package */
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  communication.init(getPackageOptions('communication'));
-  textChat = packages.TextChat ? new packages.TextChat(getPackageOptions('textChat')) : null;
-  screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(getPackageOptions('screenSharing')) : null;
-  annotation = packages.Annotation ? new packages.Annotation(getPackageOptions('annotation')) : null;
-  archiving = packages.Archiving ? new packages.Archiving(getPackageOptions('archiving')) : null;
+  communication.init(packageOptions('communication'));
+  textChat = packages.TextChat ? new packages.TextChat(packageOptions('textChat')) : null;
+  screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;
+  annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
+  archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
 
   logging.log(logging.logAction.initPackages, logging.logVariation.success);
 };
