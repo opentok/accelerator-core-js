@@ -7,7 +7,7 @@ const communication = require('./communication');
 const accPackEvents = require('./events');
 const internalState = require('./state');
 const OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
-const { dom, path, properCase } = require('./util');
+const { dom, path, pathOr, properCase } = require('./util');
 
 /**
  * Individual Accelerator Packs
@@ -70,10 +70,10 @@ const on = (event, callback) => {
   const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(`${event} is not a registered event.`);
-    //logging.log(logging.logAction.on, logging.logVariation.fail);
+    // logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
     eventCallbacks.add(callback);
-    //logging.log(logging.logAction.on, logging.logVariation.success);
+    // logging.log(logging.logAction.on, logging.logVariation.success);
   }
 };
 
@@ -84,7 +84,7 @@ const on = (event, callback) => {
  * @param {Function} callback
  */
 const off = (event, callback) => {
-  //logging.log(logging.logAction.off, logging.logVariation.attempt);
+  // logging.log(logging.logAction.off, logging.logVariation.attempt);
   if (arguments.lenth === 0) {
     Object.keys(eventListeners).forEach((eventType) => {
       eventListeners[eventType].clear();
@@ -92,11 +92,11 @@ const off = (event, callback) => {
   }
   const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    //logging.log(logging.logAction.off, logging.logVariation.fail);
+    // logging.log(logging.logAction.off, logging.logVariation.fail);
     logging.message(`${event} is not a registered event.`);
   } else {
     eventCallbacks.delete(callback);
-    //logging.log(logging.logAction.off, logging.logVariation.success);
+    // logging.log(logging.logAction.off, logging.logVariation.success);
   }
 };
 
@@ -288,9 +288,10 @@ const initPackages = () => {
    */
   const getDefaultContainer = pubSub => document.getElementById(`${pubSub}Container`);
   const getContainerElements = () => {
-    const controls = options.controlsContainer || '#videoControls';
-    const chat = path('textChat.container', options) || '#chat';
-    const stream = options.streamContainers || getDefaultContainer;
+    // Need to use path to check for null values
+    const controls = pathOr('#videoControls', 'controlsContainer', options);
+    const chat = pathOr('#chat', 'textChat.container', options);
+    const stream = pathOr(getDefaultContainer, 'streamContainers', options);
     return { stream, controls, chat };
   };
   /** *** *** *** *** */
@@ -300,9 +301,9 @@ const initPackages = () => {
    * Return options for the specified package
    * @param {String} packageName
    * @returns {Object}
+   * TODO: Simplify packageOptions (switch statment?)
    */
   const packageOptions = (packageName) => {
-    const { streams, streamMap, publishers, subscribers } = internalState.all();
     const accPack = {
       registerEventListener: on,
       on,
@@ -312,11 +313,10 @@ const initPackages = () => {
       linkAnnotation,
     };
     const containers = getContainerElements();
+    const appendControl = !!containers.controls;
     const commOptions =
       packageName === 'communication' ?
-      Object.assign({},
-        options.communication, { publishers, subscribers, streams, streamMap, streamContainers: containers.stream }
-      ) : {};
+      Object.assign({}, options.communication, { streamContainers: containers.stream }) : {};
     const chatOptions =
       packageName === 'textChat' ? {
         textChatContainer: options.textChat.container,
@@ -327,12 +327,15 @@ const initPackages = () => {
       packageName === 'screenSharing' ?
       Object.assign({},
         options.screenSharing, { screenSharingContainer: containers.stream }) : {};
+
     const controlsContainer = containers.controls; // Legacy option
-    return Object.assign({},
+    return Object.assign(
+      {},
       options[packageName],
       commOptions,
-      chatOptions, { session, accPack, controlsContainer },
-      screenSharingOptions
+      chatOptions,
+      screenSharingOptions,
+      { session, accPack, controlsContainer, appendControl } // eslint-disable-line comma-dangle
     );
   };
 
@@ -521,7 +524,7 @@ const toggleRemoteVideo = (id, enable) => {
   logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.attempt);
   communication.enableRemoteAV(id, 'video', enable);
   logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.success);
-}
+};
 
 /**
  * Initialize the accelerator pack
@@ -537,7 +540,7 @@ const init = (options) => {
   const { credentials } = options;
   validateCredentials(options.credentials);
 
-  //init analytics
+  // Init analytics
   logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
   logging.log(logging.logAction.init, logging.logVariation.attempt);
   const session = OT.initSession(credentials.apiKey, credentials.sessionId);

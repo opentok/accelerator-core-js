@@ -65,12 +65,13 @@ var ableToJoin = function ableToJoin() {
 
 /**
  * Create a camera publisher object
+ * @param {Object} publisherProperties
  * @returns {Promise} <resolve: Object, reject: Error>
  */
-var createPublisher = function createPublisher() {
+var createPublisher = function createPublisher(publisherProperties) {
   return new Promise(function (resolve, reject) {
     // TODO: Handle adding 'name' option to props
-    var props = Object.assign({}, callProperties);
+    var props = Object.assign({}, callProperties, publisherProperties);
     // TODO: Figure out how to handle common vs package-specific options
     var container = dom.element(streamContainers('publisher', 'camera'));
     var publisher = OT.initPublisher(container, props, function (error) {
@@ -81,21 +82,36 @@ var createPublisher = function createPublisher() {
 
 /**
  * Publish the local camera stream and update state
+ * @param {Object} publisherProperties
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-var publish = function publish() {
+var publish = function publish(publisherProperties) {
   return new Promise(function (resolve, reject) {
-    createPublisher().then(function (publisher) {
-      state.addPublisher('camera', publisher);
-      session.publish(publisher);
-      logging.log(logging.logAction.startCall, logging.logVariation.success);
-      resolve(publisher);
-    }).catch(function (error) {
+    var onPublish = function onPublish(publisher) {
+      return function (error) {
+        if (error) {
+          reject(error);
+          logging.log(logging.logAction.startCall, logging.logVariation.fail);
+        } else {
+          logging.log(logging.logAction.startCall, logging.logVariation.success);
+          state.addPublisher('camera', publisher);
+          resolve(publisher);
+        }
+      };
+    };
+
+    var publishToSession = function publishToSession(publisher) {
+      return session.publish(publisher, onPublish(publisher));
+    };
+
+    var handleError = function handleError(error) {
       logging.log(logging.logAction.startCall, logging.logVariation.fail);
       var errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
       triggerEvent('error', errorMessage);
       reject(error);
-    });
+    };
+
+    createPublisher(publisherProperties).then(publishToSession).catch(handleError);
   });
 };
 
@@ -155,15 +171,13 @@ var unsubscribe = function unsubscribe(subscriber) {
  * @param {Object} options
  */
 var validateOptions = function validateOptions(options) {
-  var requiredOptions = ['session', 'publishers', 'subscribers', 'streams', 'accPack'];
-
+  var requiredOptions = ['accPack'];
   requiredOptions.forEach(function (option) {
     if (!options[option]) {
       logging.error(option + ' is a required option.');
     }
   });
 
-  session = options.session;
   accPack = options.accPack;
   streamContainers = options.streamContainers;
   callProperties = options.callProperties || defaultCallProperties;
@@ -171,6 +185,13 @@ var validateOptions = function validateOptions(options) {
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
   screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+};
+
+/**
+ * Set session in module scope
+ */
+var setSession = function setSession() {
+  session = state.getSession();
 };
 
 /**
@@ -205,11 +226,17 @@ var createEventListeners = function createEventListeners() {
 
 /**
  * Start publishing the local camera feed and subscribing to streams in the session
+ * @param {Object} publisherProperties
  * @returns {Promise} <resolve: Object, reject: Error>
  */
-var startCall = function startCall() {
+var startCall = function startCall(publisherProperties) {
   return new Promise(function (resolve, reject) {
+    // eslint-disable-line consistent-return
     logging.log(logging.logAction.startCall, logging.logVariation.attempt);
+
+    /**
+     * Determine if we're able to join the session based on an existing connection limit
+     */
     if (!ableToJoin()) {
       var errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
@@ -217,7 +244,11 @@ var startCall = function startCall() {
       return reject(new Error(errorMessage));
     }
 
-    publish().then(function (publisher) {
+    /**
+     * Subscribe to any streams that existed before we start the call from our side.
+     */
+    var subscribeToInitialStreams = function subscribeToInitialStreams(publisher) {
+      // Get an array of initial subscription promises
       var initialSubscriptions = function initialSubscriptions() {
         if (autoSubscribe) {
           var _ret2 = function () {
@@ -233,15 +264,26 @@ var startCall = function startCall() {
         }
         return [Promise.resolve()];
       };
-      Promise.all(initialSubscriptions()).then(function () {
+
+      // Handle success
+      var onSubscribeToAll = function onSubscribeToAll() {
         var pubSubData = Object.assign({}, state.getPubSub(), { publisher: publisher });
         triggerEvent('startCall', pubSubData);
         active = true;
         resolve(pubSubData);
-      }).catch(function (reason) {
-        return logging.message('Failed to subscribe to all existing streams: ' + reason);
-      });
-    });
+      };
+
+      // Handle error
+      var onError = function onError(reason) {
+        logging.message('Failed to subscribe to all existing streams: ' + reason);
+        // We do not reject here in case we still successfully publish to the session
+        resolve(Object.assign({}, state.getPubSub(), { publisher: publisher }));
+      };
+
+      Promise.all(initialSubscriptions()).then(onSubscribeToAll).catch(onError);
+    };
+
+    publish(publisherProperties).then(subscribeToInitialStreams).catch(reject);
   });
 };
 
@@ -265,6 +307,7 @@ var endCall = function endCall() {
   Object.values(subscribers.screen).forEach(unsubscribe);
   state.removeAllPublishers();
   active = false;
+  triggerEvent('endCall');
   logging.log(logging.logAction.endCall, logging.logVariation.success);
 };
 
@@ -300,16 +343,14 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
 /**
  * Initialize the communication component
  * @param {Object} options
- * @param {Object} options.session
- * @param {Object} options.publishers
- * @param {Object} options.subscribers
- * @param {Object} options.streams
+ * @param {Object} options.accPack
  * @param {Number} options.connectionLimit
  * @param {Function} options.streamContainer
  */
 var init = function init(options) {
   return new Promise(function (resolve) {
     validateOptions(options);
+    setSession();
     createEventListeners();
     resolve();
   });
@@ -347,6 +388,7 @@ var OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
 var _require = require('./util'),
     dom = _require.dom,
     path = _require.path,
+    pathOr = _require.pathOr,
     properCase = _require.properCase;
 
 /**
@@ -412,10 +454,10 @@ var on = function on(event, callback) {
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(event + ' is not a registered event.');
-    //logging.log(logging.logAction.on, logging.logVariation.fail);
+    // logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
     eventCallbacks.add(callback);
-    //logging.log(logging.logAction.on, logging.logVariation.success);
+    // logging.log(logging.logAction.on, logging.logVariation.success);
   }
 };
 
@@ -426,7 +468,7 @@ var on = function on(event, callback) {
  * @param {Function} callback
  */
 var off = function off(event, callback) {
-  //logging.log(logging.logAction.off, logging.logVariation.attempt);
+  // logging.log(logging.logAction.off, logging.logVariation.attempt);
   if (_arguments.lenth === 0) {
     Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
@@ -434,11 +476,11 @@ var off = function off(event, callback) {
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    //logging.log(logging.logAction.off, logging.logVariation.fail);
+    // logging.log(logging.logAction.off, logging.logVariation.fail);
     logging.message(event + ' is not a registered event.');
   } else {
     eventCallbacks.delete(callback);
-    //logging.log(logging.logAction.off, logging.logVariation.success);
+    // logging.log(logging.logAction.off, logging.logVariation.success);
   }
 };
 
@@ -643,9 +685,10 @@ var initPackages = function initPackages() {
     return document.getElementById(pubSub + 'Container');
   };
   var getContainerElements = function getContainerElements() {
-    var controls = options.controlsContainer || '#videoControls';
-    var chat = path('textChat.container', options) || '#chat';
-    var stream = options.streamContainers || getDefaultContainer;
+    // Need to use path to check for null values
+    var controls = pathOr('#videoControls', 'controlsContainer', options);
+    var chat = pathOr('#chat', 'textChat.container', options);
+    var stream = pathOr(getDefaultContainer, 'streamContainers', options);
     return { stream: stream, controls: controls, chat: chat };
   };
   /** *** *** *** *** */
@@ -654,14 +697,9 @@ var initPackages = function initPackages() {
    * Return options for the specified package
    * @param {String} packageName
    * @returns {Object}
+   * TODO: Simplify packageOptions (switch statment?)
    */
   var packageOptions = function packageOptions(packageName) {
-    var _internalState$all = internalState.all(),
-        streams = _internalState$all.streams,
-        streamMap = _internalState$all.streamMap,
-        publishers = _internalState$all.publishers,
-        subscribers = _internalState$all.subscribers;
-
     var accPack = {
       registerEventListener: on,
       on: on,
@@ -671,15 +709,18 @@ var initPackages = function initPackages() {
       linkAnnotation: linkAnnotation
     };
     var containers = getContainerElements();
-    var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { publishers: publishers, subscribers: subscribers, streams: streams, streamMap: streamMap, streamContainers: containers.stream }) : {};
+    var appendControl = !!containers.controls;
+    var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { streamContainers: containers.stream }) : {};
     var chatOptions = packageName === 'textChat' ? {
       textChatContainer: options.textChat.container,
       waitingMessage: options.textChat.waitingMessage,
       sender: { alias: options.textChat.name }
     } : {};
     var screenSharingOptions = packageName === 'screenSharing' ? Object.assign({}, options.screenSharing, { screenSharingContainer: containers.stream }) : {};
+
     var controlsContainer = containers.controls; // Legacy option
-    return Object.assign({}, options[packageName], commOptions, chatOptions, { session: session, accPack: accPack, controlsContainer: controlsContainer }, screenSharingOptions);
+    return Object.assign({}, options[packageName], commOptions, chatOptions, screenSharingOptions, { session: session, accPack: accPack, controlsContainer: controlsContainer, appendControl: appendControl } // eslint-disable-line comma-dangle
+    );
   };
 
   /** Create instances of each package */
@@ -905,7 +946,7 @@ var init = function init(options) {
 
   validateCredentials(options.credentials);
 
-  //init analytics
+  // Init analytics
   logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
   logging.log(logging.logAction.init, logging.logVariation.attempt);
   var session = OT.initSession(credentials.apiKey, credentials.sessionId);
@@ -2083,6 +2124,18 @@ var path = function path(props, obj) {
 };
 
 /**
+ * Checks for a (nested) propery in an object and returns the property if
+ * it exists.  Otherwise, it returns a default value.
+ * @param {*} d - Default value
+ * @param {String | Array} props - An array of properties or a single property
+ * @param {Object | Array} obj
+ */
+var pathOr = function pathOr(d, props, obj) {
+  var value = path(props, obj);
+  return value === undefined ? d : value;
+};
+
+/**
  * Converts a string to proper case (e.g. 'camera' => 'Camera')
  * @param {String} text
  * @returns {String}
@@ -2094,6 +2147,7 @@ var properCase = function properCase(text) {
 module.exports = {
   dom: dom,
   path: path,
+  pathOr: pathOr,
   properCase: properCase
 };
 

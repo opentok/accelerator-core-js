@@ -72,7 +72,7 @@ The `packages` property specifies which accelerator packs should be included in 
 ```javascript
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
 ```
-The `streamContainers` property is a function that specifies which DOM element should be used as a container for a video stream.  The `controlsContainer` property specifies the element to be used as the container for the local audio/video and accelerator pack controls.  These elements can either be [query selectors](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) or references to DOM elements.  The default containers are specified below.  If these containers do not exist in the DOM, `Core` will be append new elements to the `body`.
+The `streamContainers` property is a function that specifies which DOM element should be used as a container for a video stream.  The `controlsContainer` property specifies the element to be used as the container for the local audio/video and accelerator pack controls.  These elements can either be [query selectors](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) or references to DOM elements.  The default containers are specified below.  If these containers do not exist in the DOM, `Core` will be append new elements to the `body`.  If `null` is passed as the `controlsContainer` property, no controls will be added to the DOM.
 
 ```javascript
   /**
@@ -98,8 +98,8 @@ The communication properties relate to the multi-party communication provided by
 
 ```javascript
   communication: {
-  autoSubscribe: true,
-  connectionLimit: null,
+    autoSubscribe: true,
+    connectionLimit: null,
     callProperties: myCallProperties,
   },
 ```
