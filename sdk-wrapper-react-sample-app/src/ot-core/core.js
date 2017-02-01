@@ -1,34 +1,46 @@
+'use strict';
+
+var _arguments = arguments;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 /* global OT */
 /**
  * Dependencies
  */
-const logging = require('./logging');
-const communication = require('./communication');
-const accPackEvents = require('./events');
-const internalState = require('./state');
-const OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
-const { dom, path, pathOr, properCase } = require('./util');
+var logging = require('./logging');
+var communication = require('./communication');
+var accPackEvents = require('./events');
+var internalState = require('./state');
+var OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
+
+var _require = require('./util'),
+    dom = _require.dom,
+    path = _require.path,
+    properCase = _require.properCase;
 
 /**
  * Individual Accelerator Packs
  */
-let textChat; // eslint-disable-line no-unused-vars
-let screenSharing; // eslint-disable-line no-unused-vars
-let annotation;
-let archiving; // eslint-disable-line no-unused-vars
+
+
+var textChat = undefined; // eslint-disable-line no-unused-vars
+var screenSharing = undefined; // eslint-disable-line no-unused-vars
+var annotation = undefined;
+var archiving = undefined; // eslint-disable-line no-unused-vars
 
 /**
  * Get access to an accelerator pack
  * @param {String} packageName - textChat, screenSharing, annotation, or archiving
  * @returns {Object} The instance of the accelerator pack
  */
-const getAccPack = (packageName) => {
+var getAccPack = function getAccPack(packageName) {
   logging.log(logging.logAction.getAccPack, logging.logVariation.attempt);
-  const packages = {
-    textChat,
-    screenSharing,
-    annotation,
-    archiving,
+  var packages = {
+    textChat: textChat,
+    screenSharing: screenSharing,
+    annotation: annotation,
+    archiving: archiving
   };
   logging.log(logging.logAction.getAccPack, logging.logVariation.success);
   return packages[packageName];
@@ -36,7 +48,7 @@ const getAccPack = (packageName) => {
 
 /** Eventing */
 
-const eventListeners = {};
+var eventListeners = {};
 
 /**
  * Register events that can be listened to be other components/modules
@@ -44,9 +56,9 @@ const eventListeners = {};
  * also be passed as a string.
  * @returns {function} See triggerEvent
  */
-const registerEvents = (events) => {
-  const eventList = Array.isArray(events) ? events : [events];
-  eventList.forEach((event) => {
+var registerEvents = function registerEvents(events) {
+  var eventList = Array.isArray(events) ? events : [events];
+  eventList.forEach(function (event) {
     if (!eventListeners[event]) {
       eventListeners[event] = new Set();
     }
@@ -60,21 +72,21 @@ const registerEvents = (events) => {
  * @param {String | Object} event - The name of the event
  * @param {Function} callback
  */
-const on = (event, callback) => {
+var on = function on(event, callback) {
   //logging.log(logging.logAction.on, logging.logVariation.attempt);
-  if (typeof event === 'object') {
-    Object.keys(event).forEach((eventName) => {
+  if ((typeof event === 'undefined' ? 'undefined' : _typeof(event)) === 'object') {
+    Object.keys(event).forEach(function (eventName) {
       on(eventName, event[eventName]);
     });
   }
-  const eventCallbacks = eventListeners[event];
+  var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    logging.message(`${event} is not a registered event.`);
-    // logging.log(logging.logAction.on, logging.logVariation.fail);
+    logging.message(event + ' is not a registered event.');
+    //logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
-    eventCallbacks.add(callback);
-    // logging.log(logging.logAction.on, logging.logVariation.success);
-  }
+      eventCallbacks.add(callback);
+      //logging.log(logging.logAction.on, logging.logVariation.success);
+    }
 };
 
 /**
@@ -83,20 +95,20 @@ const on = (event, callback) => {
  * @param {String} event - The name of the event
  * @param {Function} callback
  */
-const off = (event, callback) => {
-  // logging.log(logging.logAction.off, logging.logVariation.attempt);
-  if (arguments.lenth === 0) {
-    Object.keys(eventListeners).forEach((eventType) => {
+var off = function off(event, callback) {
+  //logging.log(logging.logAction.off, logging.logVariation.attempt);
+  if (_arguments.lenth === 0) {
+    Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
     });
   }
-  const eventCallbacks = eventListeners[event];
+  var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    // logging.log(logging.logAction.off, logging.logVariation.fail);
-    logging.message(`${event} is not a registered event.`);
+    //logging.log(logging.logAction.off, logging.logVariation.fail);
+    logging.message(event + ' is not a registered event.');
   } else {
     eventCallbacks.delete(callback);
-    // logging.log(logging.logAction.off, logging.logVariation.success);
+    //logging.log(logging.logAction.off, logging.logVariation.success);
   }
 };
 
@@ -105,13 +117,15 @@ const off = (event, callback) => {
  * @param {String} event - The name of the event
  * @param {*} data - Data to be passed to callback functions
  */
-const triggerEvent = (event, data) => {
-  const eventCallbacks = eventListeners[event];
+var triggerEvent = function triggerEvent(event, data) {
+  var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     registerEvents(event);
-    logging.message(`${event} has been registered as a new event.`);
+    logging.message(event + ' has been registered as a new event.');
   } else {
-    eventCallbacks.forEach(callback => callback(data, event));
+    eventCallbacks.forEach(function (callback) {
+      return callback(data, event);
+    });
   }
 };
 
@@ -119,72 +133,77 @@ const triggerEvent = (event, data) => {
  * Get the current OpenTok session object
  * @returns {Object}
  */
-const getSession = internalState.getSession;
-
+var getSession = internalState.getSession;
 
 /**
  * Returns the current OpenTok session credentials
  * @returns {Object}
  */
-const getCredentials = internalState.getCredentials;
+var getCredentials = internalState.getCredentials;
 
 /**
  * Returns the options used for initialization
  * @returns {Object}
  */
-const getOptions = internalState.getOptions;
+var getOptions = internalState.getOptions;
 
-const createEventListeners = (session, options) => {
-  Object.keys(accPackEvents).forEach(type => registerEvents(accPackEvents[type]));
+var createEventListeners = function createEventListeners(session, options) {
+  Object.keys(accPackEvents).forEach(function (type) {
+    return registerEvents(accPackEvents[type]);
+  });
 
   /**
    * If using screen sharing + annotation in an external window, the individual packages
    * will take care of
    */
-  const usingAnnotation = path('screenSharing.annotation', options);
-  const internalAnnotation = usingAnnotation && !path('screenSharing.externalWindow', options);
+  var usingAnnotation = path('screenSharing.annotation', options);
+  var internalAnnotation = usingAnnotation && !path('screenSharing.externalWindow', options);
 
   /**
    * Wrap session events and update internalState when streams are created
    * or destroyed
    */
-  accPackEvents.session.forEach((eventName) => {
-    session.on(eventName, (event) => {
-      if (eventName === 'streamCreated') { internalState.addStream(event.stream); }
-      if (eventName === 'streamDestroyed') { internalState.removeStream(event.stream); }
+  accPackEvents.session.forEach(function (eventName) {
+    session.on(eventName, function (event) {
+      if (eventName === 'streamCreated') {
+        internalState.addStream(event.stream);
+      }
+      if (eventName === 'streamDestroyed') {
+        internalState.removeStream(event.stream);
+      }
       triggerEvent(eventName, event);
     });
   });
 
   if (usingAnnotation) {
-    on('subscribeToScreen', ({ subscriber }) => {
-      annotation.start(getSession())
-        .then(() => {
-          const absoluteParent = dom.query(path('annotation.absoluteParent.subscriber', options));
-          const linkOptions = absoluteParent ? { absoluteParent } : null;
-          annotation.linkCanvas(subscriber, subscriber.element.parentElement, linkOptions);
-        });
+    on('subscribeToScreen', function (_ref) {
+      var subscriber = _ref.subscriber;
+
+      annotation.start(getSession()).then(function () {
+        var absoluteParent = dom.query(path('annotation.absoluteParent.subscriber', options));
+        var linkOptions = absoluteParent ? { absoluteParent: absoluteParent } : null;
+        annotation.linkCanvas(subscriber, subscriber.element.parentElement, linkOptions);
+      });
     });
 
-    on('unsubscribeFromScreen', () => {
+    on('unsubscribeFromScreen', function () {
       annotation.end();
     });
   }
 
-  on('startScreenSharing', (publisher) => {
+  on('startScreenSharing', function (publisher) {
     internalState.addPublisher('screen', publisher);
-    triggerEvent('startScreenShare', Object.assign({}, { publisher }, internalState.getPubSub()));
+    triggerEvent('startScreenShare', Object.assign({}, { publisher: publisher }, internalState.getPubSub()));
     if (internalAnnotation) {
-      annotation.start(getSession())
-        .then(() => {
-          const absoluteParent = dom.query(path('annotation.absoluteParent.publisher', options));
-          const linkOptions = absoluteParent ? { absoluteParent } : null;
-          annotation.linkCanvas(publisher, publisher.element.parentElement, linkOptions);
-        });
+      annotation.start(getSession()).then(function () {
+        var absoluteParent = dom.query(path('annotation.absoluteParent.publisher', options));
+        var linkOptions = absoluteParent ? { absoluteParent: absoluteParent } : null;
+        annotation.linkCanvas(publisher, publisher.element.parentElement, linkOptions);
+      });
     }
   });
 
-  on('endScreenSharing', (publisher) => {
+  on('endScreenSharing', function (publisher) {
     // delete publishers.screen[publisher.id];
     internalState.removePublisher('screen', publisher);
     triggerEvent('endScreenShare', internalState.getPubSub());
@@ -194,31 +213,34 @@ const createEventListeners = (session, options) => {
   });
 };
 
-const setupExternalAnnotation = () =>
-  annotation.start(getSession(), {
-    screensharing: true,
+var setupExternalAnnotation = function setupExternalAnnotation() {
+  return annotation.start(getSession(), {
+    screensharing: true
   });
+};
 
-const linkAnnotation = (pubSub, annotationContainer, externalWindow) => {
+var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, externalWindow) {
   annotation.linkCanvas(pubSub, annotationContainer, {
-    externalWindow,
+    externalWindow: externalWindow
   });
 
   if (externalWindow) {
-    // Add subscribers to the external window
-    const streams = internalState.getStreams();
-    const cameraStreams = Object.keys(streams).reduce((acc, streamId) => {
-      const stream = streams[streamId];
-      return stream.videoType === 'camera' ? acc.concat(stream) : acc;
-    }, []);
-    cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
+    (function () {
+      // Add subscribers to the external window
+      var streams = internalState.getStreams();
+      var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
+        var stream = streams[streamId];
+        return stream.videoType === 'camera' ? acc.concat(stream) : acc;
+      }, []);
+      cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
+    })();
   }
 };
 
-const initPackages = () => {
+var initPackages = function initPackages() {
   logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
-  const session = getSession();
-  const options = getOptions();
+  var session = getSession();
+  var options = getOptions();
   /**
    * Try to require a package.  If 'require' is unavailable, look for
    * the package in global scope.  A switch internalStatement is used because
@@ -228,8 +250,8 @@ const initPackages = () => {
    * @param {String} globalName - The name of the package if exposed on global/window
    * @returns {Object}
    */
-  const optionalRequire = (packageName, globalName) => {
-    let result;
+  var optionalRequire = function optionalRequire(packageName, globalName) {
+    var result = undefined;
     /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
     try {
       switch (packageName) {
@@ -254,89 +276,80 @@ const initPackages = () => {
     }
     if (!result) {
       logging.log(logging.logAction.initPackages, logging.logVariation.fail);
-      logging.error(`Could not load ${packageName}`);
+      logging.error('Could not load ' + packageName);
     }
     return result;
   };
 
-  const availablePackages = {
-    textChat() {
+  var availablePackages = {
+    textChat: function textChat() {
       return optionalRequire('opentok-text-chat', 'TextChatAccPack');
     },
-    screenSharing() {
+    screenSharing: function screenSharing() {
       return optionalRequire('opentok-screen-sharing', 'ScreenSharingAccPack');
     },
-    annotation() {
+    annotation: function annotation() {
       return optionalRequire('opentok-annotation', 'AnnotationAccPack');
     },
-    archiving() {
+    archiving: function archiving() {
       return optionalRequire('opentok-archiving', 'ArchivingAccPack');
-    },
+    }
   };
 
-  const packages = {};
-  (path('packages', options) || []).forEach((acceleratorPack) => {
-    if (availablePackages[acceleratorPack]) { // eslint-disable-next-line no-param-reassign
+  var packages = {};
+  (path('packages', options) || []).forEach(function (acceleratorPack) {
+    if (availablePackages[acceleratorPack]) {
+      // eslint-disable-next-line no-param-reassign
       packages[properCase(acceleratorPack)] = availablePackages[acceleratorPack]();
     } else {
-      logging.message(`${acceleratorPack} is not a valid accelerator pack`);
+      logging.message(acceleratorPack + ' is not a valid accelerator pack');
     }
   });
 
   /**
    * Get containers for streams, controls, and the chat widget
    */
-  const getDefaultContainer = pubSub => document.getElementById(`${pubSub}Container`);
-  const getContainerElements = () => {
-    // Need to use path to check for null values
-    const controls = pathOr('#videoControls', 'controlsContainer', options);
-    const chat = pathOr('#chat', 'textChat.container', options);
-    const stream = pathOr(getDefaultContainer, 'streamContainers', options);
-    return { stream, controls, chat };
+  var getDefaultContainer = function getDefaultContainer(pubSub) {
+    return document.getElementById(pubSub + 'Container');
+  };
+  var getContainerElements = function getContainerElements() {
+    var controls = options.controlsContainer || '#videoControls';
+    var chat = path('textChat.container', options) || '#chat';
+    var stream = options.streamContainers || getDefaultContainer;
+    return { stream: stream, controls: controls, chat: chat };
   };
   /** *** *** *** *** */
-
 
   /**
    * Return options for the specified package
    * @param {String} packageName
    * @returns {Object}
-   * TODO: Simplify packageOptions (switch statment?)
    */
-  const packageOptions = (packageName) => {
-    const accPack = {
-      registerEventListener: on,
-      on,
-      registerEvents,
-      triggerEvent,
-      setupExternalAnnotation,
-      linkAnnotation,
-    };
-    const containers = getContainerElements();
-    const appendControl = !!containers.controls;
-    const commOptions =
-      packageName === 'communication' ?
-      Object.assign({}, options.communication, { streamContainers: containers.stream }) : {};
-    const chatOptions =
-      packageName === 'textChat' ? {
-        textChatContainer: options.textChat.container,
-        waitingMessage: options.textChat.waitingMessage,
-        sender: { alias: options.textChat.name },
-      } : {};
-    const screenSharingOptions =
-      packageName === 'screenSharing' ?
-      Object.assign({},
-        options.screenSharing, { screenSharingContainer: containers.stream }) : {};
+  var packageOptions = function packageOptions(packageName) {
+    var _internalState$all = internalState.all(),
+        streams = _internalState$all.streams,
+        streamMap = _internalState$all.streamMap,
+        publishers = _internalState$all.publishers,
+        subscribers = _internalState$all.subscribers;
 
-    const controlsContainer = containers.controls; // Legacy option
-    return Object.assign(
-      {},
-      options[packageName],
-      commOptions,
-      chatOptions,
-      screenSharingOptions,
-      { session, accPack, controlsContainer, appendControl } // eslint-disable-line comma-dangle
-    );
+    var accPack = {
+      registerEventListener: on,
+      on: on,
+      registerEvents: registerEvents,
+      triggerEvent: triggerEvent,
+      setupExternalAnnotation: setupExternalAnnotation,
+      linkAnnotation: linkAnnotation
+    };
+    var containers = getContainerElements();
+    var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { publishers: publishers, subscribers: subscribers, streams: streams, streamMap: streamMap, streamContainers: containers.stream }) : {};
+    var chatOptions = packageName === 'textChat' ? {
+      textChatContainer: options.textChat.container,
+      waitingMessage: options.textChat.waitingMessage,
+      sender: { alias: options.textChat.name }
+    } : {};
+    var screenSharingOptions = packageName === 'screenSharing' ? Object.assign({}, options.screenSharing, { screenSharingContainer: containers.stream }) : {};
+    var controlsContainer = containers.controls; // Legacy option
+    return Object.assign({}, options[packageName], commOptions, chatOptions, { session: session, accPack: accPack, controlsContainer: controlsContainer }, screenSharingOptions);
   };
 
   /** Create instances of each package */
@@ -350,7 +363,6 @@ const initPackages = () => {
   logging.log(logging.logAction.initPackages, logging.logVariation.success);
 };
 
-
 /**
  * Ensures that we have the required credentials
  * @param {Object} credentials
@@ -358,11 +370,13 @@ const initPackages = () => {
  * @param {String} credentials.sessionId
  * @param {String} credentials.token
  */
-const validateCredentials = (credentials = []) => {
-  const required = ['apiKey', 'sessionId', 'token'];
-  required.forEach((credential) => {
+var validateCredentials = function validateCredentials() {
+  var credentials = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+  var required = ['apiKey', 'sessionId', 'token'];
+  required.forEach(function (credential) {
     if (!credentials[credential]) {
-      logging.error(`${credential} is a required credential`);
+      logging.error(credential + ' is a required credential');
     }
   });
 };
@@ -371,46 +385,51 @@ const validateCredentials = (credentials = []) => {
  * Connect to the session
  * @returns {Promise} <resolve: -, reject: Error>
  */
-const connect = () =>
-  new Promise((resolve, reject) => {
+var connect = function connect() {
+  return new Promise(function (resolve, reject) {
     logging.log(logging.logAction.connect, logging.logVariation.attempt);
-    const session = getSession();
-    const { token } = getCredentials();
-    session.connect(token, (error) => {
+    var session = getSession();
+
+    var _getCredentials = getCredentials(),
+        token = _getCredentials.token;
+
+    session.connect(token, function (error) {
       if (error) {
         logging.message(error);
         logging.log(logging.logAction.connect, logging.logVariation.fail);
         return reject(error);
       }
-      const { sessionId, apiKey } = session;
+      var sessionId = session.sessionId,
+          apiKey = session.apiKey;
+
       logging.updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
       logging.log(logging.logAction.connect, logging.logVariation.success);
       initPackages();
       return resolve();
     });
   });
+};
 
 /**
  * Disconnect from the session
  * @returns {Promise} <resolve: -, reject: Error>
  */
-const disconnect = () => {
+var disconnect = function disconnect() {
   logging.log(logging.logAction.disconnect, logging.logVariation.attempt);
   getSession().disconnect();
   internalState.reset();
   logging.log(logging.logAction.disconnect, logging.logVariation.success);
 };
 
-
 /**
  * Force a remote connection to leave the session
  * @param {Object} connection
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-const forceDisconnect = connection =>
-  new Promise((resolve, reject) => {
+var forceDisconnect = function forceDisconnect(connection) {
+  return new Promise(function (resolve, reject) {
     logging.log(logging.logAction.forceDisconnect, logging.logVariation.attempt);
-    getSession().forceDisconnect(connection, (error) => {
+    getSession().forceDisconnect(connection, function (error) {
       if (error) {
         logging.log(logging.logAction.forceDisconnect, logging.logVariation.fail);
         reject(error);
@@ -420,17 +439,17 @@ const forceDisconnect = connection =>
       }
     });
   });
-
+};
 
 /**
  * Force the publisher of a stream to stop publishing the stream
  * @param {Object} stream
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-const forceUnpublish = stream =>
-  new Promise((resolve, reject) => {
+var forceUnpublish = function forceUnpublish(stream) {
+  return new Promise(function (resolve, reject) {
     logging.log(logging.logAction.forceUnpublish, logging.logVariation.attempt);
-    getSession().forceUnpublish(stream, (error) => {
+    getSession().forceUnpublish(stream, function (error) {
       if (error) {
         logging.log(logging.logAction.forceUnpublish, logging.logVariation.fail);
         reject(error);
@@ -440,21 +459,25 @@ const forceUnpublish = stream =>
       }
     });
   });
+};
 
 /**
  * Get the local publisher object for a stream
  * @param {Object} stream - An OpenTok stream object
  * @returns {Object} - The publisher object
  */
-const getPublisherForStream = stream => getSession().getPublisherForStream(stream);
+var getPublisherForStream = function getPublisherForStream(stream) {
+  return getSession().getPublisherForStream(stream);
+};
 
 /**
  * Get the local subscriber objects for a stream
  * @param {Object} stream - An OpenTok stream object
  * @returns {Array} - An array of subscriber object
  */
-const getSubscribersForStream = stream => getSession().getSubscribersForStream(stream);
-
+var getSubscribersForStream = function getSubscribersForStream(stream) {
+  return getSession().getSubscribersForStream(stream);
+};
 
 /**
  * Send a signal using the OpenTok signaling apiKey
@@ -463,13 +486,13 @@ const getSubscribersForStream = stream => getSession().getSubscribersForStream(s
  * @param {Object} to - An OpenTok connection object
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-const signal = (type, signalData, to) =>
-  new Promise((resolve, reject) => {
+var signal = function signal(type, signalData, to) {
+  return new Promise(function (resolve, reject) {
     logging.log(logging.logAction.signal, logging.logVariation.attempt);
-    const session = getSession();
-    const data = JSON.stringify(signalData);
-    const signalObj = to ? { type, data, to } : { type, data };
-    session.signal(signalObj, (error) => {
+    var session = getSession();
+    var data = JSON.stringify(signalData);
+    var signalObj = to ? { type: type, data: data, to: to } : { type: type, data: data };
+    session.signal(signalObj, function (error) {
       if (error) {
         logging.log(logging.logAction.signal, logging.logVariation.fail);
         reject(error);
@@ -479,15 +502,21 @@ const signal = (type, signalData, to) =>
       }
     });
   });
+};
 
 /**
  * Enable or disable local audio
  * @param {Boolean} enable
  */
-const toggleLocalAudio = (enable) => {
+var toggleLocalAudio = function toggleLocalAudio(enable) {
   logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.attempt);
-  const { publishers } = internalState.getPubSub();
-  const toggleAudio = id => communication.enableLocalAV(id, 'audio', enable);
+
+  var _internalState$getPub = internalState.getPubSub(),
+      publishers = _internalState$getPub.publishers;
+
+  var toggleAudio = function toggleAudio(id) {
+    return communication.enableLocalAV(id, 'audio', enable);
+  };
   Object.keys(publishers.camera).forEach(toggleAudio);
   logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.success);
 };
@@ -496,10 +525,15 @@ const toggleLocalAudio = (enable) => {
  * Enable or disable local video
  * @param {Boolean} enable
  */
-const toggleLocalVideo = (enable) => {
+var toggleLocalVideo = function toggleLocalVideo(enable) {
   logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.attempt);
-  const { publishers } = internalState.getPubSub();
-  const toggleVideo = id => communication.enableLocalAV(id, 'video', enable);
+
+  var _internalState$getPub2 = internalState.getPubSub(),
+      publishers = _internalState$getPub2.publishers;
+
+  var toggleVideo = function toggleVideo(id) {
+    return communication.enableLocalAV(id, 'video', enable);
+  };
   Object.keys(publishers.camera).forEach(toggleVideo);
   logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.success);
 };
@@ -509,7 +543,7 @@ const toggleLocalVideo = (enable) => {
  * @param {String} id - Subscriber id
  * @param {Boolean} enable
  */
-const toggleRemoteAudio = (id, enable) => {
+var toggleRemoteAudio = function toggleRemoteAudio(id, enable) {
   logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.attempt);
   communication.enableRemoteAV(id, 'audio', enable);
   logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.success);
@@ -520,7 +554,7 @@ const toggleRemoteAudio = (id, enable) => {
  * @param {String} id - Subscriber id
  * @param {Boolean} enable
  */
-const toggleRemoteVideo = (id, enable) => {
+var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
   logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.attempt);
   communication.enableRemoteAV(id, 'video', enable);
   logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.success);
@@ -533,17 +567,18 @@ const toggleRemoteVideo = (id, enable) => {
  * @param {Array} [options.packages]
  * @param {Object} [options.containers]
  */
-const init = (options) => {
+var init = function init(options) {
   if (!options) {
     logging.error('Missing options required for initialization');
   }
-  const { credentials } = options;
+  var credentials = options.credentials;
+
   validateCredentials(options.credentials);
 
-  // Init analytics
+  //init analytics
   logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
   logging.log(logging.logAction.init, logging.logVariation.attempt);
-  const session = OT.initSession(credentials.apiKey, credentials.sessionId);
+  var session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
   internalState.setSession(session);
   internalState.setCredentials(credentials);
@@ -551,32 +586,32 @@ const init = (options) => {
   logging.log(logging.logAction.init, logging.logVariation.success);
 };
 
-const opentokCore = {
-  init,
-  connect,
-  disconnect,
-  forceDisconnect,
-  forceUnpublish,
-  getAccPack,
-  getOptions,
-  getSession,
-  getPublisherForStream,
-  getSubscribersForStream,
-  on,
-  off,
+var opentokCore = {
+  init: init,
+  connect: connect,
+  disconnect: disconnect,
+  forceDisconnect: forceDisconnect,
+  forceUnpublish: forceUnpublish,
+  getAccPack: getAccPack,
+  getOptions: getOptions,
+  getSession: getSession,
+  getPublisherForStream: getPublisherForStream,
+  getSubscribersForStream: getSubscribersForStream,
+  on: on,
+  off: off,
   registerEventListener: on,
-  triggerEvent,
-  signal,
+  triggerEvent: triggerEvent,
+  signal: signal,
   state: internalState.all,
   startCall: communication.startCall,
   endCall: communication.endCall,
-  OpenTokSDK,
-  toggleLocalAudio,
-  toggleLocalVideo,
-  toggleRemoteAudio,
-  toggleRemoteVideo,
+  OpenTokSDK: OpenTokSDK,
+  toggleLocalAudio: toggleLocalAudio,
+  toggleLocalVideo: toggleLocalVideo,
+  toggleRemoteAudio: toggleRemoteAudio,
+  toggleRemoteVideo: toggleRemoteVideo,
   subscribe: communication.subscribe,
-  unsubscribe: communication.unsubscribe,
+  unsubscribe: communication.unsubscribe
 };
 
 if (global === window) {
