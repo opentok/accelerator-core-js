@@ -74,7 +74,7 @@ var registerEvents = function registerEvents(events) {
  * @param {Function} callback
  */
 var on = function on(event, callback) {
-  //logging.log(logging.logAction.on, logging.logVariation.attempt);
+  // logging.log(logging.logAction.on, logging.logVariation.attempt);
   if ((typeof event === 'undefined' ? 'undefined' : _typeof(event)) === 'object') {
     Object.keys(event).forEach(function (eventName) {
       on(eventName, event[eventName]);
@@ -378,7 +378,7 @@ var initPackages = function initPackages() {
           return Object.assign({}, baseOptions, options.archiving);
         }
       default:
-        break;
+        return {};
     }
   };
 

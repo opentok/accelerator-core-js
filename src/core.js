@@ -61,7 +61,7 @@ const registerEvents = (events) => {
  * @param {Function} callback
  */
 const on = (event, callback) => {
-  //logging.log(logging.logAction.on, logging.logVariation.attempt);
+  // logging.log(logging.logAction.on, logging.logVariation.attempt);
   if (typeof event === 'object') {
     Object.keys(event).forEach((eventName) => {
       on(eventName, event[eventName]);
@@ -348,7 +348,7 @@ const initPackages = () => {
         return Object.assign({}, baseOptions, options.archiving);
       }
       default:
-        break;
+        return {};
     }
   };
 
