@@ -6,8 +6,13 @@ const logging = require('./logging');
 const communication = require('./communication');
 const accPackEvents = require('./events');
 const internalState = require('./state');
+const util = require('./util');
 const OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
-const { dom, path, pathOr, properCase } = require('./util');
+
+/**
+ * Helper methods
+ */
+const { dom, path, pathOr, properCase } = util;
 
 /**
  * Individual Accelerator Packs
@@ -326,6 +331,7 @@ const initPackages = () => {
     const baseOptions = { session, accPack, controlsContainer, appendControl, streamContainers };
 
     switch (packageName) {
+      /* beautify ignore:start */
       case 'communication': {
         return Object.assign({}, baseOptions, options.communication);
       }
@@ -349,6 +355,7 @@ const initPackages = () => {
       }
       default:
         return {};
+      /* beautify ignore:end */
     }
   };
 
@@ -590,6 +597,7 @@ const opentokCore = {
   toggleRemoteVideo,
   subscribe: communication.subscribe,
   unsubscribe: communication.unsubscribe,
+  util,
 };
 
 if (global === window) {

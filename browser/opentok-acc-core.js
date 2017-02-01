@@ -383,18 +383,20 @@ var logging = require('./logging');
 var communication = require('./communication');
 var accPackEvents = require('./events');
 var internalState = require('./state');
+var util = require('./util');
 var OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
 
-var _require = require('./util'),
-    dom = _require.dom,
-    path = _require.path,
-    pathOr = _require.pathOr,
-    properCase = _require.properCase;
+/**
+ * Helper methods
+ */
+var dom = util.dom,
+    path = util.path,
+    pathOr = util.pathOr,
+    properCase = util.properCase;
 
 /**
  * Individual Accelerator Packs
  */
-
 
 var textChat = void 0; // eslint-disable-line no-unused-vars
 var screenSharing = void 0; // eslint-disable-line no-unused-vars
@@ -722,6 +724,7 @@ var initPackages = function initPackages() {
     var baseOptions = { session: session, accPack: accPack, controlsContainer: controlsContainer, appendControl: appendControl, streamContainers: streamContainers };
 
     switch (packageName) {
+      /* beautify ignore:start */
       case 'communication':
         {
           return Object.assign({}, baseOptions, options.communication);
@@ -750,6 +753,7 @@ var initPackages = function initPackages() {
         }
       default:
         return {};
+      /* beautify ignore:end */
     }
   };
 
@@ -1012,7 +1016,8 @@ var opentokCore = {
   toggleRemoteAudio: toggleRemoteAudio,
   toggleRemoteVideo: toggleRemoteVideo,
   subscribe: communication.subscribe,
-  unsubscribe: communication.unsubscribe
+  unsubscribe: communication.unsubscribe,
+  util: util
 };
 
 if (global === window) {
