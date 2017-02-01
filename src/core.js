@@ -303,49 +303,63 @@ const initPackages = () => {
    * @returns {Object}
    * TODO: Simplify packageOptions (switch statment?)
    */
-  const packageOptions = (packageName) => {
+  const getPackageOptions = (packageName) => {
+    /**
+     * Methods to expose to accelerator packs
+     */
     const accPack = {
-      registerEventListener: on,
+      registerEventListener: on, // Legacy option
       on,
       registerEvents,
       triggerEvent,
       setupExternalAnnotation,
       linkAnnotation,
     };
+
+    /**
+     * If options.controlsContainer/containers.controls is null,
+     * accelerator packs should not append their controls.
+     */
     const containers = getContainerElements();
     const appendControl = !!containers.controls;
-    const commOptions =
-      packageName === 'communication' ?
-      Object.assign({}, options.communication, { streamContainers: containers.stream }) : {};
-    const chatOptions =
-      packageName === 'textChat' ? {
-        textChatContainer: options.textChat.container,
-        waitingMessage: options.textChat.waitingMessage,
-        sender: { alias: options.textChat.name },
-      } : {};
-    const screenSharingOptions =
-      packageName === 'screenSharing' ?
-      Object.assign({},
-        options.screenSharing, { screenSharingContainer: containers.stream }) : {};
-
     const controlsContainer = containers.controls; // Legacy option
-    return Object.assign(
-      {},
-      options[packageName],
-      commOptions,
-      chatOptions,
-      screenSharingOptions,
-      { session, accPack, controlsContainer, appendControl } // eslint-disable-line comma-dangle
-    );
+    const streamContainers = containers.stream;
+    const baseOptions = { session, accPack, controlsContainer, appendControl, streamContainers };
+
+    switch (packageName) {
+      case 'communication': {
+        return Object.assign({}, baseOptions, options.communication);
+      }
+      case 'textChat': {
+        const textChatOptions = {
+          textChatContainer: options.textChat.container,
+          waitingMessage: options.textChat.waitingMessage,
+          sender: { alias: options.textChat.name },
+        };
+        return Object.assign({}, baseOptions, textChatOptions);
+      }
+      case 'screenSharing': {
+        const screenSharingContainer = { screenSharingContainer: streamContainers };
+        return Object.assign({}, baseOptions, screenSharingContainer, options.screenSharing);
+      }
+      case 'annotation': {
+        return Object.assign({}, baseOptions, options.annotation);
+      }
+      case 'archiving': {
+        return Object.assign({}, baseOptions, options.archiving);
+      }
+      default:
+        break;
+    }
   };
 
   /** Create instances of each package */
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  communication.init(packageOptions('communication'));
-  textChat = packages.TextChat ? new packages.TextChat(packageOptions('textChat')) : null;
-  screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;
-  annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
-  archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
+  communication.init(getPackageOptions('communication'));
+  textChat = packages.TextChat ? new packages.TextChat(getPackageOptions('textChat')) : null;
+  screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(getPackageOptions('screenSharing')) : null;
+  annotation = packages.Annotation ? new packages.Annotation(getPackageOptions('annotation')) : null;
+  archiving = packages.Archiving ? new packages.Archiving(getPackageOptions('archiving')) : null;
 
   logging.log(logging.logAction.initPackages, logging.logVariation.success);
 };

@@ -17,6 +17,7 @@ var OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
 var _require = require('./util'),
     dom = _require.dom,
     path = _require.path,
+    pathOr = _require.pathOr,
     properCase = _require.properCase;
 
 /**
@@ -82,10 +83,10 @@ var on = function on(event, callback) {
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     logging.message(event + ' is not a registered event.');
-    //logging.log(logging.logAction.on, logging.logVariation.fail);
+    // logging.log(logging.logAction.on, logging.logVariation.fail);
   } else {
       eventCallbacks.add(callback);
-      //logging.log(logging.logAction.on, logging.logVariation.success);
+      // logging.log(logging.logAction.on, logging.logVariation.success);
     }
 };
 
@@ -96,7 +97,7 @@ var on = function on(event, callback) {
  * @param {Function} callback
  */
 var off = function off(event, callback) {
-  //logging.log(logging.logAction.off, logging.logVariation.attempt);
+  // logging.log(logging.logAction.off, logging.logVariation.attempt);
   if (_arguments.lenth === 0) {
     Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
@@ -104,11 +105,11 @@ var off = function off(event, callback) {
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    //logging.log(logging.logAction.off, logging.logVariation.fail);
+    // logging.log(logging.logAction.off, logging.logVariation.fail);
     logging.message(event + ' is not a registered event.');
   } else {
     eventCallbacks.delete(callback);
-    //logging.log(logging.logAction.off, logging.logVariation.success);
+    // logging.log(logging.logAction.off, logging.logVariation.success);
   }
 };
 
@@ -313,9 +314,10 @@ var initPackages = function initPackages() {
     return document.getElementById(pubSub + 'Container');
   };
   var getContainerElements = function getContainerElements() {
-    var controls = options.controlsContainer || '#videoControls';
-    var chat = path('textChat.container', options) || '#chat';
-    var stream = options.streamContainers || getDefaultContainer;
+    // Need to use path to check for null values
+    var controls = pathOr('#videoControls', 'controlsContainer', options);
+    var chat = pathOr('#chat', 'textChat.container', options);
+    var stream = pathOr(getDefaultContainer, 'streamContainers', options);
     return { stream: stream, controls: controls, chat: chat };
   };
   /** *** *** *** *** */
@@ -324,41 +326,70 @@ var initPackages = function initPackages() {
    * Return options for the specified package
    * @param {String} packageName
    * @returns {Object}
+   * TODO: Simplify packageOptions (switch statment?)
    */
-  var packageOptions = function packageOptions(packageName) {
-    var _internalState$all = internalState.all(),
-        streams = _internalState$all.streams,
-        streamMap = _internalState$all.streamMap,
-        publishers = _internalState$all.publishers,
-        subscribers = _internalState$all.subscribers;
-
+  var getPackageOptions = function getPackageOptions(packageName) {
+    /**
+     * Methods to expose to accelerator packs
+     */
     var accPack = {
-      registerEventListener: on,
+      registerEventListener: on, // Legacy option
       on: on,
       registerEvents: registerEvents,
       triggerEvent: triggerEvent,
       setupExternalAnnotation: setupExternalAnnotation,
       linkAnnotation: linkAnnotation
     };
+
+    /**
+     * If options.controlsContainer/containers.controls is null,
+     * accelerator packs should not append their controls.
+     */
     var containers = getContainerElements();
-    var commOptions = packageName === 'communication' ? Object.assign({}, options.communication, { publishers: publishers, subscribers: subscribers, streams: streams, streamMap: streamMap, streamContainers: containers.stream }) : {};
-    var chatOptions = packageName === 'textChat' ? {
-      textChatContainer: options.textChat.container,
-      waitingMessage: options.textChat.waitingMessage,
-      sender: { alias: options.textChat.name }
-    } : {};
-    var screenSharingOptions = packageName === 'screenSharing' ? Object.assign({}, options.screenSharing, { screenSharingContainer: containers.stream }) : {};
+    var appendControl = !!containers.controls;
     var controlsContainer = containers.controls; // Legacy option
-    return Object.assign({}, options[packageName], commOptions, chatOptions, { session: session, accPack: accPack, controlsContainer: controlsContainer }, screenSharingOptions);
+    var streamContainers = containers.stream;
+    var baseOptions = { session: session, accPack: accPack, controlsContainer: controlsContainer, appendControl: appendControl, streamContainers: streamContainers };
+
+    switch (packageName) {
+      case 'communication':
+        {
+          return Object.assign({}, baseOptions, options.communication);
+        }
+      case 'textChat':
+        {
+          var textChatOptions = {
+            textChatContainer: options.textChat.container,
+            waitingMessage: options.textChat.waitingMessage,
+            sender: { alias: options.textChat.name }
+          };
+          return Object.assign({}, baseOptions, textChatOptions);
+        }
+      case 'screenSharing':
+        {
+          var screenSharingContainer = { screenSharingContainer: streamContainers };
+          return Object.assign({}, baseOptions, screenSharingContainer, options.screenSharing);
+        }
+      case 'annotation':
+        {
+          return Object.assign({}, baseOptions, options.annotation);
+        }
+      case 'archiving':
+        {
+          return Object.assign({}, baseOptions, options.archiving);
+        }
+      default:
+        break;
+    }
   };
 
   /** Create instances of each package */
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  communication.init(packageOptions('communication'));
-  textChat = packages.TextChat ? new packages.TextChat(packageOptions('textChat')) : null;
-  screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;
-  annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
-  archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
+  communication.init(getPackageOptions('communication'));
+  textChat = packages.TextChat ? new packages.TextChat(getPackageOptions('textChat')) : null;
+  screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(getPackageOptions('screenSharing')) : null;
+  annotation = packages.Annotation ? new packages.Annotation(getPackageOptions('annotation')) : null;
+  archiving = packages.Archiving ? new packages.Archiving(getPackageOptions('archiving')) : null;
 
   logging.log(logging.logAction.initPackages, logging.logVariation.success);
 };
@@ -575,7 +606,7 @@ var init = function init(options) {
 
   validateCredentials(options.credentials);
 
-  //init analytics
+  // Init analytics
   logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
   logging.log(logging.logAction.init, logging.logVariation.attempt);
   var session = OT.initSession(credentials.apiKey, credentials.sessionId);
