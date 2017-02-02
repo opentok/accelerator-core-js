@@ -1,8 +1,8 @@
 /* global OT */
 
 /* Dependencies */
-const logging = require('./logging');
 const State = require('./state');
+const { SDKError } = require('./errors');
 
 /* Internal variables */
 
@@ -22,7 +22,7 @@ const validateCredentials = (credentials = {}) => {
   const required = ['apiKey', 'sessionId', 'token'];
   required.forEach((credential) => {
     if (!credentials[credential]) {
-      logging.error(`${credential} is a required credential`);
+      throw new SDKError(`${credential} is a required credential`, 'invalidParameters');
     }
   });
   return credentials;
@@ -49,7 +49,7 @@ const initPublisher = (element, properties) =>
 const bindListener = (target, context, event, callback) => {
   const paramsError = '\'on\' requires a string and a function to create an event listener.';
   if (typeof event !== 'string' || typeof callback !== 'function') {
-    logging.error(paramsError);
+    throw new SDKError(paramsError, 'invalidParameters');
   }
   target.on(event, callback.bind(context));
 };
@@ -73,7 +73,7 @@ const bindListeners = (target, context, listeners) => {
   };
 
   if (Array.isArray(listeners)) {
-    listeners.forEach((listener) => createListenersFromObject(listener));
+    listeners.forEach(listener => createListenersFromObject(listener));
   } else {
     createListenersFromObject(listeners);
   }

@@ -5,13 +5,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /* global OT */
 
 /** Dependencies */
-var logging = require('./logging');
 var state = require('./state');
 
-var _require = require('./util'),
-    dom = _require.dom,
-    path = _require.path,
-    properCase = _require.properCase;
+var _require = require('./errors'),
+    CoreError = _require.CoreError;
+
+var _require2 = require('./util'),
+    dom = _require2.dom,
+    path = _require2.path,
+    properCase = _require2.properCase;
+
+var _require3 = require('./logging'),
+    message = _require3.message,
+    logAnalytics = _require3.logAnalytics,
+    logAction = _require3.logAction,
+    logVariation = _require3.logVariation;
+
+/** Module variables */
+
 
 var session = undefined;
 var accPack = undefined;
@@ -88,9 +99,9 @@ var publish = function publish(publisherProperties) {
       return function (error) {
         if (error) {
           reject(error);
-          logging.log(logging.logAction.startCall, logging.logVariation.fail);
+          logAnalytics(logAction.startCall, logVariation.fail);
         } else {
-          logging.log(logging.logAction.startCall, logging.logVariation.success);
+          logAnalytics(logAction.startCall, logVariation.success);
           state.addPublisher('camera', publisher);
           resolve(publisher);
         }
@@ -102,7 +113,7 @@ var publish = function publish(publisherProperties) {
     };
 
     var handleError = function handleError(error) {
-      logging.log(logging.logAction.startCall, logging.logVariation.fail);
+      logAnalytics(logAction.startCall, logVariation.fail);
       var errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
       triggerEvent('error', errorMessage);
       reject(error);
@@ -119,7 +130,7 @@ var publish = function publish(publisherProperties) {
  */
 var subscribe = function subscribe(stream) {
   return new Promise(function (resolve, reject) {
-    logging.log(logging.logAction.subscribe, logging.logVariation.attempt);
+    logAnalytics(logAction.subscribe, logVariation.attempt);
     var streamMap = state.getStreamMap();
     if (streamMap[stream.id]) {
       // Are we already subscribing to the stream?
@@ -132,13 +143,13 @@ var subscribe = function subscribe(stream) {
         var options = type === 'camera' ? callProperties : screenProperties;
         var subscriber = session.subscribe(stream, container, options, function (error) {
           if (error) {
-            logging.log(logging.logAction.subscribe, logging.logVariation.fail);
+            logAnalytics(logAction.subscribe, logVariation.fail);
             reject(error);
           } else {
             state.addSubscriber(subscriber);
             triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.all()));
             type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-            logging.log(logging.logAction.subscribe, logging.logVariation.success);
+            logAnalytics(logAction.subscribe, logVariation.success);
             resolve();
           }
         });
@@ -154,11 +165,11 @@ var subscribe = function subscribe(stream) {
  */
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
-    logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
+    logAnalytics(logAction.unsubscribe, logVariation.attempt);
     var type = path('stream.videoType', subscriber);
     state.removeSubscriber(type, subscriber);
     session.unsubscribe(subscriber);
-    logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
+    logAnalytics(logAction.unsubscribe, logVariation.success);
     resolve();
   });
 };
@@ -171,7 +182,7 @@ var validateOptions = function validateOptions(options) {
   var requiredOptions = ['accPack'];
   requiredOptions.forEach(function (option) {
     if (!options[option]) {
-      logging.error(option + ' is a required option.');
+      throw new CoreError(option + ' is a required option.', 'invalidParameters');
     }
   });
 
@@ -229,7 +240,7 @@ var createEventListeners = function createEventListeners() {
 var startCall = function startCall(publisherProperties) {
   return new Promise(function (resolve, reject) {
     // eslint-disable-line consistent-return
-    logging.log(logging.logAction.startCall, logging.logVariation.attempt);
+    logAnalytics(logAction.startCall, logVariation.attempt);
 
     /**
      * Determine if we're able to join the session based on an existing connection limit
@@ -237,8 +248,8 @@ var startCall = function startCall(publisherProperties) {
     if (!ableToJoin()) {
       var errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
-      logging.log(logging.logAction.startCall, logging.logVariation.fail);
-      return reject(new Error(errorMessage));
+      logAnalytics(logAction.startCall, logVariation.fail);
+      return reject(new CoreError(errorMessage, 'connectionLimit'));
     }
 
     /**
@@ -272,7 +283,7 @@ var startCall = function startCall(publisherProperties) {
 
       // Handle error
       var onError = function onError(reason) {
-        logging.message('Failed to subscribe to all existing streams: ' + reason);
+        message('Failed to subscribe to all existing streams: ' + reason);
         // We do not reject here in case we still successfully publish to the session
         resolve(Object.assign({}, state.getPubSub(), { publisher: publisher }));
       };
@@ -288,7 +299,7 @@ var startCall = function startCall(publisherProperties) {
  * Stop publishing and unsubscribe from all streams
  */
 var endCall = function endCall() {
-  logging.log(logging.logAction.endCall, logging.logVariation.attempt);
+  logAnalytics(logAction.endCall, logVariation.attempt);
 
   var _state$getPubSub = state.getPubSub(),
       publishers = _state$getPubSub.publishers,
@@ -305,7 +316,7 @@ var endCall = function endCall() {
   state.removeAllPublishers();
   active = false;
   triggerEvent('endCall');
-  logging.log(logging.logAction.endCall, logging.logVariation.success);
+  logAnalytics(logAction.endCall, logVariation.success);
 };
 
 /**

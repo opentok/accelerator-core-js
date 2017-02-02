@@ -1,13 +1,11 @@
 const OTKAnalytics = require('opentok-solutions-logging');
 
-let analytics = null;
-
 // eslint-disable-next-line no-console
 const message = messageText => console.log(`otAccCore: ${messageText}`);
 
-const error = (errorMessage) => {
-  throw new Error(`otAccCore: ${errorMessage}`);
-};
+/** Analytics */
+
+let analytics = null;
 
 const logVariation = {
   attempt: 'Attempt',
@@ -35,6 +33,17 @@ const logAction = {
   unsubscribe: 'UnsubscribeCoreAcc',
 };
 
+const updateLogAnalytics = (sessionId, connectionId, apiKey) => {
+  if (sessionId && connectionId && apiKey) {
+    const sessionInfo = {
+      sessionId,
+      connectionId,
+      partnerId: apiKey,
+    };
+    analytics.addSessionInfo(sessionInfo);
+  }
+};
+
 const initLogAnalytics = (source, sessionId, connectionId, apikey) => {
   const otkanalyticsData = {
     clientVersion: 'js-vsol-1.0.0',
@@ -51,28 +60,15 @@ const initLogAnalytics = (source, sessionId, connectionId, apikey) => {
   }
 };
 
-
-const updateLogAnalytics = (sessionId, connectionId, apiKey) => {
-  if (sessionId && connectionId && apiKey) {
-    const sessionInfo = {
-      sessionId,
-      connectionId,
-      partnerId: apiKey,
-    };
-    analytics.addSessionInfo(sessionInfo);
-  }
-};
-
-const log = (action, variation) => {
+const logAnalytics = (action, variation) => {
   analytics.logEvent({ action, variation });
 };
 
 module.exports = {
   message,
-  error,
   logAction,
   logVariation,
   initLogAnalytics,
   updateLogAnalytics,
-  log,
+  logAnalytics,
 };

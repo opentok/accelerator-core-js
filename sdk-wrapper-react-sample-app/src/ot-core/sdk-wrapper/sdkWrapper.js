@@ -9,8 +9,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /* global OT */
 
 /* Dependencies */
-var logging = require('./logging');
 var State = require('./state');
+
+var _require = require('./errors'),
+    SDKError = _require.SDKError;
 
 /* Internal variables */
 
@@ -32,7 +34,7 @@ var validateCredentials = function validateCredentials() {
   var required = ['apiKey', 'sessionId', 'token'];
   required.forEach(function (credential) {
     if (!credentials[credential]) {
-      logging.error(credential + ' is a required credential');
+      throw new SDKError(credential + ' is a required credential', 'invalidParameters');
     }
   });
   return credentials;
@@ -60,7 +62,7 @@ var initPublisher = function initPublisher(element, properties) {
 var bindListener = function bindListener(target, context, event, callback) {
   var paramsError = '\'on\' requires a string and a function to create an event listener.';
   if (typeof event !== 'string' || typeof callback !== 'function') {
-    logging.error(paramsError);
+    throw new SDKError(paramsError, 'invalidParameters');
   }
   target.on(event, callback.bind(context));
 };

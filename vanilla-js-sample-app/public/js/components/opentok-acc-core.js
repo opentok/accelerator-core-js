@@ -8,13 +8,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /* global OT */
 
 /** Dependencies */
-var logging = require('./logging');
 var state = require('./state');
 
-var _require = require('./util'),
-    dom = _require.dom,
-    path = _require.path,
-    properCase = _require.properCase;
+var _require = require('./errors'),
+    CoreError = _require.CoreError;
+
+var _require2 = require('./util'),
+    dom = _require2.dom,
+    path = _require2.path,
+    properCase = _require2.properCase;
+
+var _require3 = require('./logging'),
+    message = _require3.message,
+    logAnalytics = _require3.logAnalytics,
+    logAction = _require3.logAction,
+    logVariation = _require3.logVariation;
+
+/** Module variables */
+
 
 var session = void 0;
 var accPack = void 0;
@@ -91,9 +102,9 @@ var publish = function publish(publisherProperties) {
       return function (error) {
         if (error) {
           reject(error);
-          logging.log(logging.logAction.startCall, logging.logVariation.fail);
+          logAnalytics(logAction.startCall, logVariation.fail);
         } else {
-          logging.log(logging.logAction.startCall, logging.logVariation.success);
+          logAnalytics(logAction.startCall, logVariation.success);
           state.addPublisher('camera', publisher);
           resolve(publisher);
         }
@@ -105,7 +116,7 @@ var publish = function publish(publisherProperties) {
     };
 
     var handleError = function handleError(error) {
-      logging.log(logging.logAction.startCall, logging.logVariation.fail);
+      logAnalytics(logAction.startCall, logVariation.fail);
       var errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
       triggerEvent('error', errorMessage);
       reject(error);
@@ -122,7 +133,7 @@ var publish = function publish(publisherProperties) {
  */
 var subscribe = function subscribe(stream) {
   return new Promise(function (resolve, reject) {
-    logging.log(logging.logAction.subscribe, logging.logVariation.attempt);
+    logAnalytics(logAction.subscribe, logVariation.attempt);
     var streamMap = state.getStreamMap();
     if (streamMap[stream.id]) {
       // Are we already subscribing to the stream?
@@ -135,13 +146,13 @@ var subscribe = function subscribe(stream) {
         var options = type === 'camera' ? callProperties : screenProperties;
         var subscriber = session.subscribe(stream, container, options, function (error) {
           if (error) {
-            logging.log(logging.logAction.subscribe, logging.logVariation.fail);
+            logAnalytics(logAction.subscribe, logVariation.fail);
             reject(error);
           } else {
             state.addSubscriber(subscriber);
             triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.all()));
             type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-            logging.log(logging.logAction.subscribe, logging.logVariation.success);
+            logAnalytics(logAction.subscribe, logVariation.success);
             resolve();
           }
         });
@@ -157,11 +168,11 @@ var subscribe = function subscribe(stream) {
  */
 var unsubscribe = function unsubscribe(subscriber) {
   return new Promise(function (resolve) {
-    logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
+    logAnalytics(logAction.unsubscribe, logVariation.attempt);
     var type = path('stream.videoType', subscriber);
     state.removeSubscriber(type, subscriber);
     session.unsubscribe(subscriber);
-    logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
+    logAnalytics(logAction.unsubscribe, logVariation.success);
     resolve();
   });
 };
@@ -174,7 +185,7 @@ var validateOptions = function validateOptions(options) {
   var requiredOptions = ['accPack'];
   requiredOptions.forEach(function (option) {
     if (!options[option]) {
-      logging.error(option + ' is a required option.');
+      throw new CoreError(option + ' is a required option.', 'invalidParameters');
     }
   });
 
@@ -232,7 +243,7 @@ var createEventListeners = function createEventListeners() {
 var startCall = function startCall(publisherProperties) {
   return new Promise(function (resolve, reject) {
     // eslint-disable-line consistent-return
-    logging.log(logging.logAction.startCall, logging.logVariation.attempt);
+    logAnalytics(logAction.startCall, logVariation.attempt);
 
     /**
      * Determine if we're able to join the session based on an existing connection limit
@@ -240,8 +251,8 @@ var startCall = function startCall(publisherProperties) {
     if (!ableToJoin()) {
       var errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
-      logging.log(logging.logAction.startCall, logging.logVariation.fail);
-      return reject(new Error(errorMessage));
+      logAnalytics(logAction.startCall, logVariation.fail);
+      return reject(new CoreError(errorMessage, 'connectionLimit'));
     }
 
     /**
@@ -275,7 +286,7 @@ var startCall = function startCall(publisherProperties) {
 
       // Handle error
       var onError = function onError(reason) {
-        logging.message('Failed to subscribe to all existing streams: ' + reason);
+        message('Failed to subscribe to all existing streams: ' + reason);
         // We do not reject here in case we still successfully publish to the session
         resolve(Object.assign({}, state.getPubSub(), { publisher: publisher }));
       };
@@ -291,7 +302,7 @@ var startCall = function startCall(publisherProperties) {
  * Stop publishing and unsubscribe from all streams
  */
 var endCall = function endCall() {
-  logging.log(logging.logAction.endCall, logging.logVariation.attempt);
+  logAnalytics(logAction.endCall, logVariation.attempt);
 
   var _state$getPubSub = state.getPubSub(),
       publishers = _state$getPubSub.publishers,
@@ -308,7 +319,7 @@ var endCall = function endCall() {
   state.removeAllPublishers();
   active = false;
   triggerEvent('endCall');
-  logging.log(logging.logAction.endCall, logging.logVariation.success);
+  logAnalytics(logAction.endCall, logVariation.success);
 };
 
 /**
@@ -367,7 +378,7 @@ module.exports = {
   enableRemoteAV: enableRemoteAV
 };
 
-},{"./logging":5,"./state":9,"./util":10}],3:[function(require,module,exports){
+},{"./errors":4,"./logging":6,"./state":10,"./util":11}],3:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -379,16 +390,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * Dependencies
  */
-var logging = require('./logging');
-var communication = require('./communication');
-var accPackEvents = require('./events');
-var internalState = require('./state');
 var util = require('./util');
+var internalState = require('./state');
+var accPackEvents = require('./events');
+var communication = require('./communication');
 var OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
+
+var _require = require('./errors'),
+    CoreError = _require.CoreError;
+
+var _require2 = require('./logging'),
+    message = _require2.message,
+    initLogAnalytics = _require2.initLogAnalytics,
+    logAnalytics = _require2.logAnalytics,
+    logAction = _require2.logAction,
+    logVariation = _require2.logVariation,
+    updateLogAnalytics = _require2.updateLogAnalytics;
 
 /**
  * Helper methods
  */
+
+
 var dom = util.dom,
     path = util.path,
     pathOr = util.pathOr,
@@ -409,14 +432,14 @@ var archiving = void 0; // eslint-disable-line no-unused-vars
  * @returns {Object} The instance of the accelerator pack
  */
 var getAccPack = function getAccPack(packageName) {
-  logging.log(logging.logAction.getAccPack, logging.logVariation.attempt);
+  logAnalytics(logAction.getAccPack, logVariation.attempt);
   var packages = {
     textChat: textChat,
     screenSharing: screenSharing,
     annotation: annotation,
     archiving: archiving
   };
-  logging.log(logging.logAction.getAccPack, logging.logVariation.success);
+  logAnalytics(logAction.getAccPack, logVariation.success);
   return packages[packageName];
 };
 
@@ -446,7 +469,7 @@ var registerEvents = function registerEvents(events) {
  * @param {Function} callback
  */
 var on = function on(event, callback) {
-  // logging.log(logging.logAction.on, logging.logVariation.attempt);
+  // logAnalytics(logAction.on, logVariation.attempt);
   if ((typeof event === 'undefined' ? 'undefined' : _typeof(event)) === 'object') {
     Object.keys(event).forEach(function (eventName) {
       on(eventName, event[eventName]);
@@ -454,11 +477,11 @@ var on = function on(event, callback) {
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    logging.message(event + ' is not a registered event.');
-    // logging.log(logging.logAction.on, logging.logVariation.fail);
+    message(event + ' is not a registered event.');
+    // logAnalytics(logAction.on, logVariation.fail);
   } else {
     eventCallbacks.add(callback);
-    // logging.log(logging.logAction.on, logging.logVariation.success);
+    // logAnalytics(logAction.on, logVariation.success);
   }
 };
 
@@ -469,7 +492,7 @@ var on = function on(event, callback) {
  * @param {Function} callback
  */
 var off = function off(event, callback) {
-  // logging.log(logging.logAction.off, logging.logVariation.attempt);
+  // logAnalytics(logAction.off, logVariation.attempt);
   if (_arguments.lenth === 0) {
     Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
@@ -477,11 +500,11 @@ var off = function off(event, callback) {
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    // logging.log(logging.logAction.off, logging.logVariation.fail);
-    logging.message(event + ' is not a registered event.');
+    // logAnalytics(logAction.off, logVariation.fail);
+    message(event + ' is not a registered event.');
   } else {
     eventCallbacks.delete(callback);
-    // logging.log(logging.logAction.off, logging.logVariation.success);
+    // logAnalytics(logAction.off, logVariation.success);
   }
 };
 
@@ -494,7 +517,7 @@ var triggerEvent = function triggerEvent(event, data) {
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     registerEvents(event);
-    logging.message(event + ' has been registered as a new event.');
+    message(event + ' has been registered as a new event.');
   } else {
     eventCallbacks.forEach(function (callback) {
       return callback(data, event);
@@ -611,7 +634,7 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
 };
 
 var initPackages = function initPackages() {
-  logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
+  logAnalytics(logAction.initPackages, logVariation.attempt);
   var session = getSession();
   var options = getOptions();
   /**
@@ -648,8 +671,8 @@ var initPackages = function initPackages() {
       result = window[globalName];
     }
     if (!result) {
-      logging.log(logging.logAction.initPackages, logging.logVariation.fail);
-      logging.error('Could not load ' + packageName);
+      logAnalytics(logAction.initPackages, logVariation.fail);
+      throw new CoreError('Could not load ' + packageName, 'missingDependency');
     }
     return result;
   };
@@ -675,7 +698,7 @@ var initPackages = function initPackages() {
       // eslint-disable-next-line no-param-reassign
       packages[properCase(acceleratorPack)] = availablePackages[acceleratorPack]();
     } else {
-      logging.message(acceleratorPack + ' is not a valid accelerator pack');
+      message(acceleratorPack + ' is not a valid accelerator pack');
     }
   });
 
@@ -764,7 +787,7 @@ var initPackages = function initPackages() {
   annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
   archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
 
-  logging.log(logging.logAction.initPackages, logging.logVariation.success);
+  logAnalytics(logAction.initPackages, logVariation.success);
 };
 
 /**
@@ -780,7 +803,7 @@ var validateCredentials = function validateCredentials() {
   var required = ['apiKey', 'sessionId', 'token'];
   required.forEach(function (credential) {
     if (!credentials[credential]) {
-      logging.error(credential + ' is a required credential');
+      throw new CoreError(credential + ' is a required credential', 'invalidParameters');
     }
   });
 };
@@ -791,7 +814,7 @@ var validateCredentials = function validateCredentials() {
  */
 var connect = function connect() {
   return new Promise(function (resolve, reject) {
-    logging.log(logging.logAction.connect, logging.logVariation.attempt);
+    logAnalytics(logAction.connect, logVariation.attempt);
     var session = getSession();
 
     var _getCredentials = getCredentials(),
@@ -799,15 +822,15 @@ var connect = function connect() {
 
     session.connect(token, function (error) {
       if (error) {
-        logging.message(error);
-        logging.log(logging.logAction.connect, logging.logVariation.fail);
+        message(error);
+        logAnalytics(logAction.connect, logVariation.fail);
         return reject(error);
       }
       var sessionId = session.sessionId,
           apiKey = session.apiKey;
 
-      logging.updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
-      logging.log(logging.logAction.connect, logging.logVariation.success);
+      updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
+      logAnalytics(logAction.connect, logVariation.success);
       initPackages();
       return resolve();
     });
@@ -819,10 +842,10 @@ var connect = function connect() {
  * @returns {Promise} <resolve: -, reject: Error>
  */
 var disconnect = function disconnect() {
-  logging.log(logging.logAction.disconnect, logging.logVariation.attempt);
+  logAnalytics(logAction.disconnect, logVariation.attempt);
   getSession().disconnect();
   internalState.reset();
-  logging.log(logging.logAction.disconnect, logging.logVariation.success);
+  logAnalytics(logAction.disconnect, logVariation.success);
 };
 
 /**
@@ -832,13 +855,13 @@ var disconnect = function disconnect() {
  */
 var forceDisconnect = function forceDisconnect(connection) {
   return new Promise(function (resolve, reject) {
-    logging.log(logging.logAction.forceDisconnect, logging.logVariation.attempt);
+    logAnalytics(logAction.forceDisconnect, logVariation.attempt);
     getSession().forceDisconnect(connection, function (error) {
       if (error) {
-        logging.log(logging.logAction.forceDisconnect, logging.logVariation.fail);
+        logAnalytics(logAction.forceDisconnect, logVariation.fail);
         reject(error);
       } else {
-        logging.log(logging.logAction.forceDisconnect, logging.logVariation.success);
+        logAnalytics(logAction.forceDisconnect, logVariation.success);
         resolve();
       }
     });
@@ -852,13 +875,13 @@ var forceDisconnect = function forceDisconnect(connection) {
  */
 var forceUnpublish = function forceUnpublish(stream) {
   return new Promise(function (resolve, reject) {
-    logging.log(logging.logAction.forceUnpublish, logging.logVariation.attempt);
+    logAnalytics(logAction.forceUnpublish, logVariation.attempt);
     getSession().forceUnpublish(stream, function (error) {
       if (error) {
-        logging.log(logging.logAction.forceUnpublish, logging.logVariation.fail);
+        logAnalytics(logAction.forceUnpublish, logVariation.fail);
         reject(error);
       } else {
-        logging.log(logging.logAction.forceUnpublish, logging.logVariation.success);
+        logAnalytics(logAction.forceUnpublish, logVariation.success);
         resolve();
       }
     });
@@ -892,16 +915,16 @@ var getSubscribersForStream = function getSubscribersForStream(stream) {
  */
 var signal = function signal(type, signalData, to) {
   return new Promise(function (resolve, reject) {
-    logging.log(logging.logAction.signal, logging.logVariation.attempt);
+    logAnalytics(logAction.signal, logVariation.attempt);
     var session = getSession();
     var data = JSON.stringify(signalData);
     var signalObj = to ? { type: type, data: data, to: to } : { type: type, data: data };
     session.signal(signalObj, function (error) {
       if (error) {
-        logging.log(logging.logAction.signal, logging.logVariation.fail);
+        logAnalytics(logAction.signal, logVariation.fail);
         reject(error);
       } else {
-        logging.log(logging.logAction.signal, logging.logVariation.success);
+        logAnalytics(logAction.signal, logVariation.success);
         resolve();
       }
     });
@@ -913,7 +936,7 @@ var signal = function signal(type, signalData, to) {
  * @param {Boolean} enable
  */
 var toggleLocalAudio = function toggleLocalAudio(enable) {
-  logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleLocalAudio, logVariation.attempt);
 
   var _internalState$getPub = internalState.getPubSub(),
       publishers = _internalState$getPub.publishers;
@@ -922,7 +945,7 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
     return communication.enableLocalAV(id, 'audio', enable);
   };
   Object.keys(publishers.camera).forEach(toggleAudio);
-  logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.success);
+  logAnalytics(logAction.toggleLocalAudio, logVariation.success);
 };
 
 /**
@@ -930,7 +953,7 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
  * @param {Boolean} enable
  */
 var toggleLocalVideo = function toggleLocalVideo(enable) {
-  logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleLocalVideo, logVariation.attempt);
 
   var _internalState$getPub2 = internalState.getPubSub(),
       publishers = _internalState$getPub2.publishers;
@@ -939,7 +962,7 @@ var toggleLocalVideo = function toggleLocalVideo(enable) {
     return communication.enableLocalAV(id, 'video', enable);
   };
   Object.keys(publishers.camera).forEach(toggleVideo);
-  logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.success);
+  logAnalytics(logAction.toggleLocalVideo, logVariation.success);
 };
 
 /**
@@ -948,9 +971,9 @@ var toggleLocalVideo = function toggleLocalVideo(enable) {
  * @param {Boolean} enable
  */
 var toggleRemoteAudio = function toggleRemoteAudio(id, enable) {
-  logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleRemoteAudio, logVariation.attempt);
   communication.enableRemoteAV(id, 'audio', enable);
-  logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.success);
+  logAnalytics(logAction.toggleRemoteAudio, logVariation.success);
 };
 
 /**
@@ -959,9 +982,9 @@ var toggleRemoteAudio = function toggleRemoteAudio(id, enable) {
  * @param {Boolean} enable
  */
 var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
-  logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleRemoteVideo, logVariation.attempt);
   communication.enableRemoteAV(id, 'video', enable);
-  logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.success);
+  logAnalytics(logAction.toggleRemoteVideo, logVariation.success);
 };
 
 /**
@@ -973,21 +996,21 @@ var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
  */
 var init = function init(options) {
   if (!options) {
-    logging.error('Missing options required for initialization');
+    throw new CoreError('Missing options required for initialization', 'invalidParameters');
   }
   var credentials = options.credentials;
 
   validateCredentials(options.credentials);
 
   // Init analytics
-  logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
-  logging.log(logging.logAction.init, logging.logVariation.attempt);
+  initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
+  logAnalytics(logAction.init, logVariation.attempt);
   var session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
   internalState.setSession(session);
   internalState.setCredentials(credentials);
   internalState.setOptions(options);
-  logging.log(logging.logAction.init, logging.logVariation.success);
+  logAnalytics(logAction.init, logVariation.success);
 };
 
 var opentokCore = {
@@ -1026,7 +1049,36 @@ if (global === window) {
 module.exports = opentokCore;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./communication":2,"./events":4,"./logging":5,"./sdk-wrapper/sdkWrapper":7,"./state":9,"./util":10,"opentok-annotation":undefined,"opentok-archiving":undefined,"opentok-screen-sharing":undefined,"opentok-text-chat":undefined}],4:[function(require,module,exports){
+},{"./communication":2,"./errors":4,"./events":5,"./logging":6,"./sdk-wrapper/sdkWrapper":8,"./state":10,"./util":11,"opentok-annotation":undefined,"opentok-archiving":undefined,"opentok-screen-sharing":undefined,"opentok-text-chat":undefined}],4:[function(require,module,exports){
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/** Errors */
+var CoreError = function (_Error) {
+  _inherits(CoreError, _Error);
+
+  function CoreError(errorMessage, errorType) {
+    _classCallCheck(this, CoreError);
+
+    var _this = _possibleConstructorReturn(this, (CoreError.__proto__ || Object.getPrototypeOf(CoreError)).call(this, "otAccCore: " + errorMessage));
+
+    _this.type = errorType;
+    return _this;
+  }
+
+  return CoreError;
+}(Error);
+
+module.exports = {
+  CoreError: CoreError
+};
+
+},{}],5:[function(require,module,exports){
 'use strict';
 
 var events = {
@@ -1041,21 +1093,19 @@ var events = {
 
 module.exports = events;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 var OTKAnalytics = require('opentok-solutions-logging');
-
-var analytics = null;
 
 // eslint-disable-next-line no-console
 var message = function message(messageText) {
   return console.log('otAccCore: ' + messageText);
 };
 
-var error = function error(errorMessage) {
-  throw new Error('otAccCore: ' + errorMessage);
-};
+/** Analytics */
+
+var analytics = null;
 
 var logVariation = {
   attempt: 'Attempt',
@@ -1083,6 +1133,17 @@ var logAction = {
   unsubscribe: 'UnsubscribeCoreAcc'
 };
 
+var updateLogAnalytics = function updateLogAnalytics(sessionId, connectionId, apiKey) {
+  if (sessionId && connectionId && apiKey) {
+    var sessionInfo = {
+      sessionId: sessionId,
+      connectionId: connectionId,
+      partnerId: apiKey
+    };
+    analytics.addSessionInfo(sessionInfo);
+  }
+};
+
 var initLogAnalytics = function initLogAnalytics(source, sessionId, connectionId, apikey) {
   var otkanalyticsData = {
     clientVersion: 'js-vsol-1.0.0',
@@ -1099,49 +1160,49 @@ var initLogAnalytics = function initLogAnalytics(source, sessionId, connectionId
   }
 };
 
-var updateLogAnalytics = function updateLogAnalytics(sessionId, connectionId, apiKey) {
-  if (sessionId && connectionId && apiKey) {
-    var sessionInfo = {
-      sessionId: sessionId,
-      connectionId: connectionId,
-      partnerId: apiKey
-    };
-    analytics.addSessionInfo(sessionInfo);
-  }
-};
-
-var log = function log(action, variation) {
+var logAnalytics = function logAnalytics(action, variation) {
   analytics.logEvent({ action: action, variation: variation });
 };
 
 module.exports = {
   message: message,
-  error: error,
   logAction: logAction,
   logVariation: logVariation,
   initLogAnalytics: initLogAnalytics,
   updateLogAnalytics: updateLogAnalytics,
-  log: log
+  logAnalytics: logAnalytics
 };
 
-},{"opentok-solutions-logging":1}],6:[function(require,module,exports){
+},{"opentok-solutions-logging":1}],7:[function(require,module,exports){
 "use strict";
 
-// eslint-disable-next-line no-console
-var message = function message(messageText) {
-  return console.log("otSDK: " + messageText);
-};
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var error = function error(errorMessage) {
-  throw new Error("otSDK: " + errorMessage);
-};
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/** Errors */
+var SDKError = function (_Error) {
+  _inherits(SDKError, _Error);
+
+  function SDKError(errorMessage, errorType) {
+    _classCallCheck(this, SDKError);
+
+    var _this = _possibleConstructorReturn(this, (SDKError.__proto__ || Object.getPrototypeOf(SDKError)).call(this, "otSDK: " + errorMessage));
+
+    _this.type = errorType;
+    return _this;
+  }
+
+  return SDKError;
+}(Error);
 
 module.exports = {
-  message: message,
-  error: error
+  SDKError: SDKError
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -1154,8 +1215,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /* global OT */
 
 /* Dependencies */
-var logging = require('./logging');
 var State = require('./state');
+
+var _require = require('./errors'),
+    SDKError = _require.SDKError;
 
 /* Internal variables */
 
@@ -1177,7 +1240,7 @@ var validateCredentials = function validateCredentials() {
   var required = ['apiKey', 'sessionId', 'token'];
   required.forEach(function (credential) {
     if (!credentials[credential]) {
-      logging.error(credential + ' is a required credential');
+      throw new SDKError(credential + ' is a required credential', 'invalidParameters');
     }
   });
   return credentials;
@@ -1205,7 +1268,7 @@ var initPublisher = function initPublisher(element, properties) {
 var bindListener = function bindListener(target, context, event, callback) {
   var paramsError = '\'on\' requires a string and a function to create an event listener.';
   if (typeof event !== 'string' || typeof callback !== 'function') {
-    logging.error(paramsError);
+    throw new SDKError(paramsError, 'invalidParameters');
   }
   target.on(event, callback.bind(context));
 };
@@ -1630,7 +1693,7 @@ if (global === window) {
 module.exports = OpenTokSDK;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./logging":6,"./state":8}],8:[function(require,module,exports){
+},{"./errors":7,"./state":9}],9:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1826,7 +1889,7 @@ var State = function () {
 
 module.exports = State;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2093,7 +2156,7 @@ module.exports = {
   reset: reset
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 /** Wrap DOM selector methods:

@@ -1,10 +1,13 @@
 /* global OT */
 
 /** Dependencies */
-const logging = require('./logging');
 const state = require('./state');
+const { CoreError } = require('./errors');
 const { dom, path, properCase } = require('./util');
+const { message, logAnalytics, logAction, logVariation } = require('./logging');
 
+
+/** Module variables */
 let session;
 let accPack;
 let callProperties;
@@ -75,9 +78,9 @@ const publish = publisherProperties =>
     const onPublish = publisher => (error) => {
       if (error) {
         reject(error);
-        logging.log(logging.logAction.startCall, logging.logVariation.fail);
+        logAnalytics(logAction.startCall, logVariation.fail);
       } else {
-        logging.log(logging.logAction.startCall, logging.logVariation.success);
+        logAnalytics(logAction.startCall, logVariation.success);
         state.addPublisher('camera', publisher);
         resolve(publisher);
       }
@@ -86,7 +89,7 @@ const publish = publisherProperties =>
     const publishToSession = publisher => session.publish(publisher, onPublish(publisher));
 
     const handleError = (error) => {
-      logging.log(logging.logAction.startCall, logging.logVariation.fail);
+      logAnalytics(logAction.startCall, logVariation.fail);
       const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
       triggerEvent('error', errorMessage);
       reject(error);
@@ -104,7 +107,7 @@ const publish = publisherProperties =>
  */
 const subscribe = stream =>
   new Promise((resolve, reject) => {
-    logging.log(logging.logAction.subscribe, logging.logVariation.attempt);
+    logAnalytics(logAction.subscribe, logVariation.attempt);
     const streamMap = state.getStreamMap();
     if (streamMap[stream.id]) {
       // Are we already subscribing to the stream?
@@ -116,13 +119,13 @@ const subscribe = stream =>
       const options = type === 'camera' ? callProperties : screenProperties;
       const subscriber = session.subscribe(stream, container, options, (error) => {
         if (error) {
-          logging.log(logging.logAction.subscribe, logging.logVariation.fail);
+          logAnalytics(logAction.subscribe, logVariation.fail);
           reject(error);
         } else {
           state.addSubscriber(subscriber);
           triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, state.all()));
           type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-          logging.log(logging.logAction.subscribe, logging.logVariation.success);
+          logAnalytics(logAction.subscribe, logVariation.success);
           resolve();
         }
       });
@@ -136,11 +139,11 @@ const subscribe = stream =>
  */
 const unsubscribe = subscriber =>
   new Promise((resolve) => {
-    logging.log(logging.logAction.unsubscribe, logging.logVariation.attempt);
+    logAnalytics(logAction.unsubscribe, logVariation.attempt);
     const type = path('stream.videoType', subscriber);
     state.removeSubscriber(type, subscriber);
     session.unsubscribe(subscriber);
-    logging.log(logging.logAction.unsubscribe, logging.logVariation.success);
+    logAnalytics(logAction.unsubscribe, logVariation.success);
     resolve();
   });
 
@@ -152,7 +155,7 @@ const validateOptions = (options) => {
   const requiredOptions = ['accPack'];
   requiredOptions.forEach((option) => {
     if (!options[option]) {
-      logging.error(`${option} is a required option.`);
+      throw new CoreError(`${option} is a required option.`, 'invalidParameters');
     }
   });
 
@@ -204,9 +207,9 @@ const createEventListeners = () => {
  * @param {Object} publisherProperties
  * @returns {Promise} <resolve: Object, reject: Error>
  */
-const startCall = (publisherProperties) =>
+const startCall = publisherProperties =>
   new Promise((resolve, reject) => { // eslint-disable-line consistent-return
-    logging.log(logging.logAction.startCall, logging.logVariation.attempt);
+    logAnalytics(logAction.startCall, logVariation.attempt);
 
     /**
      * Determine if we're able to join the session based on an existing connection limit
@@ -214,8 +217,8 @@ const startCall = (publisherProperties) =>
     if (!ableToJoin()) {
       const errorMessage = 'Session has reached its connection limit';
       triggerEvent('error', errorMessage);
-      logging.log(logging.logAction.startCall, logging.logVariation.fail);
-      return reject(new Error(errorMessage));
+      logAnalytics(logAction.startCall, logVariation.fail);
+      return reject(new CoreError(errorMessage, 'connectionLimit'));
     }
 
     /**
@@ -241,7 +244,7 @@ const startCall = (publisherProperties) =>
 
       // Handle error
       const onError = (reason) => {
-        logging.message(`Failed to subscribe to all existing streams: ${reason}`);
+        message(`Failed to subscribe to all existing streams: ${reason}`);
         // We do not reject here in case we still successfully publish to the session
         resolve(Object.assign({}, state.getPubSub(), { publisher }));
       };
@@ -260,7 +263,7 @@ const startCall = (publisherProperties) =>
  * Stop publishing and unsubscribe from all streams
  */
 const endCall = () => {
-  logging.log(logging.logAction.endCall, logging.logVariation.attempt);
+  logAnalytics(logAction.endCall, logVariation.attempt);
   const { publishers, subscribers } = state.getPubSub();
   const unpublish = publisher => session.unpublish(publisher);
   Object.values(publishers.camera).forEach(unpublish);
@@ -271,7 +274,7 @@ const endCall = () => {
   state.removeAllPublishers();
   active = false;
   triggerEvent('endCall');
-  logging.log(logging.logAction.endCall, logging.logVariation.success);
+  logAnalytics(logAction.endCall, logVariation.success);
 };
 
 /**

@@ -2,12 +2,20 @@
 /**
  * Dependencies
  */
-const logging = require('./logging');
-const communication = require('./communication');
-const accPackEvents = require('./events');
-const internalState = require('./state');
 const util = require('./util');
+const internalState = require('./state');
+const accPackEvents = require('./events');
+const communication = require('./communication');
 const OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
+const { CoreError } = require('./errors');
+const {
+  message,
+  initLogAnalytics,
+  logAnalytics,
+  logAction,
+  logVariation,
+  updateLogAnalytics,
+} = require('./logging');
 
 /**
  * Helper methods
@@ -28,14 +36,14 @@ let archiving; // eslint-disable-line no-unused-vars
  * @returns {Object} The instance of the accelerator pack
  */
 const getAccPack = (packageName) => {
-  logging.log(logging.logAction.getAccPack, logging.logVariation.attempt);
+  logAnalytics(logAction.getAccPack, logVariation.attempt);
   const packages = {
     textChat,
     screenSharing,
     annotation,
     archiving,
   };
-  logging.log(logging.logAction.getAccPack, logging.logVariation.success);
+  logAnalytics(logAction.getAccPack, logVariation.success);
   return packages[packageName];
 };
 
@@ -65,7 +73,7 @@ const registerEvents = (events) => {
  * @param {Function} callback
  */
 const on = (event, callback) => {
-  // logging.log(logging.logAction.on, logging.logVariation.attempt);
+  // logAnalytics(logAction.on, logVariation.attempt);
   if (typeof event === 'object') {
     Object.keys(event).forEach((eventName) => {
       on(eventName, event[eventName]);
@@ -73,11 +81,11 @@ const on = (event, callback) => {
   }
   const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    logging.message(`${event} is not a registered event.`);
-    // logging.log(logging.logAction.on, logging.logVariation.fail);
+    message(`${event} is not a registered event.`);
+    // logAnalytics(logAction.on, logVariation.fail);
   } else {
     eventCallbacks.add(callback);
-    // logging.log(logging.logAction.on, logging.logVariation.success);
+    // logAnalytics(logAction.on, logVariation.success);
   }
 };
 
@@ -88,7 +96,7 @@ const on = (event, callback) => {
  * @param {Function} callback
  */
 const off = (event, callback) => {
-  // logging.log(logging.logAction.off, logging.logVariation.attempt);
+  // logAnalytics(logAction.off, logVariation.attempt);
   if (arguments.lenth === 0) {
     Object.keys(eventListeners).forEach((eventType) => {
       eventListeners[eventType].clear();
@@ -96,11 +104,11 @@ const off = (event, callback) => {
   }
   const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    // logging.log(logging.logAction.off, logging.logVariation.fail);
-    logging.message(`${event} is not a registered event.`);
+    // logAnalytics(logAction.off, logVariation.fail);
+    message(`${event} is not a registered event.`);
   } else {
     eventCallbacks.delete(callback);
-    // logging.log(logging.logAction.off, logging.logVariation.success);
+    // logAnalytics(logAction.off, logVariation.success);
   }
 };
 
@@ -113,7 +121,7 @@ const triggerEvent = (event, data) => {
   const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     registerEvents(event);
-    logging.message(`${event} has been registered as a new event.`);
+    message(`${event} has been registered as a new event.`);
   } else {
     eventCallbacks.forEach(callback => callback(data, event));
   }
@@ -220,7 +228,7 @@ const linkAnnotation = (pubSub, annotationContainer, externalWindow) => {
 };
 
 const initPackages = () => {
-  logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
+  logAnalytics(logAction.initPackages, logVariation.attempt);
   const session = getSession();
   const options = getOptions();
   /**
@@ -257,8 +265,8 @@ const initPackages = () => {
       result = window[globalName];
     }
     if (!result) {
-      logging.log(logging.logAction.initPackages, logging.logVariation.fail);
-      logging.error(`Could not load ${packageName}`);
+      logAnalytics(logAction.initPackages, logVariation.fail);
+      throw new CoreError(`Could not load ${packageName}`, 'missingDependency');
     }
     return result;
   };
@@ -283,7 +291,7 @@ const initPackages = () => {
     if (availablePackages[acceleratorPack]) { // eslint-disable-next-line no-param-reassign
       packages[properCase(acceleratorPack)] = availablePackages[acceleratorPack]();
     } else {
-      logging.message(`${acceleratorPack} is not a valid accelerator pack`);
+      message(`${acceleratorPack} is not a valid accelerator pack`);
     }
   });
 
@@ -366,7 +374,7 @@ const initPackages = () => {
   annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
   archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
 
-  logging.log(logging.logAction.initPackages, logging.logVariation.success);
+  logAnalytics(logAction.initPackages, logVariation.success);
 };
 
 
@@ -381,7 +389,7 @@ const validateCredentials = (credentials = []) => {
   const required = ['apiKey', 'sessionId', 'token'];
   required.forEach((credential) => {
     if (!credentials[credential]) {
-      logging.error(`${credential} is a required credential`);
+      throw new CoreError(`${credential} is a required credential`, 'invalidParameters');
     }
   });
 };
@@ -392,18 +400,18 @@ const validateCredentials = (credentials = []) => {
  */
 const connect = () =>
   new Promise((resolve, reject) => {
-    logging.log(logging.logAction.connect, logging.logVariation.attempt);
+    logAnalytics(logAction.connect, logVariation.attempt);
     const session = getSession();
     const { token } = getCredentials();
     session.connect(token, (error) => {
       if (error) {
-        logging.message(error);
-        logging.log(logging.logAction.connect, logging.logVariation.fail);
+        message(error);
+        logAnalytics(logAction.connect, logVariation.fail);
         return reject(error);
       }
       const { sessionId, apiKey } = session;
-      logging.updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
-      logging.log(logging.logAction.connect, logging.logVariation.success);
+      updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
+      logAnalytics(logAction.connect, logVariation.success);
       initPackages();
       return resolve();
     });
@@ -414,10 +422,10 @@ const connect = () =>
  * @returns {Promise} <resolve: -, reject: Error>
  */
 const disconnect = () => {
-  logging.log(logging.logAction.disconnect, logging.logVariation.attempt);
+  logAnalytics(logAction.disconnect, logVariation.attempt);
   getSession().disconnect();
   internalState.reset();
-  logging.log(logging.logAction.disconnect, logging.logVariation.success);
+  logAnalytics(logAction.disconnect, logVariation.success);
 };
 
 
@@ -428,13 +436,13 @@ const disconnect = () => {
  */
 const forceDisconnect = connection =>
   new Promise((resolve, reject) => {
-    logging.log(logging.logAction.forceDisconnect, logging.logVariation.attempt);
+    logAnalytics(logAction.forceDisconnect, logVariation.attempt);
     getSession().forceDisconnect(connection, (error) => {
       if (error) {
-        logging.log(logging.logAction.forceDisconnect, logging.logVariation.fail);
+        logAnalytics(logAction.forceDisconnect, logVariation.fail);
         reject(error);
       } else {
-        logging.log(logging.logAction.forceDisconnect, logging.logVariation.success);
+        logAnalytics(logAction.forceDisconnect, logVariation.success);
         resolve();
       }
     });
@@ -448,13 +456,13 @@ const forceDisconnect = connection =>
  */
 const forceUnpublish = stream =>
   new Promise((resolve, reject) => {
-    logging.log(logging.logAction.forceUnpublish, logging.logVariation.attempt);
+    logAnalytics(logAction.forceUnpublish, logVariation.attempt);
     getSession().forceUnpublish(stream, (error) => {
       if (error) {
-        logging.log(logging.logAction.forceUnpublish, logging.logVariation.fail);
+        logAnalytics(logAction.forceUnpublish, logVariation.fail);
         reject(error);
       } else {
-        logging.log(logging.logAction.forceUnpublish, logging.logVariation.success);
+        logAnalytics(logAction.forceUnpublish, logVariation.success);
         resolve();
       }
     });
@@ -484,16 +492,16 @@ const getSubscribersForStream = stream => getSession().getSubscribersForStream(s
  */
 const signal = (type, signalData, to) =>
   new Promise((resolve, reject) => {
-    logging.log(logging.logAction.signal, logging.logVariation.attempt);
+    logAnalytics(logAction.signal, logVariation.attempt);
     const session = getSession();
     const data = JSON.stringify(signalData);
     const signalObj = to ? { type, data, to } : { type, data };
     session.signal(signalObj, (error) => {
       if (error) {
-        logging.log(logging.logAction.signal, logging.logVariation.fail);
+        logAnalytics(logAction.signal, logVariation.fail);
         reject(error);
       } else {
-        logging.log(logging.logAction.signal, logging.logVariation.success);
+        logAnalytics(logAction.signal, logVariation.success);
         resolve();
       }
     });
@@ -504,11 +512,11 @@ const signal = (type, signalData, to) =>
  * @param {Boolean} enable
  */
 const toggleLocalAudio = (enable) => {
-  logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleLocalAudio, logVariation.attempt);
   const { publishers } = internalState.getPubSub();
   const toggleAudio = id => communication.enableLocalAV(id, 'audio', enable);
   Object.keys(publishers.camera).forEach(toggleAudio);
-  logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.success);
+  logAnalytics(logAction.toggleLocalAudio, logVariation.success);
 };
 
 /**
@@ -516,11 +524,11 @@ const toggleLocalAudio = (enable) => {
  * @param {Boolean} enable
  */
 const toggleLocalVideo = (enable) => {
-  logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleLocalVideo, logVariation.attempt);
   const { publishers } = internalState.getPubSub();
   const toggleVideo = id => communication.enableLocalAV(id, 'video', enable);
   Object.keys(publishers.camera).forEach(toggleVideo);
-  logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.success);
+  logAnalytics(logAction.toggleLocalVideo, logVariation.success);
 };
 
 /**
@@ -529,9 +537,9 @@ const toggleLocalVideo = (enable) => {
  * @param {Boolean} enable
  */
 const toggleRemoteAudio = (id, enable) => {
-  logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleRemoteAudio, logVariation.attempt);
   communication.enableRemoteAV(id, 'audio', enable);
-  logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.success);
+  logAnalytics(logAction.toggleRemoteAudio, logVariation.success);
 };
 
 /**
@@ -540,9 +548,9 @@ const toggleRemoteAudio = (id, enable) => {
  * @param {Boolean} enable
  */
 const toggleRemoteVideo = (id, enable) => {
-  logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleRemoteVideo, logVariation.attempt);
   communication.enableRemoteAV(id, 'video', enable);
-  logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.success);
+  logAnalytics(logAction.toggleRemoteVideo, logVariation.success);
 };
 
 /**
@@ -554,20 +562,20 @@ const toggleRemoteVideo = (id, enable) => {
  */
 const init = (options) => {
   if (!options) {
-    logging.error('Missing options required for initialization');
+    throw new CoreError('Missing options required for initialization', 'invalidParameters');
   }
   const { credentials } = options;
   validateCredentials(options.credentials);
 
   // Init analytics
-  logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
-  logging.log(logging.logAction.init, logging.logVariation.attempt);
+  initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
+  logAnalytics(logAction.init, logVariation.attempt);
   const session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
   internalState.setSession(session);
   internalState.setCredentials(credentials);
   internalState.setOptions(options);
-  logging.log(logging.logAction.init, logging.logVariation.success);
+  logAnalytics(logAction.init, logVariation.success);
 };
 
 const opentokCore = {

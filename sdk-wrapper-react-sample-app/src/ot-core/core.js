@@ -8,16 +8,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * Dependencies
  */
-var logging = require('./logging');
-var communication = require('./communication');
-var accPackEvents = require('./events');
-var internalState = require('./state');
 var util = require('./util');
+var internalState = require('./state');
+var accPackEvents = require('./events');
+var communication = require('./communication');
 var OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
+
+var _require = require('./errors'),
+    CoreError = _require.CoreError;
+
+var _require2 = require('./logging'),
+    message = _require2.message,
+    initLogAnalytics = _require2.initLogAnalytics,
+    logAnalytics = _require2.logAnalytics,
+    logAction = _require2.logAction,
+    logVariation = _require2.logVariation,
+    updateLogAnalytics = _require2.updateLogAnalytics;
 
 /**
  * Helper methods
  */
+
+
 var dom = util.dom,
     path = util.path,
     pathOr = util.pathOr,
@@ -38,14 +50,14 @@ var archiving = undefined; // eslint-disable-line no-unused-vars
  * @returns {Object} The instance of the accelerator pack
  */
 var getAccPack = function getAccPack(packageName) {
-  logging.log(logging.logAction.getAccPack, logging.logVariation.attempt);
+  logAnalytics(logAction.getAccPack, logVariation.attempt);
   var packages = {
     textChat: textChat,
     screenSharing: screenSharing,
     annotation: annotation,
     archiving: archiving
   };
-  logging.log(logging.logAction.getAccPack, logging.logVariation.success);
+  logAnalytics(logAction.getAccPack, logVariation.success);
   return packages[packageName];
 };
 
@@ -75,7 +87,7 @@ var registerEvents = function registerEvents(events) {
  * @param {Function} callback
  */
 var on = function on(event, callback) {
-  // logging.log(logging.logAction.on, logging.logVariation.attempt);
+  // logAnalytics(logAction.on, logVariation.attempt);
   if ((typeof event === 'undefined' ? 'undefined' : _typeof(event)) === 'object') {
     Object.keys(event).forEach(function (eventName) {
       on(eventName, event[eventName]);
@@ -83,11 +95,11 @@ var on = function on(event, callback) {
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    logging.message(event + ' is not a registered event.');
-    // logging.log(logging.logAction.on, logging.logVariation.fail);
+    message(event + ' is not a registered event.');
+    // logAnalytics(logAction.on, logVariation.fail);
   } else {
       eventCallbacks.add(callback);
-      // logging.log(logging.logAction.on, logging.logVariation.success);
+      // logAnalytics(logAction.on, logVariation.success);
     }
 };
 
@@ -98,7 +110,7 @@ var on = function on(event, callback) {
  * @param {Function} callback
  */
 var off = function off(event, callback) {
-  // logging.log(logging.logAction.off, logging.logVariation.attempt);
+  // logAnalytics(logAction.off, logVariation.attempt);
   if (_arguments.lenth === 0) {
     Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
@@ -106,11 +118,11 @@ var off = function off(event, callback) {
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
-    // logging.log(logging.logAction.off, logging.logVariation.fail);
-    logging.message(event + ' is not a registered event.');
+    // logAnalytics(logAction.off, logVariation.fail);
+    message(event + ' is not a registered event.');
   } else {
     eventCallbacks.delete(callback);
-    // logging.log(logging.logAction.off, logging.logVariation.success);
+    // logAnalytics(logAction.off, logVariation.success);
   }
 };
 
@@ -123,7 +135,7 @@ var triggerEvent = function triggerEvent(event, data) {
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
     registerEvents(event);
-    logging.message(event + ' has been registered as a new event.');
+    message(event + ' has been registered as a new event.');
   } else {
     eventCallbacks.forEach(function (callback) {
       return callback(data, event);
@@ -240,7 +252,7 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
 };
 
 var initPackages = function initPackages() {
-  logging.log(logging.logAction.initPackages, logging.logVariation.attempt);
+  logAnalytics(logAction.initPackages, logVariation.attempt);
   var session = getSession();
   var options = getOptions();
   /**
@@ -277,8 +289,8 @@ var initPackages = function initPackages() {
       result = window[globalName];
     }
     if (!result) {
-      logging.log(logging.logAction.initPackages, logging.logVariation.fail);
-      logging.error('Could not load ' + packageName);
+      logAnalytics(logAction.initPackages, logVariation.fail);
+      throw new CoreError('Could not load ' + packageName, 'missingDependency');
     }
     return result;
   };
@@ -304,7 +316,7 @@ var initPackages = function initPackages() {
       // eslint-disable-next-line no-param-reassign
       packages[properCase(acceleratorPack)] = availablePackages[acceleratorPack]();
     } else {
-      logging.message(acceleratorPack + ' is not a valid accelerator pack');
+      message(acceleratorPack + ' is not a valid accelerator pack');
     }
   });
 
@@ -393,7 +405,7 @@ var initPackages = function initPackages() {
   annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
   archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
 
-  logging.log(logging.logAction.initPackages, logging.logVariation.success);
+  logAnalytics(logAction.initPackages, logVariation.success);
 };
 
 /**
@@ -409,7 +421,7 @@ var validateCredentials = function validateCredentials() {
   var required = ['apiKey', 'sessionId', 'token'];
   required.forEach(function (credential) {
     if (!credentials[credential]) {
-      logging.error(credential + ' is a required credential');
+      throw new CoreError(credential + ' is a required credential', 'invalidParameters');
     }
   });
 };
@@ -420,7 +432,7 @@ var validateCredentials = function validateCredentials() {
  */
 var connect = function connect() {
   return new Promise(function (resolve, reject) {
-    logging.log(logging.logAction.connect, logging.logVariation.attempt);
+    logAnalytics(logAction.connect, logVariation.attempt);
     var session = getSession();
 
     var _getCredentials = getCredentials(),
@@ -428,15 +440,15 @@ var connect = function connect() {
 
     session.connect(token, function (error) {
       if (error) {
-        logging.message(error);
-        logging.log(logging.logAction.connect, logging.logVariation.fail);
+        message(error);
+        logAnalytics(logAction.connect, logVariation.fail);
         return reject(error);
       }
       var sessionId = session.sessionId,
           apiKey = session.apiKey;
 
-      logging.updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
-      logging.log(logging.logAction.connect, logging.logVariation.success);
+      updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
+      logAnalytics(logAction.connect, logVariation.success);
       initPackages();
       return resolve();
     });
@@ -448,10 +460,10 @@ var connect = function connect() {
  * @returns {Promise} <resolve: -, reject: Error>
  */
 var disconnect = function disconnect() {
-  logging.log(logging.logAction.disconnect, logging.logVariation.attempt);
+  logAnalytics(logAction.disconnect, logVariation.attempt);
   getSession().disconnect();
   internalState.reset();
-  logging.log(logging.logAction.disconnect, logging.logVariation.success);
+  logAnalytics(logAction.disconnect, logVariation.success);
 };
 
 /**
@@ -461,13 +473,13 @@ var disconnect = function disconnect() {
  */
 var forceDisconnect = function forceDisconnect(connection) {
   return new Promise(function (resolve, reject) {
-    logging.log(logging.logAction.forceDisconnect, logging.logVariation.attempt);
+    logAnalytics(logAction.forceDisconnect, logVariation.attempt);
     getSession().forceDisconnect(connection, function (error) {
       if (error) {
-        logging.log(logging.logAction.forceDisconnect, logging.logVariation.fail);
+        logAnalytics(logAction.forceDisconnect, logVariation.fail);
         reject(error);
       } else {
-        logging.log(logging.logAction.forceDisconnect, logging.logVariation.success);
+        logAnalytics(logAction.forceDisconnect, logVariation.success);
         resolve();
       }
     });
@@ -481,13 +493,13 @@ var forceDisconnect = function forceDisconnect(connection) {
  */
 var forceUnpublish = function forceUnpublish(stream) {
   return new Promise(function (resolve, reject) {
-    logging.log(logging.logAction.forceUnpublish, logging.logVariation.attempt);
+    logAnalytics(logAction.forceUnpublish, logVariation.attempt);
     getSession().forceUnpublish(stream, function (error) {
       if (error) {
-        logging.log(logging.logAction.forceUnpublish, logging.logVariation.fail);
+        logAnalytics(logAction.forceUnpublish, logVariation.fail);
         reject(error);
       } else {
-        logging.log(logging.logAction.forceUnpublish, logging.logVariation.success);
+        logAnalytics(logAction.forceUnpublish, logVariation.success);
         resolve();
       }
     });
@@ -521,16 +533,16 @@ var getSubscribersForStream = function getSubscribersForStream(stream) {
  */
 var signal = function signal(type, signalData, to) {
   return new Promise(function (resolve, reject) {
-    logging.log(logging.logAction.signal, logging.logVariation.attempt);
+    logAnalytics(logAction.signal, logVariation.attempt);
     var session = getSession();
     var data = JSON.stringify(signalData);
     var signalObj = to ? { type: type, data: data, to: to } : { type: type, data: data };
     session.signal(signalObj, function (error) {
       if (error) {
-        logging.log(logging.logAction.signal, logging.logVariation.fail);
+        logAnalytics(logAction.signal, logVariation.fail);
         reject(error);
       } else {
-        logging.log(logging.logAction.signal, logging.logVariation.success);
+        logAnalytics(logAction.signal, logVariation.success);
         resolve();
       }
     });
@@ -542,7 +554,7 @@ var signal = function signal(type, signalData, to) {
  * @param {Boolean} enable
  */
 var toggleLocalAudio = function toggleLocalAudio(enable) {
-  logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleLocalAudio, logVariation.attempt);
 
   var _internalState$getPub = internalState.getPubSub(),
       publishers = _internalState$getPub.publishers;
@@ -551,7 +563,7 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
     return communication.enableLocalAV(id, 'audio', enable);
   };
   Object.keys(publishers.camera).forEach(toggleAudio);
-  logging.log(logging.logAction.toggleLocalAudio, logging.logVariation.success);
+  logAnalytics(logAction.toggleLocalAudio, logVariation.success);
 };
 
 /**
@@ -559,7 +571,7 @@ var toggleLocalAudio = function toggleLocalAudio(enable) {
  * @param {Boolean} enable
  */
 var toggleLocalVideo = function toggleLocalVideo(enable) {
-  logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleLocalVideo, logVariation.attempt);
 
   var _internalState$getPub2 = internalState.getPubSub(),
       publishers = _internalState$getPub2.publishers;
@@ -568,7 +580,7 @@ var toggleLocalVideo = function toggleLocalVideo(enable) {
     return communication.enableLocalAV(id, 'video', enable);
   };
   Object.keys(publishers.camera).forEach(toggleVideo);
-  logging.log(logging.logAction.toggleLocalVideo, logging.logVariation.success);
+  logAnalytics(logAction.toggleLocalVideo, logVariation.success);
 };
 
 /**
@@ -577,9 +589,9 @@ var toggleLocalVideo = function toggleLocalVideo(enable) {
  * @param {Boolean} enable
  */
 var toggleRemoteAudio = function toggleRemoteAudio(id, enable) {
-  logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleRemoteAudio, logVariation.attempt);
   communication.enableRemoteAV(id, 'audio', enable);
-  logging.log(logging.logAction.toggleRemoteAudio, logging.logVariation.success);
+  logAnalytics(logAction.toggleRemoteAudio, logVariation.success);
 };
 
 /**
@@ -588,9 +600,9 @@ var toggleRemoteAudio = function toggleRemoteAudio(id, enable) {
  * @param {Boolean} enable
  */
 var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
-  logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.attempt);
+  logAnalytics(logAction.toggleRemoteVideo, logVariation.attempt);
   communication.enableRemoteAV(id, 'video', enable);
-  logging.log(logging.logAction.toggleRemoteVideo, logging.logVariation.success);
+  logAnalytics(logAction.toggleRemoteVideo, logVariation.success);
 };
 
 /**
@@ -602,21 +614,21 @@ var toggleRemoteVideo = function toggleRemoteVideo(id, enable) {
  */
 var init = function init(options) {
   if (!options) {
-    logging.error('Missing options required for initialization');
+    throw new CoreError('Missing options required for initialization', 'invalidParameters');
   }
   var credentials = options.credentials;
 
   validateCredentials(options.credentials);
 
   // Init analytics
-  logging.initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
-  logging.log(logging.logAction.init, logging.logVariation.attempt);
+  initLogAnalytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
+  logAnalytics(logAction.init, logVariation.attempt);
   var session = OT.initSession(credentials.apiKey, credentials.sessionId);
   createEventListeners(session, options);
   internalState.setSession(session);
   internalState.setCredentials(credentials);
   internalState.setOptions(options);
-  logging.log(logging.logAction.init, logging.logVariation.success);
+  logAnalytics(logAction.init, logVariation.success);
 };
 
 var opentokCore = {
