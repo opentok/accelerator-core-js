@@ -142,8 +142,8 @@ const createEventListeners = (session, options) => {
   Object.keys(accPackEvents).forEach(type => registerEvents(accPackEvents[type]));
 
   /**
-   * If using screen sharing + annotation in an external window, the individual packages
-   * will take care of
+   * If using screen sharing + annotation in an external window, the screen sharing
+   * package will take care of calling annotation.start() and annotation.linkCanvas()
    */
   const usingAnnotation = path('screenSharing.annotation', options);
   const internalAnnotation = usingAnnotation && !path('screenSharing.externalWindow', options);

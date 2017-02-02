@@ -526,8 +526,8 @@ var createEventListeners = function createEventListeners(session, options) {
   });
 
   /**
-   * If using screen sharing + annotation in an external window, the individual packages
-   * will take care of
+   * If using screen sharing + annotation in an external window, the screen sharing
+   * package will take care of calling annotation.start() and annotation.linkCanvas()
    */
   var usingAnnotation = path('screenSharing.annotation', options);
   var internalAnnotation = usingAnnotation && !path('screenSharing.externalWindow', options);
