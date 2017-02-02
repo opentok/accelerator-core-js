@@ -428,7 +428,6 @@ var eventListeners = {};
  * Register events that can be listened to be other components/modules
  * @param {array | string} events - A list of event names. A single event may
  * also be passed as a string.
- * @returns {function} See triggerEvent
  */
 var registerEvents = function registerEvents(events) {
   var eventList = Array.isArray(events) ? events : [events];
