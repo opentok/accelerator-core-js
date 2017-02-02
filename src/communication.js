@@ -47,8 +47,9 @@ const ableToJoin = () => {
   if (!connectionLimit) {
     return true;
   }
-  const cameraStreams = Object.values(state.getStreams()).filter(s => s.videoType === 'camera');
-  return cameraStreams.length < connectionLimit;
+  // Decrement by one to account for mantis
+  const connections = session.connections.length() - 1;
+  return connections < connectionLimit;
 };
 
 /**
@@ -61,6 +62,7 @@ const createPublisher = publisherProperties =>
     // TODO: Handle adding 'name' option to props
     const props = Object.assign({}, callProperties, publisherProperties);
     // TODO: Figure out how to handle common vs package-specific options
+    // ^^^ This may already be available through package options
     const container = dom.element(streamContainers('publisher', 'camera'));
     const publisher = OT.initPublisher(container, props, (error) => {
       error ? reject(error) : resolve(publisher);
