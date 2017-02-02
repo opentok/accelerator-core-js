@@ -8,7 +8,7 @@
 
 *Connect to the session*
 
-**Returns**: `Promise => <resolve: empty, reject: Error>`
+**Returns**: `Promise => <resolve: Object, reject: Error>`
 
 
 ### `disconnect()`

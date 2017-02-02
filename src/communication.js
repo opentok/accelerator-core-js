@@ -47,8 +47,8 @@ const ableToJoin = () => {
   if (!connectionLimit) {
     return true;
   }
-  // Decrement by one to account for mantis
-  const connections = session.connections.length() - 1;
+  // Not using the session here since we're concerned with number of active publishers
+  const connections = Object.values(state.getStreams()).filter(s => s.videoType === 'camera');
   return connections < connectionLimit;
 };
 

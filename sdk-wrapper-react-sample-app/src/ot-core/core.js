@@ -450,7 +450,7 @@ var connect = function connect() {
       updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
       logAnalytics(logAction.connect, logVariation.success);
       initPackages();
-      return resolve();
+      return resolve({ connections: session.connections.length() });
     });
   });
 };

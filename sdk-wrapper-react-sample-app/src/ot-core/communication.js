@@ -65,10 +65,11 @@ var ableToJoin = function ableToJoin() {
   if (!connectionLimit) {
     return true;
   }
-  var cameraStreams = Object.values(state.getStreams()).filter(function (s) {
+  // Not using the session here since we're concerned with number of active publishers
+  var connections = Object.values(state.getStreams()).filter(function (s) {
     return s.videoType === 'camera';
   });
-  return cameraStreams.length < connectionLimit;
+  return connections < connectionLimit;
 };
 
 /**
@@ -81,6 +82,7 @@ var createPublisher = function createPublisher(publisherProperties) {
     // TODO: Handle adding 'name' option to props
     var props = Object.assign({}, callProperties, publisherProperties);
     // TODO: Figure out how to handle common vs package-specific options
+    // ^^^ This may already be available through package options
     var container = dom.element(streamContainers('publisher', 'camera'));
     var publisher = OT.initPublisher(container, props, function (error) {
       error ? reject(error) : resolve(publisher);
