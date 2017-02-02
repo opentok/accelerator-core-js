@@ -122,10 +122,9 @@ const app = () => {
    * Start publishing video/audio and subscribe to streams
    */
   const startCall = () => {
-    updateState({ active: true });
     otCore.startCall()
       .then(({ publishers, subscribers, meta }) => {
-        updateState({ publishers, subscribers, meta });
+        updateState({ publishers, subscribers, meta, active: true });
       }).catch(error => console.log(error));
   };
 
