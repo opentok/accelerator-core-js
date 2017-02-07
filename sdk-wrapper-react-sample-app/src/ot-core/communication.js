@@ -13,6 +13,7 @@ var _require = require('./errors'),
 var _require2 = require('./util'),
     dom = _require2.dom,
     path = _require2.path,
+    pathOr = _require2.pathOr,
     properCase = _require2.properCase;
 
 var _require3 = require('./logging'),
@@ -139,7 +140,8 @@ var subscribe = function subscribe(stream) {
       resolve();
     } else {
       (function () {
-        var type = stream.videoType;
+        // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
+        var type = pathOr('sip', 'videoType', stream);
         var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
         var container = dom.query(streamContainers('subscriber', type, connectionData));
         var options = type === 'camera' ? callProperties : screenProperties;
@@ -221,7 +223,7 @@ var onStreamDestroyed = function onStreamDestroyed(_ref2) {
   var stream = _ref2.stream;
 
   state.removeStream(stream);
-  var type = stream.videoType;
+  var type = pathOr('sip', 'videoType', stream);
   type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
   triggerEvent('unsubscribeFrom' + properCase(type), state.getPubSub());
 };

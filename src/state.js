@@ -12,6 +12,7 @@ const publishers = {
 const subscribers = {
   camera: {},
   screen: {},
+  sip: {},
 };
 
 // Map stream ids to stream objects
@@ -57,7 +58,7 @@ const pubSubCount = () => {
     acc[source] = Object.keys(subscribers[source]).length;
     acc.total += acc[source];
     return acc;
-  }, { camera: 0, screen: 0, total: 0 });
+  }, { camera: 0, screen: 0, sip: 0, total: 0 });
   /* eslint-enable no-param-reassign */
   return { publisher: pubs, subscriber: subs };
 };
@@ -206,7 +207,7 @@ const removeSubscriber = (type, subscriber) => {
  * Remove all subscribers from state
  */
 const removeAllSubscribers = () => {
-  ['camera', 'screen'].forEach((type) => {
+  ['camera', 'screen', 'sip'].forEach((type) => {
     Object.values(subscribers[type]).forEach((subscriber) => {
       removeSubscriber(type, subscriber);
     });

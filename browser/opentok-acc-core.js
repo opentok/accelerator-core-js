@@ -16,6 +16,7 @@ var _require = require('./errors'),
 var _require2 = require('./util'),
     dom = _require2.dom,
     path = _require2.path,
+    pathOr = _require2.pathOr,
     properCase = _require2.properCase;
 
 var _require3 = require('./logging'),
@@ -142,7 +143,8 @@ var subscribe = function subscribe(stream) {
       resolve();
     } else {
       (function () {
-        var type = stream.videoType;
+        // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
+        var type = pathOr('sip', 'videoType', stream);
         var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
         var container = dom.query(streamContainers('subscriber', type, connectionData));
         var options = type === 'camera' ? callProperties : screenProperties;
@@ -224,7 +226,7 @@ var onStreamDestroyed = function onStreamDestroyed(_ref2) {
   var stream = _ref2.stream;
 
   state.removeStream(stream);
-  var type = stream.videoType;
+  var type = pathOr('sip', 'videoType', stream);
   type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
   triggerEvent('unsubscribeFrom' + properCase(type), state.getPubSub());
 };
@@ -1907,7 +1909,8 @@ var publishers = {
 // Map subscriber id to subscriber objects
 var subscribers = {
   camera: {},
-  screen: {}
+  screen: {},
+  sip: {}
 };
 
 // Map stream ids to stream objects
@@ -1952,7 +1955,7 @@ var pubSubCount = function pubSubCount() {
     acc[source] = Object.keys(subscribers[source]).length;
     acc.total += acc[source];
     return acc;
-  }, { camera: 0, screen: 0, total: 0 });
+  }, { camera: 0, screen: 0, sip: 0, total: 0 });
   /* eslint-enable no-param-reassign */
   return { publisher: pubs, subscriber: subs };
 };
@@ -2115,7 +2118,7 @@ var removeSubscriber = function removeSubscriber(type, subscriber) {
  * Remove all subscribers from state
  */
 var removeAllSubscribers = function removeAllSubscribers() {
-  ['camera', 'screen'].forEach(function (type) {
+  ['camera', 'screen', 'sip'].forEach(function (type) {
     Object.values(subscribers[type]).forEach(function (subscriber) {
       removeSubscriber(type, subscriber);
     });

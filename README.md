@@ -200,6 +200,7 @@ will always include the current `publishers`, `subscribers`, and a `meta` object
     subscribers: {
       camera: 2,
       screen: 1,
+      sip: 0,
       total: 3,
     },
   },
@@ -241,4 +242,10 @@ Default icons and styling for accelerator pack components are provided by `opent
 
 SDK-Wrapper
 -------
-One of the primary advantages of `Core` is that it maintains the state of your OpenTok session.  However, there may be instances where you'd like more fine-grained control over your application. Or you may be using an OpenTok session merely to manage presence and don't need any audio/video.  If this is the case, you may consider using the [`sdk-wrapper`](./sdkWrapper.MD) instead.
+`Core` will cover the use cases for most projects. If you have a special use case, your first course of action should be to open a Github issue. If there is a way that we can add functionality or increase the flexibility of `core`, or one of the accelerator packs, while maintaining backwards compatibility, we’re happy to do so. Another option is to use the [OpenTok JS SDK Wrapper](#opentok-js-sdk-wrapper). The `SDK Wrapper` extends the functionality of the [OpenTok JS Client library](https://tokbox.com/developer/sdks/js/)  with the same state management provided by `Accelerator Core`. Some use cases for the SDK Wrapper may be:
+
+- Creating a messaging or signaling layer using OpenTok sessions.
+- Running multiple sessions simultaneously in the same application instance.
+- Managing presence without any audio/video, using OpenTok sessions.
+
+You can also use Accelerator Core and the SDK Wrapper in conjunction with each other. While Core is a singleton, the SDK Wrapper provides a constructor, meaning that multiple instances may be created and used at the same time.

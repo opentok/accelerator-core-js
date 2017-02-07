@@ -3,7 +3,7 @@
 /** Dependencies */
 const state = require('./state');
 const { CoreError } = require('./errors');
-const { dom, path, properCase } = require('./util');
+const { dom, path, pathOr, properCase } = require('./util');
 const { message, logAnalytics, logAction, logVariation } = require('./logging');
 
 
@@ -115,7 +115,8 @@ const subscribe = stream =>
       // Are we already subscribing to the stream?
       resolve();
     } else {
-      const type = stream.videoType;
+      // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
+      const type = pathOr('sip', 'videoType', stream);
       const connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
       const container = dom.query(streamContainers('subscriber', type, connectionData));
       const options = type === 'camera' ? callProperties : screenProperties;
@@ -191,7 +192,7 @@ const onStreamCreated = ({ stream }) => active && autoSubscribe && subscribe(str
  */
 const onStreamDestroyed = ({ stream }) => {
   state.removeStream(stream);
-  const type = stream.videoType;
+  const type = pathOr('sip', 'videoType', stream);
   type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
   triggerEvent(`unsubscribeFrom${properCase(type)}`, state.getPubSub());
 };

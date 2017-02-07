@@ -13,7 +13,8 @@ var publishers = {
 // Map subscriber id to subscriber objects
 var subscribers = {
   camera: {},
-  screen: {}
+  screen: {},
+  sip: {}
 };
 
 // Map stream ids to stream objects
@@ -58,7 +59,7 @@ var pubSubCount = function pubSubCount() {
     acc[source] = Object.keys(subscribers[source]).length;
     acc.total += acc[source];
     return acc;
-  }, { camera: 0, screen: 0, total: 0 });
+  }, { camera: 0, screen: 0, sip: 0, total: 0 });
   /* eslint-enable no-param-reassign */
   return { publisher: pubs, subscriber: subs };
 };
@@ -221,7 +222,7 @@ var removeSubscriber = function removeSubscriber(type, subscriber) {
  * Remove all subscribers from state
  */
 var removeAllSubscribers = function removeAllSubscribers() {
-  ['camera', 'screen'].forEach(function (type) {
+  ['camera', 'screen', 'sip'].forEach(function (type) {
     Object.values(subscribers[type]).forEach(function (subscriber) {
       removeSubscriber(type, subscriber);
     });
