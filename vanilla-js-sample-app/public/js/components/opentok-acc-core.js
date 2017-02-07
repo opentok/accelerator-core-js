@@ -572,6 +572,7 @@ var createEventListeners = function createEventListeners(session, options) {
       if (eventName === 'streamDestroyed') {
         internalState.removeStream(event.stream);
       }
+      console.log('session event triggered', eventName);
       triggerEvent(eventName, event);
     });
   });
@@ -837,6 +838,7 @@ var connect = function connect() {
       updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
       logAnalytics(logAction.connect, logVariation.success);
       initPackages();
+      triggerEvent('connected', session.connection);
       return resolve({ connections: session.connections.length() });
     });
   });
