@@ -414,7 +414,7 @@ const connect = () =>
       updateLogAnalytics(sessionId, path('connection.connectionId', session), apiKey);
       logAnalytics(logAction.connect, logVariation.success);
       initPackages();
-      triggerEvent('connected', session.connection);
+      triggerEvent('connected', session);
       return resolve({ connections: session.connections.length() });
     });
   });
