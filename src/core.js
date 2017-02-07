@@ -165,7 +165,6 @@ const createEventListeners = (session, options) => {
     session.on(eventName, (event) => {
       if (eventName === 'streamCreated') { internalState.addStream(event.stream); }
       if (eventName === 'streamDestroyed') { internalState.removeStream(event.stream); }
-      console.log('session event triggered', eventName);
       triggerEvent(eventName, event);
     });
   });

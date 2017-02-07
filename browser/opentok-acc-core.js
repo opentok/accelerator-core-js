@@ -572,7 +572,6 @@ var createEventListeners = function createEventListeners(session, options) {
       if (eventName === 'streamDestroyed') {
         internalState.removeStream(event.stream);
       }
-      console.log('session event triggered', eventName);
       triggerEvent(eventName, event);
     });
   });
