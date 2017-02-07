@@ -186,6 +186,7 @@ const events = [
     'unsubscribeFromScreen',
     'startScreenShare',
     'endScreenShare',
+    'subscribeToSip',
 ];
 ```
 will always include the current `publishers`, `subscribers`, and a `meta` object which provides a count of the current `publishers` and `subscribers`, making it easy to keep your UI in sync.  If subscribing to a new stream, the `subscriber` object will be included as well.
