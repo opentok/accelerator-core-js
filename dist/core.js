@@ -92,6 +92,7 @@ var on = function on(event, callback) {
     Object.keys(event).forEach(function (eventName) {
       on(eventName, event[eventName]);
     });
+    return;
   }
   var eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {

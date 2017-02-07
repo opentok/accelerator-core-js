@@ -78,6 +78,7 @@ const on = (event, callback) => {
     Object.keys(event).forEach((eventName) => {
       on(eventName, event[eventName]);
     });
+    return;
   }
   const eventCallbacks = eventListeners[event];
   if (!eventCallbacks) {
