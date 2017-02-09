@@ -193,12 +193,12 @@ will always include the current `publishers`, `subscribers`, and a `meta` object
 <a name="pubSubData"></a>
 ```javascript
   meta: {
-    publishers: {
+    publisher: {
       camera: 1,
       screen: 0,
       total: 1,
     },
-    subscribers: {
+    subscriber: {
       camera: 2,
       screen: 1,
       sip: 0,
