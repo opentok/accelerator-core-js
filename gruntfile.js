@@ -21,12 +21,6 @@ module.exports = function(grunt) {
                   'https://static.opentok.com/v2/js/opentok.min.js',
                   'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js',
                   'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js',
-                  'src/communication.js',
-                  'src/core.js',
-                  'src/events.js',
-                  'src/logging.js',
-                  'src/state.js',
-                  'src/util.js',
                   'test/communication-test.js',
                   'test/core-test.js',
                   'test/state-test.js',
@@ -34,11 +28,11 @@ module.exports = function(grunt) {
               ]
           },
           dev: {
-              browsers: ['Chrome']
+              browsers: ['Chrome', 'Firefox']
           },
           prod: {
               singleRun: true,
-              browsers: ['Chrome']
+              browsers: ['Chrome_travis_ci']
           }
       }
     });

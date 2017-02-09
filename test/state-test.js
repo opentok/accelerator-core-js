@@ -44,7 +44,7 @@ describe('Core State Tests', function() {
    });
 
    describe('Test get Streams, Publishers and Subscribers', function() {
-     it('Should get streams, publishers and subscribers', function() {
+     xit('Should get streams, publishers and subscribers', function() {
         expect(State.all.bind(State.all)).not.to.throw('');
         var _all = State.all();
         expect(_all).not.to.be.null;
