@@ -135,7 +135,9 @@ var subscribe = function subscribe(stream) {
   return new Promise(function (resolve, reject) {
     logAnalytics(logAction.subscribe, logVariation.attempt);
     var streamMap = state.getStreamMap();
-    if (streamMap[stream.id]) {
+    var streamId = stream.streamId;
+
+    if (streamMap[streamId]) {
       // Are we already subscribing to the stream?
       resolve();
     } else {
@@ -143,7 +145,7 @@ var subscribe = function subscribe(stream) {
         // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
         var type = pathOr('sip', 'videoType', stream);
         var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
-        var container = dom.query(streamContainers('subscriber', type, connectionData));
+        var container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
         var options = type === 'camera' ? callProperties : screenProperties;
         var subscriber = session.subscribe(stream, container, options, function (error) {
           if (error) {
