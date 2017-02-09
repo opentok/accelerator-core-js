@@ -70,7 +70,7 @@ var ableToJoin = function ableToJoin() {
   var connections = Object.values(state.getStreams()).filter(function (s) {
     return s.videoType === 'camera';
   });
-  return connections < connectionLimit;
+  return connections.length < connectionLimit;
 };
 
 /**
