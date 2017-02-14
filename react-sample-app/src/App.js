@@ -16,7 +16,7 @@ const otCoreOptions = {
     token: config.token,
   },
   // A container can either be a query selector or an HTML Element
-  streamContainers(pubSub, type, data){
+  streamContainers(pubSub, type, data, streamId){
     return {
       publisher: {
         camera: '#cameraPublisherContainer',

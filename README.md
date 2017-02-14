@@ -44,15 +44,15 @@ Installation
 ------------
 
 ```bash
-$ npm i --save opentok-acc-core
+$ npm i --save opentok-accelerator-core
 ```
 webpack/Browserify:
 ```javascript
-const otCore = require('opentok-acc-core');
+const otCore = require('opentok-accelerator-core');
 ```
 Browser:
 ```javascript
-<script src="path/to/browser/opentok-acc-core.js"></script>
+<script src="path/to/browser/opentok-accelerator-core.js"></script>
 ```
 
 Configuration
@@ -80,8 +80,9 @@ The `streamContainers` property is a function that specifies which DOM element s
    * @param {String} pubSub - 'publisher' or 'subscriber'
    * @param {String} type - 'camera' or 'screen'
    * @param {*} data - Parsed connection data associated with the stream
+   * @param {String} streamId - The stream id (subscriber only)
    */
-  streamContainers(pubSub, type, data){
+  streamContainers(pubSub, type, data, streamId){
     return {
       publisher: {
         camera: '#cameraPublisherContainer',
@@ -194,12 +195,12 @@ will always include the current `publishers`, `subscribers`, and a `meta` object
 <a name="pubSubData"></a>
 ```javascript
   meta: {
-    publishers: {
+    publisher: {
       camera: 1,
       screen: 0,
       total: 1,
     },
-    subscribers: {
+    subscriber: {
       camera: 2,
       screen: 1,
       sip: 0,
