@@ -43,15 +43,15 @@ Installation
 ------------
 
 ```bash
-$ npm i --save opentok-acc-core
+$ npm i --save opentok-accelerator-core
 ```
 webpack/Browserify:
 ```javascript
-const otCore = require('opentok-acc-core');
+const otCore = require('opentok-accelerator-core');
 ```
 Browser:
 ```javascript
-<script src="path/to/browser/opentok-acc-core.js"></script>
+<script src="path/to/browser/opentok-accelerator-core.js"></script>
 ```
 
 Configuration
