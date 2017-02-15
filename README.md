@@ -7,6 +7,7 @@
 ![logo](https://raw.githubusercontent.com/opentok/accelerator-core/master/tokbox-logo.png)
 
 # OpenTok Accelerator Core
+[![Build Status](https://travis-ci.org/opentok/accelerator-core-js.svg?branch=master)](https://travis-ci.org/opentok/accelerator-core-js)
 
 
 ```javascript
