@@ -52,7 +52,7 @@ var initLogAnalytics = function initLogAnalytics(source, sessionId, connectionId
   var otkanalyticsData = {
     clientVersion: 'js-vsol-1.0.0',
     source: source,
-    componentId: 'coreAccelerator',
+    componentId: 'acceleratorCore',
     name: 'coreAccelerator',
     partnerId: apikey
   };

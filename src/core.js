@@ -489,15 +489,18 @@ const getSubscribersForStream = stream => getSession().getSubscribersForStream(s
  * Send a signal using the OpenTok signaling apiKey
  * @param {String} type
  * @param {*} [data]
- * @param {Object} to - An OpenTok connection object
+ * @param {Object} [to] - An OpenTok connection object
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-const signal = (type, signalData, to) =>
+const signal = (type, data, to) =>
   new Promise((resolve, reject) => {
     logAnalytics(logAction.signal, logVariation.attempt);
     const session = getSession();
-    const data = JSON.stringify(signalData);
-    const signalObj = to ? { type, data, to } : { type, data };
+    const signalObj = Object.assign({},
+      type ? { type } : null,
+      data ? { data: JSON.stringify(data) } : null,
+      to ? { to } : null // eslint-disable-line comma-dangle
+    );
     session.signal(signalObj, (error) => {
       if (error) {
         logAnalytics(logAction.signal, logVariation.fail);

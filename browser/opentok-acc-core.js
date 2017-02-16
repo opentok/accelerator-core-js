@@ -918,15 +918,15 @@ var getSubscribersForStream = function getSubscribersForStream(stream) {
  * Send a signal using the OpenTok signaling apiKey
  * @param {String} type
  * @param {*} [data]
- * @param {Object} to - An OpenTok connection object
+ * @param {Object} [to] - An OpenTok connection object
  * @returns {Promise} <resolve: empty, reject: Error>
  */
-var signal = function signal(type, signalData, to) {
+var signal = function signal(type, data, to) {
   return new Promise(function (resolve, reject) {
     logAnalytics(logAction.signal, logVariation.attempt);
     var session = getSession();
-    var data = JSON.stringify(signalData);
-    var signalObj = to ? { type: type, data: data, to: to } : { type: type, data: data };
+    var signalObj = Object.assign({}, type ? { type: type } : null, data ? { data: JSON.stringify(data) } : null, to ? { to: to } : null // eslint-disable-line comma-dangle
+    );
     session.signal(signalObj, function (error) {
       if (error) {
         logAnalytics(logAction.signal, logVariation.fail);
@@ -1156,7 +1156,7 @@ var initLogAnalytics = function initLogAnalytics(source, sessionId, connectionId
   var otkanalyticsData = {
     clientVersion: 'js-vsol-1.0.0',
     source: source,
-    componentId: 'coreAccelerator',
+    componentId: 'acceleratorCore',
     name: 'coreAccelerator',
     partnerId: apikey
   };
