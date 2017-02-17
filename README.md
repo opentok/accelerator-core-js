@@ -1,15 +1,11 @@
+![logo](./tokbox-logo.png)
+
+# Accelerator Core JS
 
 [![Build Status](https://travis-ci.org/opentok/accelerator-core-js.svg?branch=master)](https://travis-ci.org/opentok/accelerator-core-js)
 [![GitHub release](https://img.shields.io/github/release/opentok/accelerator-core-js.svg)](./README.md)
 [![license](https://img.shields.io/github/license/opentok/accelerator-core-js.svg)](./.github/CONTRIBUTING.md)
 [![npm](https://img.shields.io/npm/v/opentok-accelerator-core.svg)](https://www.npmjs.com/package/opentok-accelerator-core)
-
-----------
-
-
-![logo](https://raw.githubusercontent.com/opentok/accelerator-core-js/master/tokbox-logo.png)
-
-# OpenTok Accelerator Core JS
 
 OpenTok's Accelerator Core JS provides easy integration for OpenTok libraries. Whether you've already built your application using the OpenTok platform or are just getting started, Accelerator Core JS helps you implement:
 
