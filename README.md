@@ -113,6 +113,7 @@ The remainder of the options properties are specific to individual accelerator p
     name: `David`,
     waitingMessage: 'Messages will be delivered when other users arrive',
     container: '#chat',
+    alwaysOpen: true,
   },
   screenSharing: {
     extensionID: 'yourChromeExtensionId',

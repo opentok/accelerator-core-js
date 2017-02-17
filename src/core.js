@@ -348,6 +348,7 @@ const initPackages = () => {
           textChatContainer: options.textChat.container,
           waitingMessage: options.textChat.waitingMessage,
           sender: { alias: options.textChat.name },
+          alwaysOpen: options.textChar.alwaysOpen,
         };
         return Object.assign({}, baseOptions, textChatOptions);
       }
