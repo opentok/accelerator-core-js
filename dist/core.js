@@ -373,10 +373,10 @@ var initPackages = function initPackages() {
       case 'textChat':
         {
           var textChatOptions = {
-            textChatContainer: options.textChat.container,
-            waitingMessage: options.textChat.waitingMessage,
-            sender: { alias: options.textChat.name },
-            alwaysOpen: options.textChar.alwaysOpen
+            textChatContainer: path('textChat.container', options),
+            waitingMessage: path('textChat.waitingMessage', options),
+            sender: { alias: path('textChat.name', options) },
+            alwaysOpen: path('textChat.alwaysOpen', options)
           };
           return Object.assign({}, baseOptions, textChatOptions);
         }
