@@ -235,8 +235,8 @@ const initPackages = () => {
   const options = getOptions();
   /**
    * Try to require a package.  If 'require' is unavailable, look for
-   * the package in global scope.  A switch internalStatement is used because
-   * webpack and Browserify aren't able to resolve require internalStatements
+   * the package in global scope.  A switch ttatement is used because
+   * webpack and Browserify aren't able to resolve require statements
    * that use variable names.
    * @param {String} packageName - The name of the npm package
    * @param {String} globalName - The name of the package if exposed on global/window
