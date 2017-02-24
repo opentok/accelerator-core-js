@@ -98,7 +98,7 @@ const on = (event, callback) => {
  */
 const off = (event, callback) => {
   // logAnalytics(logAction.off, logVariation.attempt);
-  if (arguments.lenth === 0) {
+  if (!event && !callback) {
     Object.keys(eventListeners).forEach((eventType) => {
       eventListeners[eventType].clear();
     });

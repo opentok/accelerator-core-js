@@ -388,8 +388,6 @@ module.exports = {
 (function (global){
 'use strict';
 
-var _arguments = arguments;
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /* global OT */
@@ -500,7 +498,7 @@ var on = function on(event, callback) {
  */
 var off = function off(event, callback) {
   // logAnalytics(logAction.off, logVariation.attempt);
-  if (_arguments.lenth === 0) {
+  if (!event && !callback) {
     Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
     });
