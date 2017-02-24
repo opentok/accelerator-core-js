@@ -1,8 +1,14 @@
 'use strict';
 
+var _bluebird = require('bluebird');
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -47,7 +53,7 @@ var validateCredentials = function validateCredentials() {
  * @returns {Promise} <resolve: Object, reject: Error>
  */
 var initPublisher = function initPublisher(element, properties) {
-  return new Promise(function (resolve, reject) {
+  return new _bluebird2.default(function (resolve, reject) {
     var publisher = OT.initPublisher(element, properties, function (error) {
       error ? reject(error) : resolve(publisher);
     });
@@ -274,7 +280,7 @@ var OpenTokSDK = function () {
       var eventListeners = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var preview = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
-      return new Promise(function (resolve, reject) {
+      return new _bluebird2.default(function (resolve, reject) {
         initPublisher(element, properties) // eslint-disable-next-line no-confusing-arrow
         .then(function (publisher) {
           eventListeners && bindListeners(publisher, _this, eventListeners);
@@ -298,7 +304,7 @@ var OpenTokSDK = function () {
     value: function publishPreview(publisher) {
       var _this2 = this;
 
-      return new Promise(function (resolve, reject) {
+      return new _bluebird2.default(function (resolve, reject) {
         var state = stateMap.get(_this2);
         _this2.session.publish(publisher, function (error) {
           error && reject(error);
@@ -340,7 +346,7 @@ var OpenTokSDK = function () {
       var _this3 = this;
 
       var state = stateMap.get(this);
-      return new Promise(function (resolve, reject) {
+      return new _bluebird2.default(function (resolve, reject) {
         var subscriber = _this3.session.subscribe(stream, container, properties, function (error) {
           if (error) {
             reject(error);
@@ -365,7 +371,7 @@ var OpenTokSDK = function () {
       var _this4 = this;
 
       var state = stateMap.get(this);
-      return new Promise(function (resolve) {
+      return new _bluebird2.default(function (resolve) {
         _this4.session.unsubscribe(subscriber);
         state.removeSubscriber(subscriber);
         resolve();
@@ -386,7 +392,7 @@ var OpenTokSDK = function () {
 
       this.off();
       eventListeners && this.on(eventListeners);
-      return new Promise(function (resolve, reject) {
+      return new _bluebird2.default(function (resolve, reject) {
         var token = _this5.credentials.token;
 
         _this5.session.connect(token, function (error) {
@@ -406,7 +412,7 @@ var OpenTokSDK = function () {
     value: function forceDisconnect(connection) {
       var _this6 = this;
 
-      return new Promise(function (resolve, reject) {
+      return new _bluebird2.default(function (resolve, reject) {
         _this6.session.forceDisconnect(connection, function (error) {
           error ? reject(error) : resolve();
         });
@@ -424,7 +430,7 @@ var OpenTokSDK = function () {
     value: function forceUnpublish(stream) {
       var _this7 = this;
 
-      return new Promise(function (resolve, reject) {
+      return new _bluebird2.default(function (resolve, reject) {
         _this7.session.forceUnpublish(stream, function (error) {
           error ? reject(error) : resolve();
         });
@@ -447,7 +453,7 @@ var OpenTokSDK = function () {
 
       var data = JSON.stringify(signalData);
       var signal = to ? { type: type, data: data, to: to } : { type: type, data: data };
-      return new Promise(function (resolve, reject) {
+      return new _bluebird2.default(function (resolve, reject) {
         _this8.session.signal(signal, function (error) {
           error ? reject(error) : resolve();
         });

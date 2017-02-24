@@ -1,6 +1,12 @@
 'use strict';
 
+var _bluebird = require('bluebird');
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /* global OT */
 
@@ -79,7 +85,7 @@ var ableToJoin = function ableToJoin() {
  * @returns {Promise} <resolve: Object, reject: Error>
  */
 var createPublisher = function createPublisher(publisherProperties) {
-  return new Promise(function (resolve, reject) {
+  return new _bluebird2.default(function (resolve, reject) {
     // TODO: Handle adding 'name' option to props
     var props = _extends({}, callProperties, publisherProperties);
     // TODO: Figure out how to handle common vs package-specific options
@@ -97,7 +103,7 @@ var createPublisher = function createPublisher(publisherProperties) {
  * @returns {Promise} <resolve: empty, reject: Error>
  */
 var publish = function publish(publisherProperties) {
-  return new Promise(function (resolve, reject) {
+  return new _bluebird2.default(function (resolve, reject) {
     var onPublish = function onPublish(publisher) {
       return function (error) {
         if (error) {
@@ -132,7 +138,7 @@ var publish = function publish(publisherProperties) {
  * @returns {Promise} <resolve: empty reject: Error >
  */
 var subscribe = function subscribe(stream) {
-  return new Promise(function (resolve, reject) {
+  return new _bluebird2.default(function (resolve, reject) {
     logAnalytics(logAction.subscribe, logVariation.attempt);
     var streamMap = state.getStreamMap();
     var streamId = stream.streamId;
@@ -168,7 +174,7 @@ var subscribe = function subscribe(stream) {
  * @returns {Promise} <resolve: empty>
  */
 var unsubscribe = function unsubscribe(subscriber) {
-  return new Promise(function (resolve) {
+  return new _bluebird2.default(function (resolve) {
     logAnalytics(logAction.unsubscribe, logVariation.attempt);
     var type = path('stream.videoType', subscriber);
     state.removeSubscriber(type, subscriber);
@@ -242,7 +248,7 @@ var createEventListeners = function createEventListeners() {
  * @returns {Promise} <resolve: Object, reject: Error>
  */
 var startCall = function startCall(publisherProperties) {
-  return new Promise(function (resolve, reject) {
+  return new _bluebird2.default(function (resolve, reject) {
     // eslint-disable-line consistent-return
     logAnalytics(logAction.startCall, logVariation.attempt);
 
@@ -268,7 +274,7 @@ var startCall = function startCall(publisherProperties) {
             return subscribe(streams[id]);
           });
         }
-        return [Promise.resolve()];
+        return [(0, _bluebird.resolve)()];
       };
 
       // Handle success
@@ -286,7 +292,7 @@ var startCall = function startCall(publisherProperties) {
         resolve(_extends({}, state.getPubSub(), { publisher: publisher }));
       };
 
-      Promise.all(initialSubscriptions()).then(onSubscribeToAll).catch(onError);
+      (0, _bluebird.all)(initialSubscriptions()).then(onSubscribeToAll).catch(onError);
     };
 
     publish(publisherProperties).then(subscribeToInitialStreams).catch(reject);
@@ -354,7 +360,7 @@ var enableRemoteAV = function enableRemoteAV(subscriberId, source, enable) {
  * @param {Function} options.streamContainer
  */
 var init = function init(options) {
-  return new Promise(function (resolve) {
+  return new _bluebird2.default(function (resolve) {
     validateOptions(options);
     setSession();
     createEventListeners();

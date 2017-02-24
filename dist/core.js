@@ -1,10 +1,16 @@
 'use strict';
 
+var _bluebird = require('bluebird');
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _arguments = arguments;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /* global OT */
 /**
@@ -433,7 +439,7 @@ var validateCredentials = function validateCredentials() {
  * @returns {Promise} <resolve: -, reject: Error>
  */
 var connect = function connect() {
-  return new Promise(function (resolve, reject) {
+  return new _bluebird2.default(function (resolve, reject) {
     logAnalytics(logAction.connect, logVariation.attempt);
     var session = getSession();
 
@@ -475,7 +481,7 @@ var disconnect = function disconnect() {
  * @returns {Promise} <resolve: empty, reject: Error>
  */
 var forceDisconnect = function forceDisconnect(connection) {
-  return new Promise(function (resolve, reject) {
+  return new _bluebird2.default(function (resolve, reject) {
     logAnalytics(logAction.forceDisconnect, logVariation.attempt);
     getSession().forceDisconnect(connection, function (error) {
       if (error) {
@@ -495,7 +501,7 @@ var forceDisconnect = function forceDisconnect(connection) {
  * @returns {Promise} <resolve: empty, reject: Error>
  */
 var forceUnpublish = function forceUnpublish(stream) {
-  return new Promise(function (resolve, reject) {
+  return new _bluebird2.default(function (resolve, reject) {
     logAnalytics(logAction.forceUnpublish, logVariation.attempt);
     getSession().forceUnpublish(stream, function (error) {
       if (error) {
@@ -535,7 +541,7 @@ var getSubscribersForStream = function getSubscribersForStream(stream) {
  * @returns {Promise} <resolve: empty, reject: Error>
  */
 var signal = function signal(type, data, to) {
-  return new Promise(function (resolve, reject) {
+  return new _bluebird2.default(function (resolve, reject) {
     logAnalytics(logAction.signal, logVariation.attempt);
     var session = getSession();
     var signalObj = _extends({}, type ? { type: type } : null, data ? { data: JSON.stringify(data) } : null, to ? { to: to } : null // eslint-disable-line comma-dangle
