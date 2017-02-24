@@ -1,6 +1,6 @@
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 /* global OT */
 
@@ -25,13 +25,13 @@ var _require3 = require('./logging'),
 /** Module variables */
 
 
-var session = undefined;
-var accPack = undefined;
-var callProperties = undefined;
-var screenProperties = undefined;
-var streamContainers = undefined;
-var autoSubscribe = undefined;
-var connectionLimit = undefined;
+var session = void 0;
+var accPack = void 0;
+var callProperties = void 0;
+var screenProperties = void 0;
+var streamContainers = void 0;
+var autoSubscribe = void 0;
+var connectionLimit = void 0;
 var active = false;
 
 /**
@@ -81,7 +81,7 @@ var ableToJoin = function ableToJoin() {
 var createPublisher = function createPublisher(publisherProperties) {
   return new Promise(function (resolve, reject) {
     // TODO: Handle adding 'name' option to props
-    var props = Object.assign({}, callProperties, publisherProperties);
+    var props = _extends({}, callProperties, publisherProperties);
     // TODO: Figure out how to handle common vs package-specific options
     // ^^^ This may already be available through package options
     var container = dom.element(streamContainers('publisher', 'camera'));
@@ -141,25 +141,23 @@ var subscribe = function subscribe(stream) {
       // Are we already subscribing to the stream?
       resolve();
     } else {
-      (function () {
-        // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
-        var type = pathOr('sip', 'videoType', stream);
-        var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
-        var container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
-        var options = type === 'camera' ? callProperties : screenProperties;
-        var subscriber = session.subscribe(stream, container, options, function (error) {
-          if (error) {
-            logAnalytics(logAction.subscribe, logVariation.fail);
-            reject(error);
-          } else {
-            state.addSubscriber(subscriber);
-            triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.all()));
-            type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-            logAnalytics(logAction.subscribe, logVariation.success);
-            resolve();
-          }
-        });
-      })();
+      // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
+      var type = pathOr('sip', 'videoType', stream);
+      var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
+      var container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
+      var options = type === 'camera' ? callProperties : screenProperties;
+      var subscriber = session.subscribe(stream, container, options, function (error) {
+        if (error) {
+          logAnalytics(logAction.subscribe, logVariation.fail);
+          reject(error);
+        } else {
+          state.addSubscriber(subscriber);
+          triggerEvent('subscribeTo' + properCase(type), _extends({}, { subscriber: subscriber }, state.all()));
+          type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+          logAnalytics(logAction.subscribe, logVariation.success);
+          resolve();
+        }
+      });
     }
   });
 };
@@ -198,7 +196,7 @@ var validateOptions = function validateOptions(options) {
   connectionLimit = options.connectionLimit || null;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
-  screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+  screenProperties = options.screenProperties || _extends({}, defaultCallProperties, { videoSource: 'window' });
 };
 
 /**
@@ -265,23 +263,17 @@ var startCall = function startCall(publisherProperties) {
       // Get an array of initial subscription promises
       var initialSubscriptions = function initialSubscriptions() {
         if (autoSubscribe) {
-          var _ret2 = function () {
-            var streams = state.getStreams();
-            return {
-              v: Object.keys(streams).map(function (id) {
-                return subscribe(streams[id]);
-              })
-            };
-          }();
-
-          if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+          var streams = state.getStreams();
+          return Object.keys(streams).map(function (id) {
+            return subscribe(streams[id]);
+          });
         }
         return [Promise.resolve()];
       };
 
       // Handle success
       var onSubscribeToAll = function onSubscribeToAll() {
-        var pubSubData = Object.assign({}, state.getPubSub(), { publisher: publisher });
+        var pubSubData = _extends({}, state.getPubSub(), { publisher: publisher });
         triggerEvent('startCall', pubSubData);
         active = true;
         resolve(pubSubData);
@@ -291,7 +283,7 @@ var startCall = function startCall(publisherProperties) {
       var onError = function onError(reason) {
         message('Failed to subscribe to all existing streams: ' + reason);
         // We do not reject here in case we still successfully publish to the session
-        resolve(Object.assign({}, state.getPubSub(), { publisher: publisher }));
+        resolve(_extends({}, state.getPubSub(), { publisher: publisher }));
       };
 
       Promise.all(initialSubscriptions()).then(onSubscribeToAll).catch(onError);

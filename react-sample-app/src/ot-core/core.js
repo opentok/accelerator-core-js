@@ -1,8 +1,10 @@
 'use strict';
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _arguments = arguments;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /* global OT */
 /**
@@ -39,10 +41,10 @@ var dom = util.dom,
  * Individual Accelerator Packs
  */
 
-var textChat = undefined; // eslint-disable-line no-unused-vars
-var screenSharing = undefined; // eslint-disable-line no-unused-vars
-var annotation = undefined;
-var archiving = undefined; // eslint-disable-line no-unused-vars
+var textChat = void 0; // eslint-disable-line no-unused-vars
+var screenSharing = void 0; // eslint-disable-line no-unused-vars
+var annotation = void 0;
+var archiving = void 0; // eslint-disable-line no-unused-vars
 
 /**
  * Get access to an accelerator pack
@@ -99,9 +101,9 @@ var on = function on(event, callback) {
     message(event + ' is not a registered event.');
     // logAnalytics(logAction.on, logVariation.fail);
   } else {
-      eventCallbacks.add(callback);
-      // logAnalytics(logAction.on, logVariation.success);
-    }
+    eventCallbacks.add(callback);
+    // logAnalytics(logAction.on, logVariation.success);
+  }
 };
 
 /**
@@ -208,7 +210,7 @@ var createEventListeners = function createEventListeners(session, options) {
 
   on('startScreenSharing', function (publisher) {
     internalState.addPublisher('screen', publisher);
-    triggerEvent('startScreenShare', Object.assign({}, { publisher: publisher }, internalState.getPubSub()));
+    triggerEvent('startScreenShare', _extends({}, { publisher: publisher }, internalState.getPubSub()));
     if (internalAnnotation) {
       annotation.start(getSession()).then(function () {
         var absoluteParent = dom.query(path('annotation.absoluteParent.publisher', options));
@@ -240,15 +242,13 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
   });
 
   if (externalWindow) {
-    (function () {
-      // Add subscribers to the external window
-      var streams = internalState.getStreams();
-      var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
-        var stream = streams[streamId];
-        return stream.videoType === 'camera' ? acc.concat(stream) : acc;
-      }, []);
-      cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
-    })();
+    // Add subscribers to the external window
+    var streams = internalState.getStreams();
+    var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
+      var stream = streams[streamId];
+      return stream.videoType === 'camera' ? acc.concat(stream) : acc;
+    }, []);
+    cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
   }
 };
 
@@ -266,7 +266,7 @@ var initPackages = function initPackages() {
    * @returns {Object}
    */
   var optionalRequire = function optionalRequire(packageName, globalName) {
-    var result = undefined;
+    var result = void 0;
     /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
     try {
       switch (packageName) {
@@ -368,7 +368,7 @@ var initPackages = function initPackages() {
       /* beautify ignore:start */
       case 'communication':
         {
-          return Object.assign({}, baseOptions, options.communication);
+          return _extends({}, baseOptions, options.communication);
         }
       case 'textChat':
         {
@@ -378,20 +378,20 @@ var initPackages = function initPackages() {
             sender: { alias: path('textChat.name', options) },
             alwaysOpen: path('textChat.alwaysOpen', options)
           };
-          return Object.assign({}, baseOptions, textChatOptions);
+          return _extends({}, baseOptions, textChatOptions);
         }
       case 'screenSharing':
         {
           var screenSharingContainer = { screenSharingContainer: streamContainers };
-          return Object.assign({}, baseOptions, screenSharingContainer, options.screenSharing);
+          return _extends({}, baseOptions, screenSharingContainer, options.screenSharing);
         }
       case 'annotation':
         {
-          return Object.assign({}, baseOptions, options.annotation);
+          return _extends({}, baseOptions, options.annotation);
         }
       case 'archiving':
         {
-          return Object.assign({}, baseOptions, options.archiving);
+          return _extends({}, baseOptions, options.archiving);
         }
       default:
         return {};
@@ -538,7 +538,7 @@ var signal = function signal(type, data, to) {
   return new Promise(function (resolve, reject) {
     logAnalytics(logAction.signal, logVariation.attempt);
     var session = getSession();
-    var signalObj = Object.assign({}, type ? { type: type } : null, data ? { data: JSON.stringify(data) } : null, to ? { to: to } : null // eslint-disable-line comma-dangle
+    var signalObj = _extends({}, type ? { type: type } : null, data ? { data: JSON.stringify(data) } : null, to ? { to: to } : null // eslint-disable-line comma-dangle
     );
     session.signal(signalObj, function (error) {
       if (error) {
