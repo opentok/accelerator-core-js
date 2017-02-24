@@ -502,14 +502,15 @@ var off = function off(event, callback) {
     Object.keys(eventListeners).forEach(function (eventType) {
       eventListeners[eventType].clear();
     });
-  }
-  var eventCallbacks = eventListeners[event];
-  if (!eventCallbacks) {
-    // logAnalytics(logAction.off, logVariation.fail);
-    message(event + ' is not a registered event.');
   } else {
-    eventCallbacks.delete(callback);
-    // logAnalytics(logAction.off, logVariation.success);
+    var eventCallbacks = eventListeners[event];
+    if (!eventCallbacks) {
+      // logAnalytics(logAction.off, logVariation.fail);
+      message(event + ' is not a registered event.');
+    } else {
+      eventCallbacks.delete(callback);
+      // logAnalytics(logAction.off, logVariation.success);
+    }
   }
 };
 

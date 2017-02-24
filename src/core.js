@@ -102,14 +102,15 @@ const off = (event, callback) => {
     Object.keys(eventListeners).forEach((eventType) => {
       eventListeners[eventType].clear();
     });
-  }
-  const eventCallbacks = eventListeners[event];
-  if (!eventCallbacks) {
-    // logAnalytics(logAction.off, logVariation.fail);
-    message(`${event} is not a registered event.`);
   } else {
-    eventCallbacks.delete(callback);
-    // logAnalytics(logAction.off, logVariation.success);
+    const eventCallbacks = eventListeners[event];
+    if (!eventCallbacks) {
+      // logAnalytics(logAction.off, logVariation.fail);
+      message(`${event} is not a registered event.`);
+    } else {
+      eventCallbacks.delete(callback);
+      // logAnalytics(logAction.off, logVariation.success);
+    }
   }
 };
 
