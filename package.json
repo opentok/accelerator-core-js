@@ -33,6 +33,7 @@
     "eslint-plugin-react": "^6.9.0"
   },
   "dependencies": {
+    "babel-polyfill": "^6.23.0",
     "opentok-solutions-logging": "^1.0.7"
   }
 }
