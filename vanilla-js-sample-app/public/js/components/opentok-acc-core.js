@@ -3,7 +3,7 @@ function _classCallCheck(n,e){if(!(n instanceof e))throw new TypeError("Cannot c
 },{}],2:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 /* global OT */
 
@@ -84,7 +84,7 @@ var ableToJoin = function ableToJoin() {
 var createPublisher = function createPublisher(publisherProperties) {
   return new Promise(function (resolve, reject) {
     // TODO: Handle adding 'name' option to props
-    var props = Object.assign({}, callProperties, publisherProperties);
+    var props = _extends({}, callProperties, publisherProperties);
     // TODO: Figure out how to handle common vs package-specific options
     // ^^^ This may already be available through package options
     var container = dom.element(streamContainers('publisher', 'camera'));
@@ -144,25 +144,23 @@ var subscribe = function subscribe(stream) {
       // Are we already subscribing to the stream?
       resolve();
     } else {
-      (function () {
-        // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
-        var type = pathOr('sip', 'videoType', stream);
-        var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
-        var container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
-        var options = type === 'camera' ? callProperties : screenProperties;
-        var subscriber = session.subscribe(stream, container, options, function (error) {
-          if (error) {
-            logAnalytics(logAction.subscribe, logVariation.fail);
-            reject(error);
-          } else {
-            state.addSubscriber(subscriber);
-            triggerEvent('subscribeTo' + properCase(type), Object.assign({}, { subscriber: subscriber }, state.all()));
-            type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-            logAnalytics(logAction.subscribe, logVariation.success);
-            resolve();
-          }
-        });
-      })();
+      // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
+      var type = pathOr('sip', 'videoType', stream);
+      var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
+      var container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
+      var options = type === 'camera' ? callProperties : screenProperties;
+      var subscriber = session.subscribe(stream, container, options, function (error) {
+        if (error) {
+          logAnalytics(logAction.subscribe, logVariation.fail);
+          reject(error);
+        } else {
+          state.addSubscriber(subscriber);
+          triggerEvent('subscribeTo' + properCase(type), _extends({}, { subscriber: subscriber }, state.all()));
+          type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+          logAnalytics(logAction.subscribe, logVariation.success);
+          resolve();
+        }
+      });
     }
   });
 };
@@ -201,7 +199,7 @@ var validateOptions = function validateOptions(options) {
   connectionLimit = options.connectionLimit || null;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
 
-  screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+  screenProperties = options.screenProperties || _extends({}, defaultCallProperties, { videoSource: 'window' });
 };
 
 /**
@@ -268,23 +266,17 @@ var startCall = function startCall(publisherProperties) {
       // Get an array of initial subscription promises
       var initialSubscriptions = function initialSubscriptions() {
         if (autoSubscribe) {
-          var _ret2 = function () {
-            var streams = state.getStreams();
-            return {
-              v: Object.keys(streams).map(function (id) {
-                return subscribe(streams[id]);
-              })
-            };
-          }();
-
-          if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+          var streams = state.getStreams();
+          return Object.keys(streams).map(function (id) {
+            return subscribe(streams[id]);
+          });
         }
         return [Promise.resolve()];
       };
 
       // Handle success
       var onSubscribeToAll = function onSubscribeToAll() {
-        var pubSubData = Object.assign({}, state.getPubSub(), { publisher: publisher });
+        var pubSubData = _extends({}, state.getPubSub(), { publisher: publisher });
         triggerEvent('startCall', pubSubData);
         active = true;
         resolve(pubSubData);
@@ -294,7 +286,7 @@ var startCall = function startCall(publisherProperties) {
       var onError = function onError(reason) {
         message('Failed to subscribe to all existing streams: ' + reason);
         // We do not reject here in case we still successfully publish to the session
-        resolve(Object.assign({}, state.getPubSub(), { publisher: publisher }));
+        resolve(_extends({}, state.getPubSub(), { publisher: publisher }));
       };
 
       Promise.all(initialSubscriptions()).then(onSubscribeToAll).catch(onError);
@@ -387,6 +379,8 @@ module.exports = {
 },{"./errors":4,"./logging":6,"./state":10,"./util":11}],3:[function(require,module,exports){
 (function (global){
 'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _arguments = arguments;
 
@@ -596,7 +590,7 @@ var createEventListeners = function createEventListeners(session, options) {
 
   on('startScreenSharing', function (publisher) {
     internalState.addPublisher('screen', publisher);
-    triggerEvent('startScreenShare', Object.assign({}, { publisher: publisher }, internalState.getPubSub()));
+    triggerEvent('startScreenShare', _extends({}, { publisher: publisher }, internalState.getPubSub()));
     if (internalAnnotation) {
       annotation.start(getSession()).then(function () {
         var absoluteParent = dom.query(path('annotation.absoluteParent.publisher', options));
@@ -628,15 +622,13 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
   });
 
   if (externalWindow) {
-    (function () {
-      // Add subscribers to the external window
-      var streams = internalState.getStreams();
-      var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
-        var stream = streams[streamId];
-        return stream.videoType === 'camera' ? acc.concat(stream) : acc;
-      }, []);
-      cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
-    })();
+    // Add subscribers to the external window
+    var streams = internalState.getStreams();
+    var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
+      var stream = streams[streamId];
+      return stream.videoType === 'camera' ? acc.concat(stream) : acc;
+    }, []);
+    cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
   }
 };
 
@@ -756,7 +748,7 @@ var initPackages = function initPackages() {
       /* beautify ignore:start */
       case 'communication':
         {
-          return Object.assign({}, baseOptions, options.communication);
+          return _extends({}, baseOptions, options.communication);
         }
       case 'textChat':
         {
@@ -766,20 +758,20 @@ var initPackages = function initPackages() {
             sender: { alias: path('textChat.name', options) },
             alwaysOpen: path('textChat.alwaysOpen', options)
           };
-          return Object.assign({}, baseOptions, textChatOptions);
+          return _extends({}, baseOptions, textChatOptions);
         }
       case 'screenSharing':
         {
           var screenSharingContainer = { screenSharingContainer: streamContainers };
-          return Object.assign({}, baseOptions, screenSharingContainer, options.screenSharing);
+          return _extends({}, baseOptions, screenSharingContainer, options.screenSharing);
         }
       case 'annotation':
         {
-          return Object.assign({}, baseOptions, options.annotation);
+          return _extends({}, baseOptions, options.annotation);
         }
       case 'archiving':
         {
-          return Object.assign({}, baseOptions, options.archiving);
+          return _extends({}, baseOptions, options.archiving);
         }
       default:
         return {};
@@ -926,7 +918,7 @@ var signal = function signal(type, data, to) {
   return new Promise(function (resolve, reject) {
     logAnalytics(logAction.signal, logVariation.attempt);
     var session = getSession();
-    var signalObj = Object.assign({}, type ? { type: type } : null, data ? { data: JSON.stringify(data) } : null, to ? { to: to } : null // eslint-disable-line comma-dangle
+    var signalObj = _extends({}, type ? { type: type } : null, data ? { data: JSON.stringify(data) } : null, to ? { to: to } : null // eslint-disable-line comma-dangle
     );
     session.signal(signalObj, function (error) {
       if (error) {
@@ -1705,6 +1697,8 @@ module.exports = OpenTokSDK;
 },{"./errors":7,"./state":9}],9:[function(require,module,exports){
 "use strict";
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -1889,7 +1883,7 @@ var State = function () {
       var streams = this.streams,
           streamMap = this.streamMap;
 
-      return Object.assign({}, this.getPubSub(), { streams: streams, streamMap: streamMap });
+      return _extends({}, this.getPubSub(), { streams: streams, streamMap: streamMap });
     }
   }]);
 
@@ -1900,6 +1894,8 @@ module.exports = State;
 
 },{}],10:[function(require,module,exports){
 'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 /**
  * Internal variables
@@ -1978,7 +1974,7 @@ var getPubSub = function getPubSub() {
  * @return {Object}
  */
 var all = function all() {
-  return Object.assign({}, { streams: streams, streamMap: streamMap }, getPubSub());
+  return _extends({}, { streams: streams, streamMap: streamMap }, getPubSub());
 };
 
 /**
