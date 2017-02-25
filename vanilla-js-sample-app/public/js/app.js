@@ -1,6 +1,11 @@
 /* global otCore */
 
 const options = {
+  credentials: {
+    apiKey: '45621172',
+    sessionId: '1_MX40NTYyMTE3Mn5-MTQ4Nzk4Mzg5MjgyOX5RN3hXbUxKbFlMOFRDc0xHdEh5alRXNTl-fg',
+    token: 'T1==cGFydG5lcl9pZD00NTYyMTE3MiZzaWc9YmY1ZTU1N2IyNmQ1YzM4ZGY4MTc3ODIzOGY0NjIwYjg1OGFmZDJjMzpzZXNzaW9uX2lkPTFfTVg0ME5UWXlNVEUzTW41LU1UUTROems0TXpnNU1qZ3lPWDVSTjNoWGJVeEtiRmxNT0ZSRGMweEhkRWg1YWxSWE5UbC1mZyZjcmVhdGVfdGltZT0xNDg3OTgzOTA0Jm5vbmNlPTAuMzA5MDg2MDc0MTYwNDA1MSZyb2xlPXB1Ymxpc2hlciZleHBpcmVfdGltZT0xNDg3OTg3NTAz'
+  },
   // A container can either be a query selector or an HTMLElement
   streamContainers: function streamContainers(pubSub, type, data) {
     return {
