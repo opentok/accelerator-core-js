@@ -2,6 +2,7 @@
 /**
  * Dependencies
  */
+require('babel-polyfill');
 const util = require('./util');
 const internalState = require('./state');
 const accPackEvents = require('./events');
