@@ -6,6 +6,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * Dependencies
  */
+require('babel-polyfill');
 var util = require('./util');
 var internalState = require('./state');
 var accPackEvents = require('./events');
