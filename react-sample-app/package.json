@@ -14,7 +14,8 @@
     "opentok-text-chat": "*",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
-    "react-spinner": "^0.2.6"
+    "react-spinner": "^0.2.6",
+    "babel-polyfill:^6.23.0"
   },
   "scripts": {
     "start": "react-scripts start",
