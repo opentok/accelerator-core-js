@@ -1,7 +1,8 @@
+const { pathOr } = require('./util');
+
 /**
  * Internal variables
  */
-
 // Map publisher ids to publisher objects
 const publishers = {
   camera: {},
@@ -186,8 +187,8 @@ const removeAllPublishers = () => {
  * @param {Object} - An OpenTok subscriber object
  */
 const addSubscriber = (subscriber) => {
-  const type = subscriber.stream.videoType;
   const streamId = subscriber.stream.id;
+  const type = pathOr('sip', 'stream.videoType', subscriber);
   subscribers[type][subscriber.id] = subscriber;
   streamMap[streamId] = subscriber.id;
 };
