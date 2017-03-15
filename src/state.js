@@ -1,8 +1,8 @@
+const { pathOr } = require('./util');
+
 /**
  * Internal variables
  */
-const { pathOr } = require('./util');
-
 // Map publisher ids to publisher objects
 const publishers = {
   camera: {},
