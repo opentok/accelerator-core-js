@@ -186,7 +186,10 @@ const removeAllPublishers = () => {
  * @param {Object} - An OpenTok subscriber object
  */
 const addSubscriber = (subscriber) => {
-  const type = subscriber.stream.videoType;
+  let type = subscriber.stream.videoType;
+  if (type === undefined) {
+    type = 'sip';
+  }
   const streamId = subscriber.stream.id;
   subscribers[type][subscriber.id] = subscriber;
   streamMap[streamId] = subscriber.id;
