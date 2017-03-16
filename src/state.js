@@ -131,7 +131,7 @@ const addStream = (stream) => {
  * @param {Object} stream - An OpenTok stream object
  */
 const removeStream = (stream) => {
-  const type = stream.videoType;
+  const type = pathOr('sip', 'videoType', stream);
   const subscriberId = streamMap[stream.id];
   delete streamMap[stream.id];
   delete subscribers[type][subscriberId];
