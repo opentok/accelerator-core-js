@@ -1,6 +1,6 @@
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /* global OT */
 
@@ -25,13 +25,13 @@ var _require3 = require('./logging'),
 /** Module variables */
 
 
-var session = undefined;
-var accPack = undefined;
-var callProperties = undefined;
-var screenProperties = undefined;
-var streamContainers = undefined;
-var autoSubscribe = undefined;
-var connectionLimit = undefined;
+var session = void 0;
+var accPack = void 0;
+var callProperties = void 0;
+var screenProperties = void 0;
+var streamContainers = void 0;
+var autoSubscribe = void 0;
+var connectionLimit = void 0;
 var active = false;
 
 /**
