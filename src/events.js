@@ -27,6 +27,7 @@ const events = {
     'subscribeToScreen',
     'subscribeToSip',
     'unsubscribeFromCamera',
+    'unsubscribeFromSip',
     'unsubscribeFromScreen',
     'startViewingSharedScreen',
     'endViewingSharedScreen',
