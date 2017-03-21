@@ -224,7 +224,7 @@ const linkAnnotation = (pubSub, annotationContainer, externalWindow) => {
     const streams = internalState.getStreams();
     const cameraStreams = Object.keys(streams).reduce((acc, streamId) => {
       const stream = streams[streamId];
-      return stream.videoType === 'camera' ? acc.concat(stream) : acc;
+      return stream.videoType === 'camera' || stream.videoType === 'sip' ? acc.concat(stream) : acc;
     }, []);
     cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
   }
