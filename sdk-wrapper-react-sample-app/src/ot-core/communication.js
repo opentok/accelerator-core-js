@@ -146,7 +146,7 @@ var subscribe = function subscribe(stream) {
         var type = pathOr('sip', 'videoType', stream);
         var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
         var container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
-        var options = type === 'camera' ? callProperties : screenProperties;
+        var options = type === 'camera' || type === 'sip' ? callProperties : screenProperties;
         var subscriber = session.subscribe(stream, container, options, function (error) {
           if (error) {
             logAnalytics(logAction.subscribe, logVariation.fail);
