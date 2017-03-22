@@ -1,10 +1,14 @@
 'use strict';
 
+var _require = require('./util'),
+    pathOr = _require.pathOr;
+
 /**
  * Internal variables
  */
-
 // Map publisher ids to publisher objects
+
+
 var publishers = {
   camera: {},
   screen: {}
@@ -141,7 +145,7 @@ var addStream = function addStream(stream) {
  * @param {Object} stream - An OpenTok stream object
  */
 var removeStream = function removeStream(stream) {
-  var type = stream.videoType;
+  var type = pathOr('sip', 'videoType', stream);
   var subscriberId = streamMap[stream.id];
   delete streamMap[stream.id];
   delete subscribers[type][subscriberId];
@@ -201,8 +205,8 @@ var removeAllPublishers = function removeAllPublishers() {
  * @param {Object} - An OpenTok subscriber object
  */
 var addSubscriber = function addSubscriber(subscriber) {
-  var type = subscriber.stream.videoType;
   var streamId = subscriber.stream.id;
+  var type = pathOr('sip', 'stream.videoType', subscriber);
   subscribers[type][subscriber.id] = subscriber;
   streamMap[streamId] = subscriber.id;
 };

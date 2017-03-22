@@ -50,7 +50,7 @@ var updateLogAnalytics = function updateLogAnalytics(sessionId, connectionId, ap
 
 var initLogAnalytics = function initLogAnalytics(source, sessionId, connectionId, apikey) {
   var otkanalyticsData = {
-    clientVersion: 'js-vsol-1.0.0',
+    clientVersion: 'js-vsol-1.0.18',
     source: source,
     componentId: 'acceleratorCore',
     name: 'coreAccelerator',
