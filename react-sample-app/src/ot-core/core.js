@@ -222,7 +222,7 @@ var createEventListeners = function createEventListeners(session, options) {
     // delete publishers.screen[publisher.id];
     internalState.removePublisher('screen', publisher);
     triggerEvent('endScreenShare', internalState.getPubSub());
-    if (internalAnnotation) {
+    if (usingAnnotation) {
       annotation.end();
     }
   });
