@@ -240,15 +240,13 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
   });
 
   if (externalWindow) {
-    (function () {
-      // Add subscribers to the external window
-      var streams = internalState.getStreams();
-      var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
-        var stream = streams[streamId];
-        return stream.videoType === 'camera' || stream.videoType === 'sip' ? acc.concat(stream) : acc;
-      }, []);
-      cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
-    })();
+    // Add subscribers to the external window
+    var streams = internalState.getStreams();
+    var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
+      var stream = streams[streamId];
+      return stream.videoType === 'camera' || stream.videoType === 'sip' ? acc.concat(stream) : acc;
+    }, []);
+    cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
   }
 };
 
