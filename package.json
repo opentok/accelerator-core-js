@@ -1,16 +1,13 @@
 {
   "name": "opentok-accelerator-core",
-  "version": "1.0.18",
+  "version": "1.0.22",
   "description": "Opentok Accelerator Core",
   "repository": "https://github.com/opentok/accelerator-core-js",
   "main": "dist/core.js",
   "scripts": {
     "build:node": "babel -d ./dist/ ./src/",
     "build:browser": "browserify src/core.js -o browser/opentok-acc-core.js -t [ babelify --presets [ es2015 ] ] --im",
-    "build:react-sample": "cp -r dist/* react-sample-app/src/ot-core/",
-    "build:sdk-react-sample": "cp -r dist/* sdk-wrapper-react-sample-app/src/ot-core/",
-    "build:js-sample": "cp browser/opentok-acc-core.js vanilla-js-sample-app/public/js/components/opentok-acc-core.js",
-    "build": "npm run build:node && npm run build:browser && npm run build:react-sample && npm run build:js-sample && npm run build:sdk-react-sample",
+    "build": "npm run build:node && npm run build:browser",
     "test": "karma start"
   },
   "keywords": [
