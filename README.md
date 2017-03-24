@@ -17,8 +17,8 @@ OpenTok's Accelerator Core JS provides easy integration for OpenTok libraries. W
 
 ##Quickstart
 
-To start using audio/video communication with OpenTok's libraries go to [Using Accelerator Core](#using-accelerator-core). To implement a more granular and complex management for OpenTok's session you can check [Using Accelerator Core JS with SDK Wrapper](#using-accelerator-core-js-with-sdk-wrapper). 
- 
+To start using audio/video communication with OpenTok's libraries go to [Using Accelerator Core](#using-accelerator-core). To implement a more granular and complex management for OpenTok's session you can check [Using Accelerator Core JS with SDK Wrapper](#using-accelerator-core-js-with-sdk-wrapper).
+
 ##Using Accelerator Core
 
 `OpenTok Accelerator Core JS` provides a simple way to integrate real-time audio/video into your web application using the OpenTok Platform. It also integrates with, manages, and provides a single API for the following accelerator packs:
@@ -90,13 +90,13 @@ The `streamContainers` property is a function that specifies which DOM element s
   controlsContainer: '#videoControls',
 ```
 ####Communication Options
-The `communication` properties relate to the multi-party communication provided by `Core`.  `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.  `connectionLimit` limits the number of parties that may publish/subscribe to the session.  `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI.
+The `communication` properties relate to the multi-party communication provided by `Core`.  `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.  `connectionLimit` limits the number of parties that may publish/subscribe to the session.  `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI and will be combined with the [default call properties](https://github.com/opentok/accelerator-core-js/blob/master/src/communication.js#L24) using [`Object.assign()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign).
 
 ```javascript
   communication: {
   autoSubscribe: true,
   connectionLimit: null,
-    callProperties: myCallProperties,
+  callProperties: myCallProperties,
   },
 ```
 *See more on manually subscribing to streams [below](#autoSubscribe).*
