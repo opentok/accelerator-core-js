@@ -170,13 +170,10 @@ const validateOptions = (options) => {
 
   accPack = options.accPack;
   streamContainers = options.streamContainers;
-  callProperties = options.callProperties || defaultCallProperties;
+  callProperties = Object.assign({}, defaultCallProperties, options.callProperties )
   connectionLimit = options.connectionLimit || null;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
-
-
-  screenProperties = options.screenProperties ||
-    Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+  screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, options.screenProperties);
 };
 
 /**
