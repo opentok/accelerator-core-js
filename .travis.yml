@@ -9,7 +9,7 @@ before_script:
 - npm install
 - npm install --save-dev chai karma karma-chai karma-chrome-launcher
   karma-coverage karma-firefox-launcher karma-html2js-preprocessor mocha karma-mocha
-  karma-phantomjs-launcher karma-browserify babel-plugin-espower
+  karma-phantomjs-launcher karma-browserify babel-plugin-espower browserify
 - npm install --save-dev opentok-text-chat opentok-screen-sharing opentok-annotation
   opentok-archiving
 script:
