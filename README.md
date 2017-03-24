@@ -15,11 +15,11 @@ OpenTok's Accelerator Core JS provides easy integration for OpenTok libraries. W
   - Annotation
   - Archiving
 
-##Quickstart
+## Quickstart
 
-To start using audio/video communication with OpenTok's libraries go to [Using Accelerator Core](#using-accelerator-core). To implement a more granular and complex management for OpenTok's session you can check [Using Accelerator Core JS with SDK Wrapper](#using-accelerator-core-js-with-sdk-wrapper). 
- 
-##Using Accelerator Core
+To start using audio/video communication with OpenTok's libraries go to [Using Accelerator Core](#using-accelerator-core). To implement a more granular and complex management for OpenTok's session you can check [Using Accelerator Core JS with SDK Wrapper](#using-accelerator-core-js-with-sdk-wrapper).
+
+## Using Accelerator Core
 
 `OpenTok Accelerator Core JS` provides a simple way to integrate real-time audio/video into your web application using the OpenTok Platform. It also integrates with, manages, and provides a single API for the following accelerator packs:
 
@@ -28,11 +28,11 @@ To start using audio/video communication with OpenTok's libraries go to [Using A
  - [Annotation](https://www.npmjs.com/package/opentok-annotation)
  - [Archiving](https://www.npmjs.com/package/opentok-archiving)
 
-##Sample Applications
+## Sample Applications
 
 There are two sample applications for `Core` .  The [React](https://github.com/opentok/accelerator-core-js/tree/master/react-sample-app) sample application was built with [Create React App](https://github.com/facebookincubator/create-react-app) and uses [webpack](https://webpack.github.io/) to transpile code.  The other [sample application](https://github.com/opentok/accelerator-core-js/tree/master/vanilla-js-sample-app) is built with vanilla JavaScript.
 
-##Installation
+## Installation
 
 ```
 $ npm i --save opentok-accelerator-core
@@ -44,7 +44,7 @@ const otCore = require('opentok-accelerator-core');
 <script src="path/to/browser/opentok-accelerator-core.js"></script>
 ```
 
-###Configuration
+### Configuration
 `Core` can be configured in a number of ways, but the only required options property is `credentials`, which includes an OpenTok API Key, Session ID, and Token.  These can be obtained from the [developer dashboard](https://tokbox.com/account/#/) or generated with one of the [OpenTok Server SDKs](https://tokbox.com/developer/).
 
 ```javascript
@@ -135,7 +135,7 @@ The remainder of the options properties are specific to individual accelerator p
 
 ```
 
-##Usage
+## Usage
 Initialize `Core`:
 ```javascript
 otCore.init(options);
@@ -155,7 +155,7 @@ otCore.connect().then(() => this.setState({ connected: true }));
 ```
 *See an example of the publisher, subscriber, and meta data [below](#pubSubData).*
 
-##Exploring the code
+## Exploring the code
 Aside from the `connect` method the other `Core` **API methods** include:
 ```javascript
 getAccPack              => Get a reference to an individual accelerator pack
@@ -178,7 +178,7 @@ subscribe               => Manually subscribe to a stream
 
 Full documentation for the `Core` API can be found [here](https://github.com/opentok/accelerator-core-js/blob/master/API.md).
 
-###Events
+### Events
 
 `Core` exposes a number of events, including all OpenTok [session events](https://www.tokbox.com/developer/sdks/js/reference/Session.html#events), which can be accessed using the `on` method:
 ```javascript
@@ -245,7 +245,7 @@ UI Styling
 -------
 Default icons and styling for accelerator pack components are provided by `opentok-solutions-css`, which is available as an [npm](https://www.npmjs.com/package/opentok-solutions-css) module or from our [CDN](https://assets.tokbox.com/solutions/css/style.css).  To customize the layout and styling in your application, simply override these CSS rules with your own.
 
-##Using Accelerator Core JS with SDK Wrapper
+## Using Accelerator Core JS with SDK Wrapper
 
 `Accelerator Core` will cover the use cases for most projects. If you have a special use case, your first course of action should be to open a Github issue. If there is a way that we can add functionality or increase the flexibility of core or one of the accelerator packs while maintaining backwards compatibility, we’re happy to do so. Another option is to use the [OpenTok JS SDK Wrapper](#opentok-js-sdk-wrapper). The `SDK Wrapper` extends the functionality of the [OpenTok JS Client library](https://tokbox.com/developer/sdks/js/)  with the same state management provided by `Accelerator Core`. Some use cases for the SDK Wrapper may be:
 
