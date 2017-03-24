@@ -170,7 +170,7 @@ const validateOptions = (options) => {
 
   accPack = options.accPack;
   streamContainers = options.streamContainers;
-  callProperties = Object.assign({}, defaultCallProperties, options.callProperties )
+  callProperties = Object.assign({}, defaultCallProperties, options.callProperties);
   connectionLimit = options.connectionLimit || null;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
   screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, options.screenProperties);
