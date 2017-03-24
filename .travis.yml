@@ -7,13 +7,17 @@ before_install:
 - sh -e /etc/init.d/xvfb start
 before_script:
 - npm install
-- npm install --save-dev chai grunt karma karma-chai grunt-karma karma-chrome-launcher
+- npm install --save-dev chai karma karma-chai karma-chrome-launcher
   karma-coverage karma-firefox-launcher karma-html2js-preprocessor mocha karma-mocha
-  karma-phantomjs-launcher load-grunt-tasks karma-browserify babel-plugin-espower
+  karma-phantomjs-launcher karma-browserify babel-plugin-espower
 - npm install --save-dev opentok-text-chat opentok-screen-sharing opentok-annotation
   opentok-archiving
 script:
-- grunt karma:prod
+- npm test
+#deploy:
+#  provider: npm
+#  email: "	opentok-vsolutions"
+#  api_key: "TO_ADD_ENCRYPTED_API_KEY"
 notifications:
   slack:
     secure: csFMBAr1OOgB41jMXzwVzrO58PsOdFSRnyN+h0nXfEd0aL1UbrOxbgqqMwpWJwkZnJENnVuW1tkxFXoGnq6sJjOywLPkPqCf0dPGEWTUvbsdsFrNivtNbjT/kY3BI5sz13ENGyZuzD68bQ/Za7JQUgAlkOX0jlml8ZtBABkvPQaFAcqDHoiZrTgSjv5rvwHC6Wo8Fi50PsE662X7HtIrLCk+Xaoi5rzTf/5vB3gGJysCV3qmB6t+9QOBElmjPERHOfVLkKiexjDJQ3jSBmR164vUZL0207+Y9GuyDq0iTHumEu5LK+xoAikOFRoGVH0iWUCtrJPg/SeWCJ1KxKI1Fymc2atQ7zTXyZxj18GrB3xxkW3qH/1rNH8OJoV6bHTr8tNaoRHGbwawo0hioEQ7h5X4b0xHAqpyJq1QcbZ7rBJu7sKIxP58qBztzL+Bzue35BNE1N1AVcN3YPU0jxDFSHKAG0ZVgI9hjU0IvLg5YoIaNZCN4MC6C1LVDknxGfjjC6oNE1oOz9xtIw1FNf5SbvoKrmCuqG2qDEQ87QwWTpzXaZajExF6C4p+gMtK3MJjWuCV5AILjc+XLJ7y9AVr5i9ErwTdyXAV5ACUw3riDUklKHGetGA3SPeSO9Lg35yb4OgPoNcZSSZ7y4WZg6iVPaI/gZbLk6PqKFlQZO5jCHg=
