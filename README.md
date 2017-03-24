@@ -58,7 +58,7 @@ const options = {
 ```
 Other properties are the following.
 
-####Packages
+#### Packages
 
 The `packages` property specifies which accelerator packs should be included in the application.  If using a bundler like [`webpack`](https://webpack.github.io/) or [`Browserify`](http://browserify.org/), you'll need to install the additional packages using `npm`.  Otherwise `Core` will look for them in global scope.
 
@@ -66,7 +66,7 @@ The `packages` property specifies which accelerator packs should be included in 
   packages: ['textChat', 'screenSharing', 'annotation', 'archiving'],
 ```
 
-####Containers
+#### Containers
 The `streamContainers` property is a function that specifies which DOM element should be used as a container for a video stream.  The `controlsContainer` property specifies the element to be used as the container for the local audio/video and accelerator pack controls.  These elements can either be [query selectors](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) or references to DOM elements.  The default containers are specified below.  If these containers do not exist in the DOM, `Core` will be append new elements to the `body`.
 
 ```javascript
@@ -89,7 +89,7 @@ The `streamContainers` property is a function that specifies which DOM element s
   },
   controlsContainer: '#videoControls',
 ```
-####Communication Options
+#### Communication Options
 The `communication` properties relate to the multi-party communication provided by `Core`.  `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.  `connectionLimit` limits the number of parties that may publish/subscribe to the session.  `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI.
 
 ```javascript
@@ -101,7 +101,7 @@ The `communication` properties relate to the multi-party communication provided 
 ```
 *See more on manually subscribing to streams [below](#autoSubscribe).*
 
-####Accelerator Pack Properties
+#### Accelerator Pack Properties
 The remainder of the options properties are specific to individual accelerator packs.
 ```javascript
   textChat: {
