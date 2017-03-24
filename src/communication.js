@@ -109,6 +109,7 @@ const publish = publisherProperties =>
  */
 const subscribe = stream =>
   new Promise((resolve, reject) => {
+    let connectionData;
     logAnalytics(logAction.subscribe, logVariation.attempt);
     const streamMap = state.getStreamMap();
     const { streamId } = stream;
@@ -118,9 +119,13 @@ const subscribe = stream =>
     } else {
       // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
       const type = pathOr('sip', 'videoType', stream);
-      const connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
+      try {
+        connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
+      } catch (e) {
+        connectionData = path(['connection', 'data'], stream);
+      }
       const container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
-      const options = type === 'camera' ? callProperties : screenProperties;
+      const options = type === 'camera' || type === 'sip' ? callProperties : screenProperties;
       const subscriber = session.subscribe(stream, container, options, (error) => {
         if (error) {
           logAnalytics(logAction.subscribe, logVariation.fail);
@@ -165,13 +170,10 @@ const validateOptions = (options) => {
 
   accPack = options.accPack;
   streamContainers = options.streamContainers;
-  callProperties = options.callProperties || defaultCallProperties;
+  callProperties = Object.assign({}, defaultCallProperties, options.callProperties )
   connectionLimit = options.connectionLimit || null;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
-
-
-  screenProperties = options.screenProperties ||
-    Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+  screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, options.screenProperties);
 };
 
 /**

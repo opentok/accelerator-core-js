@@ -7103,7 +7103,7 @@ var subscribe = function subscribe(stream) {
         var type = pathOr('sip', 'videoType', stream);
         var connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
         var container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
-        var options = type === 'camera' ? callProperties : screenProperties;
+        var options = type === 'camera' || type === 'sip' ? callProperties : screenProperties;
         var subscriber = session.subscribe(stream, container, options, function (error) {
           if (error) {
             logAnalytics(logAction.subscribe, logVariation.fail);
@@ -7151,11 +7151,10 @@ var validateOptions = function validateOptions(options) {
 
   accPack = options.accPack;
   streamContainers = options.streamContainers;
-  callProperties = options.callProperties || defaultCallProperties;
+  callProperties = Object.assign({}, defaultCallProperties, options.callProperties);
   connectionLimit = options.connectionLimit || null;
   autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
-
-  screenProperties = options.screenProperties || Object.assign({}, defaultCallProperties, { videoSource: 'window' });
+  screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, options.screenProperties);
 };
 
 /**
@@ -7587,7 +7586,7 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
       var streams = internalState.getStreams();
       var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
         var stream = streams[streamId];
-        return stream.videoType === 'camera' ? acc.concat(stream) : acc;
+        return stream.videoType === 'camera' || stream.videoType === 'sip' ? acc.concat(stream) : acc;
       }, []);
       cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
     })();
@@ -8047,7 +8046,7 @@ module.exports = {
 var events = {
   session: ['archiveStarted', 'archiveStopped', 'connectionCreated', 'connectionDestroyed', 'sessionConnected', 'sessionDisconnected', 'sessionReconnected', 'sessionReconnecting', 'signal', 'streamCreated', 'streamDestroyed', 'streamPropertyChanged'],
   core: ['connected', 'startScreenShare', 'endScreenShare', 'error'],
-  communication: ['startCall', 'endCall', 'callPropertyChanged', 'subscribeToCamera', 'subscribeToScreen', 'subscribeToSip', 'unsubscribeFromCamera', 'unsubscribeFromScreen', 'startViewingSharedScreen', 'endViewingSharedScreen'],
+  communication: ['startCall', 'endCall', 'callPropertyChanged', 'subscribeToCamera', 'subscribeToScreen', 'subscribeToSip', 'unsubscribeFromCamera', 'unsubscribeFromSip', 'unsubscribeFromScreen', 'startViewingSharedScreen', 'endViewingSharedScreen'],
   textChat: ['showTextChat', 'hideTextChat', 'messageSent', 'errorSendingMessage', 'messageReceived'],
   screenSharing: ['startScreenSharing', 'endScreenSharing', 'screenSharingError'],
   annotation: ['startAnnotation', 'linkAnnotation', 'resizeCanvas', 'annotationWindowClosed', 'endAnnotation'],
@@ -8109,7 +8108,7 @@ var updateLogAnalytics = function updateLogAnalytics(sessionId, connectionId, ap
 
 var initLogAnalytics = function initLogAnalytics(source, sessionId, connectionId, apikey) {
   var otkanalyticsData = {
-    clientVersion: 'js-vsol-1.0.0',
+    clientVersion: 'js-vsol-1.0.18',
     source: source,
     componentId: 'acceleratorCore',
     name: 'coreAccelerator',
@@ -8855,11 +8854,15 @@ module.exports = State;
 },{}],307:[function(require,module,exports){
 'use strict';
 
+var _require = require('./util'),
+    pathOr = _require.pathOr;
+
 /**
  * Internal variables
  */
-
 // Map publisher ids to publisher objects
+
+
 var publishers = {
   camera: {},
   screen: {}
@@ -8996,7 +8999,7 @@ var addStream = function addStream(stream) {
  * @param {Object} stream - An OpenTok stream object
  */
 var removeStream = function removeStream(stream) {
-  var type = stream.videoType;
+  var type = pathOr('sip', 'videoType', stream);
   var subscriberId = streamMap[stream.id];
   delete streamMap[stream.id];
   delete subscribers[type][subscriberId];
@@ -9056,8 +9059,8 @@ var removeAllPublishers = function removeAllPublishers() {
  * @param {Object} - An OpenTok subscriber object
  */
 var addSubscriber = function addSubscriber(subscriber) {
-  var type = subscriber.stream.videoType;
   var streamId = subscriber.stream.id;
+  var type = pathOr('sip', 'stream.videoType', subscriber);
   subscribers[type][subscriber.id] = subscriber;
   streamMap[streamId] = subscriber.id;
 };
@@ -9120,7 +9123,7 @@ module.exports = {
   reset: reset
 };
 
-},{}],308:[function(require,module,exports){
+},{"./util":308}],308:[function(require,module,exports){
 'use strict';
 
 /** Wrap DOM selector methods:

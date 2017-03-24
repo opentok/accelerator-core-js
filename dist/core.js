@@ -245,7 +245,7 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
       var streams = internalState.getStreams();
       var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
         var stream = streams[streamId];
-        return stream.videoType === 'camera' ? acc.concat(stream) : acc;
+        return stream.videoType === 'camera' || stream.videoType === 'sip' ? acc.concat(stream) : acc;
       }, []);
       cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
     })();
