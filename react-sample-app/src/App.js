@@ -138,8 +138,6 @@ class App extends Component {
   startCall() {
     otCore.startCall()
       .then(({ publisher, publishers, subscribers, meta }) => {
-        console.log(subscribers);
-        console.log(meta);
         this.setState({ publishers, subscribers, meta, active: true });
       }).catch(error => console.log(error));
   }

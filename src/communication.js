@@ -120,7 +120,7 @@ const subscribe = stream =>
       const type = pathOr('sip', 'videoType', stream);
       const connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
       const container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
-      const options = type === 'camera' ? callProperties : screenProperties;
+      const options = type === 'camera' || type === 'sip' ? callProperties : screenProperties;
       const subscriber = session.subscribe(stream, container, options, (error) => {
         if (error) {
           logAnalytics(logAction.subscribe, logVariation.fail);

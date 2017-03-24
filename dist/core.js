@@ -1,11 +1,12 @@
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /* global OT */
 /**
  * Dependencies
  */
+require('babel-polyfill');
 var util = require('./util');
 var internalState = require('./state');
 var accPackEvents = require('./events');
@@ -37,10 +38,10 @@ var dom = util.dom,
  * Individual Accelerator Packs
  */
 
-var textChat = undefined; // eslint-disable-line no-unused-vars
-var screenSharing = undefined; // eslint-disable-line no-unused-vars
-var annotation = undefined;
-var archiving = undefined; // eslint-disable-line no-unused-vars
+var textChat = void 0; // eslint-disable-line no-unused-vars
+var screenSharing = void 0; // eslint-disable-line no-unused-vars
+var annotation = void 0;
+var archiving = void 0; // eslint-disable-line no-unused-vars
 
 /**
  * Get access to an accelerator pack
@@ -97,9 +98,9 @@ var on = function on(event, callback) {
     message(event + ' is not a registered event.');
     // logAnalytics(logAction.on, logVariation.fail);
   } else {
-      eventCallbacks.add(callback);
-      // logAnalytics(logAction.on, logVariation.success);
-    }
+    eventCallbacks.add(callback);
+    // logAnalytics(logAction.on, logVariation.success);
+  }
 };
 
 /**
@@ -221,7 +222,7 @@ var createEventListeners = function createEventListeners(session, options) {
     // delete publishers.screen[publisher.id];
     internalState.removePublisher('screen', publisher);
     triggerEvent('endScreenShare', internalState.getPubSub());
-    if (internalAnnotation) {
+    if (usingAnnotation) {
       annotation.end();
     }
   });
@@ -239,15 +240,13 @@ var linkAnnotation = function linkAnnotation(pubSub, annotationContainer, extern
   });
 
   if (externalWindow) {
-    (function () {
-      // Add subscribers to the external window
-      var streams = internalState.getStreams();
-      var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
-        var stream = streams[streamId];
-        return stream.videoType === 'camera' ? acc.concat(stream) : acc;
-      }, []);
-      cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
-    })();
+    // Add subscribers to the external window
+    var streams = internalState.getStreams();
+    var cameraStreams = Object.keys(streams).reduce(function (acc, streamId) {
+      var stream = streams[streamId];
+      return stream.videoType === 'camera' || stream.videoType === 'sip' ? acc.concat(stream) : acc;
+    }, []);
+    cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
   }
 };
 
@@ -265,7 +264,7 @@ var initPackages = function initPackages() {
    * @returns {Object}
    */
   var optionalRequire = function optionalRequire(packageName, globalName) {
-    var result = undefined;
+    var result = void 0;
     /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
     try {
       switch (packageName) {

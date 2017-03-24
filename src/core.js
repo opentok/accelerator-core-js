@@ -2,6 +2,7 @@
 /**
  * Dependencies
  */
+require('babel-polyfill');
 const util = require('./util');
 const internalState = require('./state');
 const accPackEvents = require('./events');
@@ -202,7 +203,7 @@ const createEventListeners = (session, options) => {
     // delete publishers.screen[publisher.id];
     internalState.removePublisher('screen', publisher);
     triggerEvent('endScreenShare', internalState.getPubSub());
-    if (internalAnnotation) {
+    if (usingAnnotation) {
       annotation.end();
     }
   });
@@ -223,7 +224,7 @@ const linkAnnotation = (pubSub, annotationContainer, externalWindow) => {
     const streams = internalState.getStreams();
     const cameraStreams = Object.keys(streams).reduce((acc, streamId) => {
       const stream = streams[streamId];
-      return stream.videoType === 'camera' ? acc.concat(stream) : acc;
+      return stream.videoType === 'camera' || stream.videoType === 'sip' ? acc.concat(stream) : acc;
     }, []);
     cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
   }
