@@ -7,7 +7,8 @@
   "scripts": {
     "build:node": "babel -d ./dist/ ./src/",
     "build:browser": "browserify src/core.js -o browser/opentok-acc-core.js -t [ babelify --presets [ es2015 ] ] --im",
-    "build": "npm run build:node && npm run build:browser"
+    "build": "npm run build:node && npm run build:browser",
+    "test": "karma start"
   },
   "keywords": [
     "opentok",

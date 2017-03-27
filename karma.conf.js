@@ -1,8 +1,20 @@
 module.exports = function(config) {
     var configuration = {
+        plugins: [
+           'karma-mocha', 'karma-coverage', 'karma-html2js-preprocessor', 'karma-chrome-launcher', 'karma-chai', 'karma-browserify'
+        ],
         basePath: '',
-        frameworks: ['mocha', 'browserify'],
+        frameworks: ['mocha', 'browserify', 'chai'],
+        client: {
+            contextFile: '/test/index.html'
+        },
         files: [
+          'https://static.opentok.com/v2/js/opentok.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js',
+          'test/communication-test.js',
+          'test/core-test.js',
+          'test/state-test.js'
         ],
         exclude: [
         ],
