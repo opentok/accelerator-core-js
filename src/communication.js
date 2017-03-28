@@ -303,7 +303,8 @@ const enableLocalAV = (id, source, enable) => {
 const enableRemoteAV = (subscriberId, source, enable) => {
   const method = `subscribeTo${properCase(source)}`;
   const { subscribers } = state.getPubSub();
-  subscribers.camera[subscriberId][method](enable);
+  const subscriber = subscribers.camera[subscriberId] || subscribers.sip[subscriberId];
+  subscriber[method](enable);
 };
 
 /**
