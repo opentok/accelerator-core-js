@@ -1,17 +1,21 @@
 {
   "name": "opentok-accelerator-core",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "Opentok Accelerator Core",
   "repository": "https://github.com/opentok/accelerator-core-js",
   "main": "dist/core.js",
   "scripts": {
     "build:node": "babel -d ./dist/ ./src/",
-    "build:browser": "browserify src/core.js -o browser/opentok-acc-core.js -t [ babelify --presets [ es2015 ] ] --im",
+    "build:browser-polyfill": "(echo \"require('babel-polyfill');\\n\"; cat src/core.js) > src/browser-temp.js",
+    "build:browser-browserify": "browserify src/browser-temp.js -o browser/opentok-acc-core.js -t [ babelify --presets [ es2015 ] ] --im",
+    "build:browser": "npm run build:browser-polyfill && npm run build:browser-browserify && rm src/browser-temp.js",
     "build": "npm run build:node && npm run build:browser",
     "test": "karma start"
   },
   "keywords": [
     "opentok",
+    "accelerator",
+    "core",
     "opentok-acc-pack",
     "webrtc",
     "communication",
@@ -21,6 +25,7 @@
   "author": "adrice727@gmail.com",
   "license": "MIT",
   "devDependencies": {
+    "babel-polyfill": "*",
     "babel-preset-es2015": "^6.16.0",
     "babelify": "^7.3.0",
     "browserify": "^13.1.1",
@@ -31,7 +36,6 @@
     "eslint-plugin-react": "^6.9.0"
   },
   "dependencies": {
-    "babel-polyfill": "*",
     "opentok-solutions-logging": "^1.0.7"
   }
 }
