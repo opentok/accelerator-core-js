@@ -7,8 +7,8 @@
   "scripts": {
     "build:node": "babel -d ./dist/ ./src/",
     "build:browser-polyfill": "(echo \"require('babel-polyfill');\\n\"; cat src/core.js) > src/browser-temp.js",
-    "build:browser-browserify": "browserify src/browser-temp.js -o browser/opentok-acc-core.js -t [ babelify --presets [ es2015 ] ] --im",
-    "build:browser": "npm run build:browser-polyfill && npm run build:browser-browserify && rm src/browser-temp.js dist/browser-temp.js",
+    "build:browser-browserify": "mkdir -p browser && browserify src/browser-temp.js -o browser/opentok-acc-core.js -t [ babelify --presets [ es2015 ] ] --im",
+    "build:browser": "npm run build:browser-polyfill && npm run build:browser-browserify && rm src/browser-temp.js",
     "build": "npm run build:node && npm run build:browser",
     "test": "karma start"
   },
@@ -25,6 +25,7 @@
   "author": "adrice727@gmail.com",
   "license": "MIT",
   "devDependencies": {
+    "babel-cli": "*",
     "babel-polyfill": "*",
     "babel-preset-es2015": "^6.16.0",
     "babelify": "^7.3.0",
