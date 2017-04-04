@@ -2,10 +2,9 @@
 import React, { Component } from 'react';
 import Spinner from 'react-spinner';
 import classNames from 'classnames';
-
-import otCore from 'opentok-accelerator-core';
 import 'opentok-solutions-css';
 
+import otCore from './ot-core/core.js';
 import logo from './logo.svg';
 import config from './config.json';
 import './App.css';
