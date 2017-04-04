@@ -46,7 +46,7 @@ const updateLogAnalytics = (sessionId, connectionId, apiKey) => {
 
 const initLogAnalytics = (source, sessionId, connectionId, apikey) => {
   const otkanalyticsData = {
-    clientVersion: 'js-vsol-1.0.28',
+    clientVersion: 'js-vsol-x.y.z',
     source,
     componentId: 'acceleratorCore',
     name: 'coreAccelerator',
