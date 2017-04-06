@@ -144,8 +144,8 @@ class State {
   }
 
   all() {
-    const { streams, streamMap } = this;
-    return Object.assign({}, this.getPubSub(), { streams, streamMap });
+    const { streams, streamMap, connected } = this;
+    return Object.assign({}, this.getPubSub(), { streams, streamMap, connected });
   }
 }
 
