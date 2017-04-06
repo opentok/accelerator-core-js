@@ -119,6 +119,8 @@ class OpenTokSDK {
     const state = stateMap.get(this);
     this.session.on('streamCreated', ({ stream }) => state.addStream(stream));
     this.session.on('streamDestroyed', ({ stream }) => state.removeStream(stream));
+    this.session.on('sessionConnected sessionReconnected', () => state.setConnected(true));
+    this.session.on('sessionDisconnected', () => state.setConnected(false));
   }
 
   /**
@@ -293,7 +295,6 @@ class OpenTokSDK {
    * @returns {Promise} <resolve: empty, reject: Error>
    */
   connect(eventListeners) {
-    this.off();
     eventListeners && this.on(eventListeners);
     return new Promise((resolve, reject) => {
       const { token } = this.credentials;

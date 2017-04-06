@@ -20,6 +20,14 @@ class State {
 
     // OpenTok credentials
     this.credentials = null;
+
+    // Session Connection Status
+    this.connected = false;
+  }
+
+  // Set the current connection state
+  setConnected(connected) {
+    this.connected = connected;
   }
 
   // Get the current OpenTok session
