@@ -7,12 +7,13 @@ before_install:
 - sh -e /etc/init.d/xvfb start
 before_script:
 - npm install
-- npm install --save-dev chai karma karma-chai karma-chrome-launcher karma-coverage
+- npm install chai karma karma-chai karma-chrome-launcher karma-coverage
   karma-firefox-launcher karma-html2js-preprocessor mocha karma-mocha karma-phantomjs-launcher
   karma-browserify babel-plugin-espower browserify
-- npm install --save-dev opentok-text-chat opentok-screen-sharing opentok-annotation
+- npm install opentok-text-chat opentok-screen-sharing opentok-annotation
   opentok-archiving
 script:
+- npm run build
 - npm test
 - if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     VERSION=$(jq '.version' package.json | sed -e 's/^"//' -e 's/"$//');
@@ -26,8 +27,8 @@ deploy:
   api_key:
     secure: VBTJVEciesgOR67rcLoRSnP1ZHPBUee4u5pO+TFBLI7WlBCOZNHey3gO2Fow5HmgD9Ef8kzFxMCkC+qEyVNfXe0Lab+l5ldIIjqq1aLGf8K/rGVByrmU/L1sWttdcNNtNDohW3L9u23IstZe1eOZzCUTOrayco1n3NK8vUUQeu8ScODtCi3sPs89qYf6N+eCcPTjfmrWTT/d3eakdCHFREEaXqk3U+fOoshdc/p5sgMae0/B+vll8q+08TsFKCs6n3kiWpoSaU+yarpHflyDxTAVOCLcAX5D+cAkiwF5x+H1qjOFsdvU75xnA3BG9GTSj6/EJMKyOKsko1KqlKLgxlQqQ6HYaoBxWxvf/1dihCMZpgtQqmkRRVhub0TJDIDTYdVK+gSZJj87mA4ZvFERFpy+p+AeFtsMVELW94AbWxikq53bwowmDqry3gM+yeU6O8HjgeAUzXpW6SV2Qymi8JNdrL9xAtiOKX78ATs7uIPi8bruR4KbIG276MX3UL2IvDNgaSOB04ZYIN/moDx2XoMR4iQc60DPFLrGBTq7MyI0UCIbwogPZRaTPji8NRutilhNABU4nOsFPC3Rws1a6oCc4qHidJZTtmQGws6ox1o9k7g1eEerLgV2rl40KqiMemg2kJL5vc6CrhC9WSxWHeyXjooCa1jhl8yH/rcl2WM=
   on:
-    tags: true
-    all_branches: true
+    branch: master
+  skip_cleanup: true
 notifications:
   slack:
     secure: csFMBAr1OOgB41jMXzwVzrO58PsOdFSRnyN+h0nXfEd0aL1UbrOxbgqqMwpWJwkZnJENnVuW1tkxFXoGnq6sJjOywLPkPqCf0dPGEWTUvbsdsFrNivtNbjT/kY3BI5sz13ENGyZuzD68bQ/Za7JQUgAlkOX0jlml8ZtBABkvPQaFAcqDHoiZrTgSjv5rvwHC6Wo8Fi50PsE662X7HtIrLCk+Xaoi5rzTf/5vB3gGJysCV3qmB6t+9QOBElmjPERHOfVLkKiexjDJQ3jSBmR164vUZL0207+Y9GuyDq0iTHumEu5LK+xoAikOFRoGVH0iWUCtrJPg/SeWCJ1KxKI1Fymc2atQ7zTXyZxj18GrB3xxkW3qH/1rNH8OJoV6bHTr8tNaoRHGbwawo0hioEQ7h5X4b0xHAqpyJq1QcbZ7rBJu7sKIxP58qBztzL+Bzue35BNE1N1AVcN3YPU0jxDFSHKAG0ZVgI9hjU0IvLg5YoIaNZCN4MC6C1LVDknxGfjjC6oNE1oOz9xtIw1FNf5SbvoKrmCuqG2qDEQ87QwWTpzXaZajExF6C4p+gMtK3MJjWuCV5AILjc+XLJ7y9AVr5i9ErwTdyXAV5ACUw3riDUklKHGetGA3SPeSO9Lg35yb4OgPoNcZSSZ7y4WZg6iVPaI/gZbLk6PqKFlQZO5jCHg=
