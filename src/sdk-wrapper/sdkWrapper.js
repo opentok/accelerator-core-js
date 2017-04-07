@@ -95,7 +95,6 @@ class OpenTokSDK {
     this.credentials = validateCredentials(credentials);
     stateMap.set(this, new State());
     this.session = OT.initSession(credentials.apiKey, credentials.sessionId);
-    this.setInternalListeners();
   }
 
   /**
@@ -294,6 +293,7 @@ class OpenTokSDK {
    */
   connect(eventListeners) {
     this.off();
+    this.setInternalListeners();
     eventListeners && this.on(eventListeners);
     return new Promise((resolve, reject) => {
       const { token } = this.credentials;
