@@ -3,9 +3,9 @@
  * Dependencies
  */
 const util = require('./util');
-const internalState = require('./state');
+const State = require('./state').default;
 const accPackEvents = require('./events');
-const communication = require('./communication');
+const Communication = require('./communication').default;
 const OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
 const { CoreError } = require('./errors');
 const {
@@ -18,6 +18,12 @@ const {
 } = require('./logging');
 
 /**
+ * New state object
+ */
+
+const internalState = new State();
+
+/**
  * Helper methods
  */
 const { dom, path, pathOr, properCase } = util;
@@ -25,6 +31,7 @@ const { dom, path, pathOr, properCase } = util;
 /**
  * Individual Accelerator Packs
  */
+let communication = {};
 let textChat; // eslint-disable-line no-unused-vars
 let screenSharing; // eslint-disable-line no-unused-vars
 let annotation;
@@ -337,12 +344,19 @@ const initPackages = () => {
     const appendControl = !!containers.controls;
     const controlsContainer = containers.controls; // Legacy option
     const streamContainers = containers.stream;
-    const baseOptions = { session, accPack, controlsContainer, appendControl, streamContainers };
+    const baseOptions = {
+      session,
+      core: accPack,
+      accPack,
+      controlsContainer,
+      appendControl,
+      streamContainers,
+    };
 
     switch (packageName) {
       /* beautify ignore:start */
       case 'communication': {
-        return Object.assign({}, baseOptions, options.communication);
+        return Object.assign({}, baseOptions, { state: internalState }, options.communication);
       }
       case 'textChat': {
         const textChatOptions = {
@@ -371,7 +385,7 @@ const initPackages = () => {
 
   /** Create instances of each package */
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  communication.init(packageOptions('communication'));
+  communication = new Communication(packageOptions('communication'));
   textChat = packages.TextChat ? new packages.TextChat(packageOptions('textChat')) : null;
   screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;
   annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;

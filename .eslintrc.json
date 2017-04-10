@@ -5,6 +5,7 @@
         "node": true
     },
     "extends": "airbnb",
+    "parser": "babel-eslint",
     "rules": {
         "no-confusing-arrow": 1,
         "no-unused-expressions": 1,
