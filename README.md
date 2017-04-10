@@ -38,7 +38,7 @@ There are two sample applications for `Core` .  The [React](https://github.com/o
 $ npm i --save opentok-accelerator-core
 ```
 ```javascript
-const otCore = require('opentok-accelerator-core');
+const AccCore = require('opentok-accelerator-core');
 ```
 ```javascript
 <script src="path/to/browser/opentok-accelerator-core.js"></script>
@@ -138,7 +138,7 @@ The remainder of the options properties are specific to individual accelerator p
 ## Usage
 Initialize `Core`:
 ```javascript
-otCore.init(options);
+const otCore = new AccCore(options);
 ```
 Connect to the session:
 ```javascript
@@ -250,7 +250,6 @@ Default icons and styling for accelerator pack components are provided by `opent
 `Accelerator Core` will cover the use cases for most projects. If you have a special use case, your first course of action should be to open a Github issue. If there is a way that we can add functionality or increase the flexibility of core or one of the accelerator packs while maintaining backwards compatibility, we’re happy to do so. Another option is to use the [OpenTok JS SDK Wrapper](#opentok-js-sdk-wrapper). The `SDK Wrapper` extends the functionality of the [OpenTok JS Client library](https://tokbox.com/developer/sdks/js/)  with the same state management provided by `Accelerator Core`. Some use cases for the SDK Wrapper may be:
 
 - Creating a messaging or signaling layer using OpenTok sessions.
-- Running multiple sessions simultaneously in the same application instance.
 - Managing presence without any audio/video, using OpenTok sessions.
 
-You can also use Accelerator Core and the SDK Wrapper in conjunction with each other. While Core is a singleton, the SDK Wrapper provides a constructor, meaning that multiple instances may be created and used at the same time.
+You can also use Accelerator Core and the SDK Wrapper in conjunction with each other since multiple instances of each may be created and used simultaneously.
