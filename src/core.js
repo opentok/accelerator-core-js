@@ -614,7 +614,7 @@ const opentokCore = {
   registerEventListener: on,
   triggerEvent,
   signal,
-  state: internalState.all,
+  state: () => internalState.all(),
   startCall: () => communication.startCall(),
   endCall: () => communication.endCall(),
   OpenTokSDK,
