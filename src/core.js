@@ -271,6 +271,8 @@ class AccCore {
 
   initPackages = () => {
     const { analytics, getSession, getOptions, internalState } = this;
+    const { on, registerEvents, setupExternalAnnotation, triggerEvent, linkAnnotation } = this;
+    const { communication, textChat, screenSharing, annotation, archiving } = this;
     analytics.log(logAction.initPackages, logVariation.attempt);
     const session = getSession();
     const options = getOptions();
@@ -361,7 +363,6 @@ class AccCore {
       /**
        * Methods to expose to accelerator packs
        */
-      const { on, registerEvents, setupExternalAnnotation, triggerEvent, linkAnnotation } = this;
       const accPack = {
         registerEventListener: on, // Legacy option
         on,
@@ -420,6 +421,7 @@ class AccCore {
 
     /** Create instances of each package */
     // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+
     this.communication = new Communication(packageOptions('communication'));
     this.textChat = packages.TextChat ? new packages.TextChat(packageOptions('textChat')) : null;
     this.screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;

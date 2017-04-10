@@ -4,7 +4,7 @@ import Spinner from 'react-spinner';
 import classNames from 'classnames';
 import 'opentok-solutions-css';
 
-import AccCore from './ot-core/core.js';
+import AccCore from './ot-core/core';
 import logo from './logo.svg';
 import config from './config.json';
 import './App.css';
@@ -41,7 +41,7 @@ const otCoreOptions = {
     container: '#chat',
   },
   screenSharing: {
-    extensionID: 'plocfffmbcclpdifaikiikgplfnepkpo',
+    extensionID: config.extensionID,
     annotation: true,
     externalWindow: false,
     dev: true,
