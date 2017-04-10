@@ -5,8 +5,6 @@ const message = messageText => console.log(`otAccCore: ${messageText}`);
 
 /** Analytics */
 
-let analytics = null;
-
 const logVariation = {
   attempt: 'Attempt',
   success: 'Success',
@@ -33,42 +31,44 @@ const logAction = {
   unsubscribe: 'UnsubscribeCoreAcc',
 };
 
-const updateLogAnalytics = (sessionId, connectionId, apiKey) => {
-  if (sessionId && connectionId && apiKey) {
-    const sessionInfo = {
-      sessionId,
-      connectionId,
-      partnerId: apiKey,
-    };
-    analytics.addSessionInfo(sessionInfo);
-  }
-};
+class Analytics {
 
-const initLogAnalytics = (source, sessionId, connectionId, apikey) => {
-  const otkanalyticsData = {
-    clientVersion: 'js-vsol-x.y.z', // x.y.z filled by npm build script
-    source,
-    componentId: 'acceleratorCore',
-    name: 'coreAccelerator',
-    partnerId: apikey,
+  constructor(source, sessionId, connectionId, apikey) {
+    const otkanalyticsData = {
+      clientVersion: 'js-vsol-x.y.z', // x.y.z filled by npm build script
+      source,
+      componentId: 'acceleratorCore',
+      name: 'coreAccelerator',
+      partnerId: apikey,
+    };
+
+    this.analytics = new OTKAnalytics(otkanalyticsData);
+
+    if (connectionId) {
+      this.update(sessionId, connectionId, apikey);
+    }
+  }
+
+  update = (sessionId, connectionId, apiKey) => {
+    if (sessionId && connectionId && apiKey) {
+      const sessionInfo = {
+        sessionId,
+        connectionId,
+        partnerId: apiKey,
+      };
+      this.analytics.addSessionInfo(sessionInfo);
+    }
   };
 
-  analytics = new OTKAnalytics(otkanalyticsData);
-
-  if (connectionId) {
-    updateLogAnalytics(sessionId, connectionId, apikey);
-  }
-};
-
-const logAnalytics = (action, variation) => {
-  analytics.logEvent({ action, variation });
-};
+  log = (action, variation) => {
+    this.analytics.logEvent({ action, variation });
+  };
+}
 
 module.exports = {
-  message,
-  logAction,
+  Analytics,
   logVariation,
-  initLogAnalytics,
-  updateLogAnalytics,
-  logAnalytics,
+  logAction,
+  message,
 };
+

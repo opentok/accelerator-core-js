@@ -3,7 +3,7 @@
 /** Dependencies */
 const { CoreError } = require('./errors');
 const { dom, path, pathOr, properCase } = require('./util');
-const { message, logAnalytics, logAction, logVariation } = require('./logging');
+const { message, logAction, logVariation } = require('./logging');
 
 
 /** Module variables */
@@ -31,13 +31,12 @@ const defaultCallProperties = {
 class Communication {
   constructor(options) {
     this.validateOptions(options);
-    this.hello();
     this.setSession();
     this.createEventListeners();
   }
 
   validateOptions = (options) => {
-    const requiredOptions = ['core'];
+    const requiredOptions = ['core', 'state', 'analytics'];
     requiredOptions.forEach((option) => {
       if (!options[option]) {
         throw new CoreError(`${option} is a required option.`, 'invalidParameters');
@@ -46,6 +45,7 @@ class Communication {
     this.active = false;
     this.core = options.core;
     this.state = options.state;
+    this.analytics = options.analytics;
     this.streamContainers = options.streamContainers;
     this.callProperties = Object.assign({}, defaultCallProperties, options.callProperties);
     this.connectionLimit = options.connectionLimit || null;
@@ -101,9 +101,9 @@ class Communication {
       const onPublish = publisher => (error) => {
         if (error) {
           reject(error);
-          logAnalytics(logAction.startCall, logVariation.fail);
+          this.analytics.log(logAction.startCall, logVariation.fail);
         } else {
-          logAnalytics(logAction.startCall, logVariation.success);
+          this.analytics.log(logAction.startCall, logVariation.success);
           this.state.addPublisher('camera', publisher);
           resolve(publisher);
         }
@@ -112,7 +112,7 @@ class Communication {
       const publishToSession = publisher => this.session.publish(publisher, onPublish(publisher));
 
       const handleError = (error) => {
-        logAnalytics(logAction.startCall, logVariation.fail);
+        this.analytics.log(logAction.startCall, logVariation.fail);
         const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
         this.triggerEvent('error', errorMessage);
         reject(error);
@@ -131,7 +131,7 @@ class Communication {
   subscribe = stream =>
     new Promise((resolve, reject) => {
       let connectionData;
-      logAnalytics(logAction.subscribe, logVariation.attempt);
+      this.analytics.log(logAction.subscribe, logVariation.attempt);
       const streamMap = this.state.getStreamMap();
       const { streamId } = stream;
       if (streamMap[streamId]) {
@@ -149,13 +149,13 @@ class Communication {
         const options = type === 'camera' || type === 'sip' ? this.callProperties : this.screenProperties;
         const subscriber = this.session.subscribe(stream, container, options, (error) => {
           if (error) {
-            logAnalytics(logAction.subscribe, logVariation.fail);
+            this.analytics.log(logAction.subscribe, logVariation.fail);
             reject(error);
           } else {
             this.state.addSubscriber(subscriber);
             this.triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, this.state.all()));
             type === 'screen' && this.triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-            logAnalytics(logAction.subscribe, logVariation.success);
+            this.analytics.log(logAction.subscribe, logVariation.success);
             resolve();
           }
         });
@@ -169,11 +169,11 @@ class Communication {
    */
   unsubscribe = subscriber =>
     new Promise((resolve) => {
-      logAnalytics(logAction.unsubscribe, logVariation.attempt);
+      this.analytics.log(logAction.unsubscribe, logVariation.attempt);
       const type = path('stream.videoType', subscriber);
       this.state.removeSubscriber(type, subscriber);
       this.session.unsubscribe(subscriber);
-      logAnalytics(logAction.unsubscribe, logVariation.success);
+      this.analytics.log(logAction.unsubscribe, logVariation.success);
       resolve();
     });
 
@@ -216,7 +216,7 @@ class Communication {
    */
   startCall = publisherProperties =>
     new Promise((resolve, reject) => { // eslint-disable-line consistent-return
-      logAnalytics(logAction.startCall, logVariation.attempt);
+      this.analytics.log(logAction.startCall, logVariation.attempt);
 
       /**
        * Determine if we're able to join the session based on an existing connection limit
@@ -224,7 +224,7 @@ class Communication {
       if (!this.ableToJoin()) {
         const errorMessage = 'Session has reached its connection limit';
         this.triggerEvent('error', errorMessage);
-        logAnalytics(logAction.startCall, logVariation.fail);
+        this.analytics.log(logAction.startCall, logVariation.fail);
         return reject(new CoreError(errorMessage, 'connectionLimit'));
       }
 
@@ -270,7 +270,7 @@ class Communication {
    * Stop publishing and unsubscribe from all streams
    */
   endCall = () => {
-    logAnalytics(logAction.endCall, logVariation.attempt);
+    this.analytics.log(logAction.endCall, logVariation.attempt);
     const { publishers, subscribers } = this.state.getPubSub();
     const unpublish = publisher => this.session.unpublish(publisher);
     Object.values(publishers.camera).forEach(unpublish);
@@ -281,7 +281,7 @@ class Communication {
     this.state.removeAllPublishers();
     this.active = false;
     this.triggerEvent('endCall');
-    logAnalytics(logAction.endCall, logVariation.success);
+    this.analytics.log(logAction.endCall, logVariation.success);
   };
 
   /**

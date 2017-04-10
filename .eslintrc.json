@@ -9,7 +9,8 @@
     "rules": {
         "no-confusing-arrow": 1,
         "no-unused-expressions": 1,
-        "no-prototype-builtins": 1
+        "no-prototype-builtins": 1,
+        "max-len": ["error", 120]
     },
     "globals": {
         "OT": true
