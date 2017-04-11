@@ -126,7 +126,7 @@ class Communication {
   /**
    * Subscribe to a stream and update the state
    * @param {Object} stream - An OpenTok stream object
-   * @returns {Promise} <resolve: empty reject: Error >
+   * @returns {Promise} <resolve: Object, reject: Error >
    */
   subscribe = stream =>
     new Promise((resolve, reject) => {
@@ -134,12 +134,13 @@ class Communication {
       this.analytics.log(logAction.subscribe, logVariation.attempt);
       const streamMap = this.state.getStreamMap();
       const { streamId } = stream;
+      // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
+      const type = pathOr('sip', 'videoType', stream);
       if (streamMap[streamId]) {
         // Are we already subscribing to the stream?
-        resolve();
+        const { subscribers } = this.state.all();
+        resolve(subscribers[type][streamMap[streamId]]);
       } else {
-        // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
-        const type = pathOr('sip', 'videoType', stream);
         try {
           connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
         } catch (e) {
@@ -156,7 +157,7 @@ class Communication {
             this.triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, this.state.all()));
             type === 'screen' && this.triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
             this.analytics.log(logAction.subscribe, logVariation.success);
-            resolve();
+            resolve(subscriber);
           }
         });
       }

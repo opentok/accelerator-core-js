@@ -39,6 +39,7 @@ const validateCredentials = (credentials = []) => {
 
 class AccCore {
   constructor(options) {
+    // Options/credentials validation
     if (!options) {
       throw new CoreError('Missing options required for initialization', 'invalidParameters');
     }
@@ -48,26 +49,32 @@ class AccCore {
     // Init analytics
     this.analytics = new Analytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
     this.analytics.log(logAction.init, logVariation.attempt);
+
+    // Create session, setup state
     this.session = OT.initSession(credentials.apiKey, credentials.sessionId);
     this.internalState = new State();
     this.internalState.setSession(this.session);
     this.internalState.setCredentials(credentials);
     this.internalState.setOptions(options);
-    this.analytics.log(logAction.init, logVariation.success);
 
-    /**
-     * Individual Accelerator Packs
-     */
+    // Individual accelerator packs
     this.communication = null;
     this.textChat = null;
     this.screenSharing = null;
     this.annotation = null;
     this.archiving = null;
 
+    // Create internal event listeners
     this.createEventListeners(this.session, options);
+
+    this.analytics.log(logAction.init, logVariation.success);
   }
 
+  // OpenTok SDK Wrapper
   static OpenTokSDK = OpenTokSDK;
+
+  // Expose utility methods
+  static util = util
 
   /**
    * Get access to an accelerator pack
@@ -491,6 +498,31 @@ class AccCore {
     });
   }
 
+  /**
+   * Start publishing video and subscribing to streams
+   * @returns {Promise}
+   */
+  startCall = () => this.communication.startCall()
+
+  /**
+   * Stop all publishing un unsubscribe from all streams
+   * @returns {void}
+   */
+  endCall = () => this.communication.endCall()
+
+  /**
+   * Manually subscribe to a stream
+   * @param {Object} stream - An OpenTok stream
+   * @returns {Promise} <resolve: Subscriber, reject: Error>
+   */
+  subscribe = stream => this.communication.subscribe(stream)
+
+  /**
+   * Manually unsubscribe from a stream
+   * @param {Object} subscriber - An OpenTok subscriber object
+   * @returns {Promise} <resolve: void, reject: Error>
+   */
+  unsubscibe = subscriber => this.communication.unsubscibe(subscriber)
 
   /**
    * Force the publisher of a stream to stop publishing the stream
@@ -607,15 +639,6 @@ class AccCore {
     analytics.log(logAction.toggleRemoteVideo, logVariation.success);
   }
 
-  startCall = () => this.communication.startCall()
-
-  endCall = () => this.communication.endCall()
-
-  subscribe = stream => this.communication.subscribe(stream)
-
-  unsubscibe = subscriber => this.communication.unsubscibe(subscriber)
-
-  static util = util
 }
 
 if (global === window) {
