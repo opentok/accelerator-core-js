@@ -6,7 +6,7 @@ const util = require('./util');
 const State = require('./state').default;
 const accPackEvents = require('./events');
 const Communication = require('./communication').default;
-const SDK = require('./sdk-wrapper/sdkWrapper');
+const OpenTokSDK = require('./sdk-wrapper/sdkWrapper');
 const { CoreError } = require('./errors');
 const {
   message,
@@ -67,7 +67,7 @@ class AccCore {
     this.createEventListeners(this.session, options);
   }
 
-  static OpenTokSDK = SDK;
+  static OpenTokSDK = OpenTokSDK;
 
   /**
    * Get access to an accelerator pack
@@ -615,8 +615,7 @@ class AccCore {
 
   unsubscibe = subscriber => this.communication.unsubscibe(subscriber)
 
-  util
-
+  static util = util
 }
 
 if (global === window) {
