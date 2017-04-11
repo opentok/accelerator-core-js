@@ -4,7 +4,7 @@ import Spinner from 'react-spinner';
 import classNames from 'classnames';
 import 'opentok-solutions-css';
 
-import AccCore from './ot-core/core';
+import Core from './ot-core/core';
 import logo from './logo.svg';
 import config from './config.json';
 import './App.css';
@@ -124,7 +124,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    otCore = new AccCore(otCoreOptions);
+    otCore = new Core(otCoreOptions);
     otCore.connect().then(() => this.setState({ connected: true }));
     const events = [
       'subscribeToCamera',
