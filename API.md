@@ -182,7 +182,7 @@
 
 **stream**: `Object` An OpenTok stream object
 
-**Returns**: `Promise => <resolve: empty reject: Error >`
+**Returns**: `Promise => <resolve: Subscriber, reject: Error >`
 
 
 ### `toggleLocalAudio(enable)`
