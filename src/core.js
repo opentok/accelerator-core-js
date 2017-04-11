@@ -190,7 +190,7 @@ class AccCore {
 
   createEventListeners = (session, options) => {
     this.eventListeners = {};
-    const { registerEvents, internalState, triggerEvent, on, annotation, getSession } = this;
+    const { registerEvents, internalState, triggerEvent, on, getSession } = this;
     Object.keys(accPackEvents).forEach(type => registerEvents(accPackEvents[type]));
 
     /**
@@ -214,16 +214,16 @@ class AccCore {
 
     if (usingAnnotation) {
       on('subscribeToScreen', ({ subscriber }) => {
-        annotation.start(getSession())
+        this.annotation.start(getSession())
           .then(() => {
             const absoluteParent = dom.query(path('annotation.absoluteParent.subscriber', options));
             const linkOptions = absoluteParent ? { absoluteParent } : null;
-            annotation.linkCanvas(subscriber, subscriber.element.parentElement, linkOptions);
+            this.annotation.linkCanvas(subscriber, subscriber.element.parentElement, linkOptions);
           });
       });
 
       on('unsubscribeFromScreen', () => {
-        annotation.end();
+        this.annotation.end();
       });
     }
 
@@ -231,11 +231,11 @@ class AccCore {
       internalState.addPublisher('screen', publisher);
       triggerEvent('startScreenShare', Object.assign({}, { publisher }, internalState.getPubSub()));
       if (internalAnnotation) {
-        annotation.start(getSession())
+        this.annotation.start(getSession())
           .then(() => {
             const absoluteParent = dom.query(path('annotation.absoluteParent.publisher', options));
             const linkOptions = absoluteParent ? { absoluteParent } : null;
-            annotation.linkCanvas(publisher, publisher.element.parentElement, linkOptions);
+            this.annotation.linkCanvas(publisher, publisher.element.parentElement, linkOptions);
           });
       }
     });
@@ -245,7 +245,7 @@ class AccCore {
       internalState.removePublisher('screen', publisher);
       triggerEvent('endScreenShare', internalState.getPubSub());
       if (usingAnnotation) {
-        annotation.end();
+        this.annotation.end();
       }
     });
   }
@@ -272,7 +272,6 @@ class AccCore {
   initPackages = () => {
     const { analytics, getSession, getOptions, internalState } = this;
     const { on, registerEvents, setupExternalAnnotation, triggerEvent, linkAnnotation } = this;
-    const { communication, textChat, screenSharing, annotation, archiving } = this;
     analytics.log(logAction.initPackages, logVariation.attempt);
     const session = getSession();
     const options = getOptions();
