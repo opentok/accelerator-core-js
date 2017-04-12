@@ -1,21 +1,9 @@
 /* global OT */
 
 /** Dependencies */
-const state = require('./state');
 const { CoreError } = require('./errors');
 const { dom, path, pathOr, properCase } = require('./util');
-const { message, logAnalytics, logAction, logVariation } = require('./logging');
-
-
-/** Module variables */
-let session;
-let accPack;
-let callProperties;
-let screenProperties;
-let streamContainers;
-let autoSubscribe;
-let connectionLimit;
-let active = false;
+const { message, logAction, logVariation } = require('./logging');
 
 /**
  * Default UI propties
@@ -30,306 +18,301 @@ const defaultCallProperties = {
     buttonDisplayMode: 'off',
   },
 };
-
-/**
- * Trigger an event through the API layer
- * @param {String} event - The name of the event
- * @param {*} [data]
- */
-const triggerEvent = (event, data) => accPack.triggerEvent(event, data);
-
-/**
- * Determine whether or not the party is able to join the call based on
- * the specified connection limit, if any.
- * @return {Boolean}
- */
-const ableToJoin = () => {
-  if (!connectionLimit) {
-    return true;
+class Communication {
+  constructor(options) {
+    this.validateOptions(options);
+    this.setSession();
+    this.createEventListeners();
   }
-  // Not using the session here since we're concerned with number of active publishers
-  const connections = Object.values(state.getStreams()).filter(s => s.videoType === 'camera');
-  return connections.length < connectionLimit;
-};
 
-/**
- * Create a camera publisher object
- * @param {Object} publisherProperties
- * @returns {Promise} <resolve: Object, reject: Error>
- */
-const createPublisher = publisherProperties =>
-  new Promise((resolve, reject) => {
-    // TODO: Handle adding 'name' option to props
-    const props = Object.assign({}, callProperties, publisherProperties);
-    // TODO: Figure out how to handle common vs package-specific options
-    // ^^^ This may already be available through package options
-    const container = dom.element(streamContainers('publisher', 'camera'));
-    const publisher = OT.initPublisher(container, props, (error) => {
-      error ? reject(error) : resolve(publisher);
-    });
-  });
-
-
-/**
- * Publish the local camera stream and update state
- * @param {Object} publisherProperties
- * @returns {Promise} <resolve: empty, reject: Error>
- */
-const publish = publisherProperties =>
-  new Promise((resolve, reject) => {
-    const onPublish = publisher => (error) => {
-      if (error) {
-        reject(error);
-        logAnalytics(logAction.startCall, logVariation.fail);
-      } else {
-        logAnalytics(logAction.startCall, logVariation.success);
-        state.addPublisher('camera', publisher);
-        resolve(publisher);
+  validateOptions = (options) => {
+    const requiredOptions = ['core', 'state', 'analytics'];
+    requiredOptions.forEach((option) => {
+      if (!options[option]) {
+        throw new CoreError(`${option} is a required option.`, 'invalidParameters');
       }
-    };
+    });
+    const { callProperties, screenProperties, autoSubscribe } = options;
+    this.active = false;
+    this.core = options.core;
+    this.state = options.state;
+    this.analytics = options.analytics;
+    this.streamContainers = options.streamContainers;
+    this.callProperties = Object.assign({}, defaultCallProperties, callProperties);
+    this.connectionLimit = options.connectionLimit || null;
+    this.autoSubscribe = options.hasOwnProperty('autoSubscribe') ? autoSubscribe : true;
+    this.screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, screenProperties);
+  }
+    /**
+     * Trigger an event through the API layer
+     * @param {String} event - The name of the event
+     * @param {*} [data]
+     */
+  triggerEvent = (event, data) => this.core.triggerEvent(event, data);
 
-    const publishToSession = publisher => session.publish(publisher, onPublish(publisher));
+  /**
+   * Determine whether or not the party is able to join the call based on
+   * the specified connection limit, if any.
+   * @return {Boolean}
+   */
+  ableToJoin = () => {
+    const { connectionLimit, state } = this;
+    if (!connectionLimit) {
+      return true;
+    }
+    // Not using the session here since we're concerned with number of active publishers
+    const connections = Object.values(state.getStreams()).filter(s => s.videoType === 'camera');
+    return connections.length < connectionLimit;
+  };
 
-    const handleError = (error) => {
-      logAnalytics(logAction.startCall, logVariation.fail);
-      const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
-      triggerEvent('error', errorMessage);
-      reject(error);
-    };
+  /**
+   * Create a camera publisher object
+   * @param {Object} publisherProperties
+   * @returns {Promise} <resolve: Object, reject: Error>
+   */
+  createPublisher = (publisherProperties) => {
+    const { callProperties, streamContainers } = this;
+    return new Promise((resolve, reject) => {
+      // TODO: Handle adding 'name' option to props
+      const props = Object.assign({}, callProperties, publisherProperties);
+      // TODO: Figure out how to handle common vs package-specific options
+      // ^^^ This may already be available through package options
+      const container = dom.element(streamContainers('publisher', 'camera'));
+      const publisher = OT.initPublisher(container, props, (error) => {
+        error ? reject(error) : resolve(publisher);
+      });
+    });
+  }
 
-    createPublisher(publisherProperties)
-      .then(publishToSession)
-      .catch(handleError);
-  });
+  /**
+   * Publish the local camera stream and update state
+   * @param {Object} publisherProperties
+   * @returns {Promise} <resolve: empty, reject: Error>
+   */
+  publish = (publisherProperties) => {
+    const { analytics, state, createPublisher, session, triggerEvent } = this;
+    return new Promise((resolve, reject) => {
+      const onPublish = publisher => (error) => {
+        if (error) {
+          reject(error);
+          analytics.log(logAction.startCall, logVariation.fail);
+        } else {
+          analytics.log(logAction.startCall, logVariation.success);
+          state.addPublisher('camera', publisher);
+          resolve(publisher);
+        }
+      };
 
-/**
- * Subscribe to a stream and update the state
- * @param {Object} stream - An OpenTok stream object
- * @returns {Promise} <resolve: empty reject: Error >
- */
-const subscribe = stream =>
-  new Promise((resolve, reject) => {
-    let connectionData;
-    logAnalytics(logAction.subscribe, logVariation.attempt);
-    const streamMap = state.getStreamMap();
-    const { streamId } = stream;
-    if (streamMap[streamId]) {
-      // Are we already subscribing to the stream?
-      resolve();
-    } else {
+      const publishToSession = publisher => session.publish(publisher, onPublish(publisher));
+
+      const handleError = (error) => {
+        analytics.log(logAction.startCall, logVariation.fail);
+        const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
+        triggerEvent('error', errorMessage);
+        reject(error);
+      };
+
+      createPublisher(publisherProperties)
+        .then(publishToSession)
+        .catch(handleError);
+    });
+  }
+
+  /**
+   * Subscribe to a stream and update the state
+   * @param {Object} stream - An OpenTok stream object
+   * @returns {Promise} <resolve: Object, reject: Error >
+   */
+  subscribe = (stream) => {
+    const { analytics, state, streamContainers, session, triggerEvent, callProperties, screenProperties } = this;
+    return new Promise((resolve, reject) => {
+      let connectionData;
+      analytics.log(logAction.subscribe, logVariation.attempt);
+      const streamMap = state.getStreamMap();
+      const { streamId } = stream;
       // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
       const type = pathOr('sip', 'videoType', stream);
-      try {
-        connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
-      } catch (e) {
-        connectionData = path(['connection', 'data'], stream);
+      if (streamMap[streamId]) {
+        // Are we already subscribing to the stream?
+        const { subscribers } = state.all();
+        resolve(subscribers[type][streamMap[streamId]]);
+      } else {
+        try {
+          connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
+        } catch (e) {
+          connectionData = path(['connection', 'data'], stream);
+        }
+        const container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
+        const options = type === 'camera' || type === 'sip' ? callProperties : screenProperties;
+        const subscriber = session.subscribe(stream, container, options, (error) => {
+          if (error) {
+            analytics.log(logAction.subscribe, logVariation.fail);
+            reject(error);
+          } else {
+            state.addSubscriber(subscriber);
+            triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, state.all()));
+            type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+            analytics.log(logAction.subscribe, logVariation.success);
+            resolve(subscriber);
+          }
+        });
       }
-      const container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
-      const options = type === 'camera' || type === 'sip' ? callProperties : screenProperties;
-      const subscriber = session.subscribe(stream, container, options, (error) => {
-        if (error) {
-          logAnalytics(logAction.subscribe, logVariation.fail);
-          reject(error);
-        } else {
-          state.addSubscriber(subscriber);
-          triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, state.all()));
-          type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-          logAnalytics(logAction.subscribe, logVariation.success);
-          resolve();
-        }
-      });
-    }
-  });
+    });
+  }
 
-/**
- * Unsubscribe from a stream and update the state
- * @param {Object} subscriber - An OpenTok subscriber object
- * @returns {Promise} <resolve: empty>
- */
-const unsubscribe = subscriber =>
-  new Promise((resolve) => {
-    logAnalytics(logAction.unsubscribe, logVariation.attempt);
-    const type = path('stream.videoType', subscriber);
-    state.removeSubscriber(type, subscriber);
-    session.unsubscribe(subscriber);
-    logAnalytics(logAction.unsubscribe, logVariation.success);
-    resolve();
-  });
+  /**
+   * Unsubscribe from a stream and update the state
+   * @param {Object} subscriber - An OpenTok subscriber object
+   * @returns {Promise} <resolve: empty>
+   */
+  unsubscribe = (subscriber) => {
+    const { analytics, session, state } = this;
+    return new Promise((resolve) => {
+      analytics.log(logAction.unsubscribe, logVariation.attempt);
+      const type = path('stream.videoType', subscriber);
+      state.removeSubscriber(type, subscriber);
+      session.unsubscribe(subscriber);
+      analytics.log(logAction.unsubscribe, logVariation.success);
+      resolve();
+    });
+  }
 
-/**
- * Ensure all required options are received
- * @param {Object} options
- */
-const validateOptions = (options) => {
-  const requiredOptions = ['accPack'];
-  requiredOptions.forEach((option) => {
-    if (!options[option]) {
-      throw new CoreError(`${option} is a required option.`, 'invalidParameters');
-    }
-  });
+  /**
+   * Set session in module scope
+   */
+  setSession = () => {
+    this.session = this.state.getSession();
+  }
 
-  accPack = options.accPack;
-  streamContainers = options.streamContainers;
-  callProperties = Object.assign({}, defaultCallProperties, options.callProperties);
-  connectionLimit = options.connectionLimit || null;
-  autoSubscribe = options.hasOwnProperty('autoSubscribe') ? options.autoSubscribe : true;
-  screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, options.screenProperties);
-};
+  /**
+   * Subscribe to new stream unless autoSubscribe is set to false
+   * @param {Object} stream
+   */
+  onStreamCreated = ({ stream }) => this.active && this.autoSubscribe && this.subscribe(stream);
 
-/**
- * Set session in module scope
- */
-const setSession = () => {
-  session = state.getSession();
-};
+  /**
+   * Update state and trigger corresponding event(s) when stream is destroyed
+   * @param {Object} stream
+   */
+  onStreamDestroyed = ({ stream }) => {
+    const { state, triggerEvent } = this;
+    state.removeStream(stream);
+    const type = pathOr('sip', 'videoType', stream);
+    type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
+    triggerEvent(`unsubscribeFrom${properCase(type)}`, state.getPubSub());
+  }
 
-/**
- * Subscribe to new stream unless autoSubscribe is set to false
- * @param {Object} stream
- */
-const onStreamCreated = ({ stream }) => active && autoSubscribe && subscribe(stream);
+  /**
+   * Listen for API-level events
+   */
+  createEventListeners = () => {
+    const { core, onStreamCreated, onStreamDestroyed } = this;
+    core.on('streamCreated', onStreamCreated);
+    core.on('streamDestroyed', onStreamDestroyed);
+  }
 
-/**
- * Update state and trigger corresponding event(s) when stream is destroyed
- * @param {Object} stream
- */
-const onStreamDestroyed = ({ stream }) => {
-  state.removeStream(stream);
-  const type = pathOr('sip', 'videoType', stream);
-  type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
-  triggerEvent(`unsubscribeFrom${properCase(type)}`, state.getPubSub());
-};
+  /**
+   * Start publishing the local camera feed and subscribing to streams in the session
+   * @param {Object} publisherProperties
+   * @returns {Promise} <resolve: Object, reject: Error>
+   */
+  startCall = (publisherProperties) => {
+    const { analytics, state, subscribe, ableToJoin, triggerEvent, autoSubscribe, publish } = this;
+    return new Promise((resolve, reject) => { // eslint-disable-line consistent-return
+      analytics.log(logAction.startCall, logVariation.attempt);
 
-/**
- * Listen for API-level events
- */
-const createEventListeners = () => {
-  accPack.on('streamCreated', onStreamCreated);
-  accPack.on('streamDestroyed', onStreamDestroyed);
-};
+      /**
+       * Determine if we're able to join the session based on an existing connection limit
+       */
+      if (!ableToJoin()) {
+        const errorMessage = 'Session has reached its connection limit';
+        triggerEvent('error', errorMessage);
+        analytics.log(logAction.startCall, logVariation.fail);
+        return reject(new CoreError(errorMessage, 'connectionLimit'));
+      }
 
-/**
- * Start publishing the local camera feed and subscribing to streams in the session
- * @param {Object} publisherProperties
- * @returns {Promise} <resolve: Object, reject: Error>
- */
-const startCall = publisherProperties =>
-  new Promise((resolve, reject) => { // eslint-disable-line consistent-return
-    logAnalytics(logAction.startCall, logVariation.attempt);
+      /**
+       * Subscribe to any streams that existed before we start the call from our side.
+       */
+      const subscribeToInitialStreams = (publisher) => {
+        // Get an array of initial subscription promises
+        const initialSubscriptions = () => {
+          if (autoSubscribe) {
+            const streams = state.getStreams();
+            return Object.keys(streams).map(id => subscribe(streams[id]));
+          }
+          return [Promise.resolve()];
+        };
 
-    /**
-     * Determine if we're able to join the session based on an existing connection limit
-     */
-    if (!ableToJoin()) {
-      const errorMessage = 'Session has reached its connection limit';
-      triggerEvent('error', errorMessage);
-      logAnalytics(logAction.startCall, logVariation.fail);
-      return reject(new CoreError(errorMessage, 'connectionLimit'));
-    }
+        // Handle success
+        const onSubscribeToAll = () => {
+          const pubSubData = Object.assign({}, state.getPubSub(), { publisher });
+          triggerEvent('startCall', pubSubData);
+          this.active = true;
+          resolve(pubSubData);
+        };
 
-    /**
-     * Subscribe to any streams that existed before we start the call from our side.
-     */
-    const subscribeToInitialStreams = (publisher) => {
-      // Get an array of initial subscription promises
-      const initialSubscriptions = () => {
-        if (autoSubscribe) {
-          const streams = state.getStreams();
-          return Object.keys(streams).map(id => subscribe(streams[id]));
-        }
-        return [Promise.resolve()];
+        // Handle error
+        const onError = (reason) => {
+          message(`Failed to subscribe to all existing streams: ${reason}`);
+          // We do not reject here in case we still successfully publish to the session
+          resolve(Object.assign({}, this.state.getPubSub(), { publisher }));
+        };
+
+        Promise.all(initialSubscriptions())
+          .then(onSubscribeToAll)
+          .catch(onError);
       };
 
-      // Handle success
-      const onSubscribeToAll = () => {
-        const pubSubData = Object.assign({}, state.getPubSub(), { publisher });
-        triggerEvent('startCall', pubSubData);
-        active = true;
-        resolve(pubSubData);
-      };
+      publish(publisherProperties)
+        .then(subscribeToInitialStreams)
+        .catch(reject);
+    });
+  }
 
-      // Handle error
-      const onError = (reason) => {
-        message(`Failed to subscribe to all existing streams: ${reason}`);
-        // We do not reject here in case we still successfully publish to the session
-        resolve(Object.assign({}, state.getPubSub(), { publisher }));
-      };
+  /**
+   * Stop publishing and unsubscribe from all streams
+   */
+  endCall = () => {
+    const { analytics, state, session, unsubscribe, triggerEvent } = this;
+    analytics.log(logAction.endCall, logVariation.attempt);
+    const { publishers, subscribers } = state.getPubSub();
+    const unpublish = publisher => session.unpublish(publisher);
+    Object.values(publishers.camera).forEach(unpublish);
+    Object.values(publishers.screen).forEach(unpublish);
+    // TODO Promise.all for unsubsribing
+    Object.values(subscribers.camera).forEach(unsubscribe);
+    Object.values(subscribers.screen).forEach(unsubscribe);
+    state.removeAllPublishers();
+    this.active = false;
+    triggerEvent('endCall');
+    analytics.log(logAction.endCall, logVariation.success);
+  }
 
-      Promise.all(initialSubscriptions())
-        .then(onSubscribeToAll)
-        .catch(onError);
-    };
+  /**
+   * Enable/disable local audio or video
+   * @param {String} source - 'audio' or 'video'
+   * @param {Boolean} enable
+   */
+  enableLocalAV = (id, source, enable) => {
+    const method = `publish${properCase(source)}`;
+    const { publishers } = this.state.getPubSub();
+    publishers.camera[id][method](enable);
+  }
 
-    publish(publisherProperties)
-      .then(subscribeToInitialStreams)
-      .catch(reject);
-  });
+  /**
+   * Enable/disable remote audio or video
+   * @param {String} subscriberId
+   * @param {String} source - 'audio' or 'video'
+   * @param {Boolean} enable
+   */
+  enableRemoteAV = (subscriberId, source, enable) => {
+    const method = `subscribeTo${properCase(source)}`;
+    const { subscribers } = this.state.getPubSub();
+    const subscriber = subscribers.camera[subscriberId] || subscribers.sip[subscriberId];
+    subscriber[method](enable);
+  }
 
-/**
- * Stop publishing and unsubscribe from all streams
- */
-const endCall = () => {
-  logAnalytics(logAction.endCall, logVariation.attempt);
-  const { publishers, subscribers } = state.getPubSub();
-  const unpublish = publisher => session.unpublish(publisher);
-  Object.values(publishers.camera).forEach(unpublish);
-  Object.values(publishers.screen).forEach(unpublish);
-  // TODO Promise.all for unsubsribing
-  Object.values(subscribers.camera).forEach(unsubscribe);
-  Object.values(subscribers.screen).forEach(unsubscribe);
-  state.removeAllPublishers();
-  active = false;
-  triggerEvent('endCall');
-  logAnalytics(logAction.endCall, logVariation.success);
-};
+}
 
-/**
- * Enable/disable local audio or video
- * @param {String} source - 'audio' or 'video'
- * @param {Boolean} enable
- */
-const enableLocalAV = (id, source, enable) => {
-  const method = `publish${properCase(source)}`;
-  const { publishers } = state.getPubSub();
-  publishers.camera[id][method](enable);
-};
-
-/**
- * Enable/disable remote audio or video
- * @param {String} subscriberId
- * @param {String} source - 'audio' or 'video'
- * @param {Boolean} enable
- */
-const enableRemoteAV = (subscriberId, source, enable) => {
-  const method = `subscribeTo${properCase(source)}`;
-  const { subscribers } = state.getPubSub();
-  const subscriber = subscribers.camera[subscriberId] || subscribers.sip[subscriberId];
-  subscriber[method](enable);
-};
-
-/**
- * Initialize the communication component
- * @param {Object} options
- * @param {Object} options.accPack
- * @param {Number} options.connectionLimit
- * @param {Function} options.streamContainer
- */
-const init = options =>
-  new Promise((resolve) => {
-    validateOptions(options);
-    setSession();
-    createEventListeners();
-    resolve();
-  });
-
-
-/** Exports */
-module.exports = {
-  init,
-  startCall,
-  endCall,
-  subscribe,
-  unsubscribe,
-  enableLocalAV,
-  enableRemoteAV,
-};
+export default Communication;

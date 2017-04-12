@@ -16,6 +16,8 @@ The OpenTok SDK Wrapper provides a wrapper around the [OpenTok.js Client Library
 
 ```javascript
 const OpenTokSDK = require('opentok-accelerator-core').OpenTokSDK;
+// or with ES6 Modules
+import { OpenTokSDK } from 'opentok-accelerator-core';
 
 const credentials = {
   apiKey: 'YOUR_OPENTOK_API_KEY',

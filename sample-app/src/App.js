@@ -4,12 +4,13 @@ import Spinner from 'react-spinner';
 import classNames from 'classnames';
 import 'opentok-solutions-css';
 
-import otCore from './ot-core/core.js';
+import Core from './ot-core/core';
 import logo from './logo.svg';
 import config from './config.json';
 import './App.css';
 
 
+let otCore;
 const otCoreOptions = {
   credentials: {
     apiKey: config.apiKey,
@@ -40,7 +41,7 @@ const otCoreOptions = {
     container: '#chat',
   },
   screenSharing: {
-    extensionID: 'plocfffmbcclpdifaikiikgplfnepkpo',
+    extensionID: config.extensionID,
     annotation: true,
     externalWindow: false,
     dev: true,
@@ -123,7 +124,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    otCore.init(otCoreOptions);
+    otCore = new Core(otCoreOptions);
     otCore.connect().then(() => this.setState({ connected: true }));
     const events = [
       'subscribeToCamera',
@@ -141,13 +142,13 @@ class App extends Component {
 
   startCall() {
     otCore.startCall()
-      .then(({ publisher, publishers, subscribers, meta }) => {
+      .then(({ publishers, subscribers, meta }) => {
         this.setState({ publishers, subscribers, meta, active: true });
       }).catch(error => console.log(error));
   }
 
   endCall() {
-    otCore.endCall()
+    otCore.endCall();
     this.setState({ active: false });
   }
 
