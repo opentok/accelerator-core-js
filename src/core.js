@@ -500,9 +500,10 @@ class AccCore {
 
   /**
    * Start publishing video and subscribing to streams
-   * @returns {Promise}
+   * @param {Object} publisherProps - https://goo.gl/0mL0Eo
+   * @returns {Promise} <resolve: State + Publisher, reject: Error>
    */
-  startCall = () => this.communication.startCall()
+  startCall = publisherProps => this.communication.startCall(publisherProps)
 
   /**
    * Stop all publishing un unsubscribe from all streams
