@@ -156,13 +156,13 @@
 **Returns**: `Promise => <resolve: empty, reject: Error>`
 
 
-### `startCall()`
+### `startCall(publisherProps)`
 
 *Start publishing the local camera feed and subscribing to streams in the session*
 
 **Parameters**
 
-**publisherProperties**: `Object`
+**publisherProps**: `Object` - https://goo.gl/0mL0Eo
 
 **Returns**: `Promise => <resolve: Object, reject: Error>`
 
