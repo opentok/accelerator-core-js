@@ -142,7 +142,7 @@ class Communication {
         } catch (e) {
           connectionData = path(['connection', 'data'], stream);
         }
-        const container = dom.query(streamContainers('subscriber', type, connectionData, streamId));
+        const container = dom.query(streamContainers('subscriber', type, connectionData, stream));
         const options = type === 'camera' || type === 'sip' ? callProperties : screenProperties;
         const subscriber = session.subscribe(stream, container, options, (error) => {
           if (error) {

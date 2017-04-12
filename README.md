@@ -73,9 +73,10 @@ The `streamContainers` property is a function that specifies which DOM element s
   /**
    * @param {String} pubSub - 'publisher' or 'subscriber'
    * @param {String} type - 'camera' or 'screen'
-   * @param {*} data - Parsed connection data associated with the stream
+   * @param {*} data - Parsed stream connection data (subscriber only)
+   * @param {Object} stream - The new stream (subscriber only)
    */
-  streamContainers(pubSub, type, data){
+  streamContainers(pubSub, type, data, stream){
     return {
       publisher: {
         camera: '#cameraPublisherContainer',
