@@ -523,7 +523,7 @@ class AccCore {
    * @param {Object} subscriber - An OpenTok subscriber object
    * @returns {Promise} <resolve: void, reject: Error>
    */
-  unsubscibe = subscriber => this.communication.unsubscibe(subscriber)
+  unsubscribe = subscriber => this.communication.unsubscribe(subscriber)
 
   /**
    * Force the publisher of a stream to stop publishing the stream
