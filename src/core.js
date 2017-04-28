@@ -45,6 +45,7 @@ class AccCore {
     }
     const { credentials } = options;
     validateCredentials(options.credentials);
+    this.name = options.name;
 
     // Init analytics
     this.analytics = new Analytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);

@@ -1,6 +1,20 @@
 # OpenTok Accelerator Core API Methods
 
+### `@constructor`
 
+**Parameters**
+
+**options**: `Object`
+
+ - **options.credentials**: `Object` (required)
+
+ - **options.name**: `String` A name for your core instance
+
+ - **options.packages**: `Array`
+
+ - **options.streamContainers**: `Function`
+
+ - **options.controlsContainer**: `String`
 
 * * *
 
@@ -98,24 +112,6 @@
 **stream**: `Object` An OpenTok stream object
 
 **Returns**: `Array` An array of subscriber object
-
-
-### `init(options)`
-
-*Initialize accelerator core*
-
-**Parameters**
-
-**options**: `Object` Initialize the accelerator pack
-
- - **options.credentials**: `Object`
-
- - **options.packages**: `Array`
-
- - **options.streamContainers**: `Function`
-
- - **options.controlsContainer**: `String`
-
 
 
 ### `off(event, callback)`
