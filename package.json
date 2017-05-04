@@ -1,6 +1,6 @@
 {
   "name": "opentok-accelerator-core",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Opentok Accelerator Core",
   "repository": "https://github.com/opentok/accelerator-core-js",
   "main": "dist/core.js",

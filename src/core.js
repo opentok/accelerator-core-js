@@ -513,6 +513,12 @@ class AccCore {
   endCall = () => this.communication.endCall()
 
   /**
+   * Start publishing video and subscribing to streams
+   * @returns {Object} The internal state of the core session
+   */
+  state = () => this.internalState.all();
+
+  /**
    * Manually subscribe to a stream
    * @param {Object} stream - An OpenTok stream
    * @returns {Promise} <resolve: Subscriber, reject: Error>
