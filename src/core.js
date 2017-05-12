@@ -521,9 +521,10 @@ class AccCore {
   /**
    * Manually subscribe to a stream
    * @param {Object} stream - An OpenTok stream
+   * @param {Object} [subscriberProperties] - https://tokbox.com/developer/sdks/js/reference/Session.html#subscribe
    * @returns {Promise} <resolve: Subscriber, reject: Error>
    */
-  subscribe = stream => this.communication.subscribe(stream)
+  subscribe = (stream, subscriberProperties) => this.communication.subscribe(stream, subscriberProperties)
 
   /**
    * Manually unsubscribe from a stream

@@ -121,9 +121,10 @@ class Communication {
   /**
    * Subscribe to a stream and update the state
    * @param {Object} stream - An OpenTok stream object
+   * @param {Object} [subsriberOptions]
    * @returns {Promise} <resolve: Object, reject: Error >
    */
-  subscribe = (stream) => {
+  subscribe = (stream, subscriberProperties = {}) => {
     const { analytics, state, streamContainers, session, triggerEvent, callProperties, screenProperties } = this;
     return new Promise((resolve, reject) => {
       let connectionData;
@@ -143,7 +144,11 @@ class Communication {
           connectionData = path(['connection', 'data'], stream);
         }
         const container = dom.query(streamContainers('subscriber', type, connectionData, stream));
-        const options = type === 'camera' || type === 'sip' ? callProperties : screenProperties;
+        const options = Object.assign(
+          {},
+          type === 'camera' || type === 'sip' ? callProperties : screenProperties,
+          subscriberProperties,
+        );
         const subscriber = session.subscribe(stream, container, options, (error) => {
           if (error) {
             analytics.log(logAction.subscribe, logVariation.fail);

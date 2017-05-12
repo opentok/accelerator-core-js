@@ -170,13 +170,15 @@
 **Returns**: `Object`
 
 
-### `subscribe(stream)`
+### `subscribe(stream, subscriberProperties)`
 
 *Subscribe to a stream and update the state*
 
 **Parameters**
 
 **stream**: `Object` An OpenTok stream object
+
+**stream**: `Object` Optional subscriber properties - https://goo.gl/bzjoLL
 
 **Returns**: `Promise => <resolve: Subscriber, reject: Error >`
 
