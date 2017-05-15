@@ -174,7 +174,7 @@ class Communication {
     const { analytics, session, state } = this;
     return new Promise((resolve) => {
       analytics.log(logAction.unsubscribe, logVariation.attempt);
-      const type = path('stream.videoType', subscriber);
+      const type = pathOr('sip', 'stream.videoType', subscriber);
       state.removeSubscriber(type, subscriber);
       session.unsubscribe(subscriber);
       analytics.log(logAction.unsubscribe, logVariation.success);
