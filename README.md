@@ -30,7 +30,7 @@ To start using audio/video communication with OpenTok's libraries go to [Using A
 
 ## Sample Applications
 
-There are two sample applications for `Core` .  The [React](https://github.com/opentok/accelerator-core-js/tree/master/react-sample-app) sample application was built with [Create React App](https://github.com/facebookincubator/create-react-app) and uses [webpack](https://webpack.github.io/) to transpile code.  The other [sample application](https://github.com/opentok/accelerator-core-js/tree/master/vanilla-js-sample-app) is built with vanilla JavaScript.
+There are two sample applications for `Core` .  The [React](https://github.com/opentok/accelerator-core-js/tree/master/react-sample-app) sample application was built with [Create React App](https://github.com/facebookincubator/create-react-app) and uses [webpack](https://webpack.github.io/) to transpile code.  The other [sample application](https://github.com/opentok/accelerator-sample-apps-js/tree/master/vanilla-js-sample-app) is built with vanilla JavaScript.
 
 ## Installation
 
