@@ -32,7 +32,7 @@ class Communication {
         throw new CoreError(`${option} is a required option.`, 'invalidParameters');
       }
     });
-    const { callProperties, screenProperties, autoSubscribe } = options;
+    const { callProperties, screenProperties, autoSubscribe, subscribeOnly } = options;
     this.active = false;
     this.core = options.core;
     this.state = options.state;
@@ -41,6 +41,7 @@ class Communication {
     this.callProperties = Object.assign({}, defaultCallProperties, callProperties);
     this.connectionLimit = options.connectionLimit || null;
     this.autoSubscribe = options.hasOwnProperty('autoSubscribe') ? autoSubscribe : true;
+    this.subscribeOnly = options.hasOwnProperty('subscribeOnly') ? subscribeOnly : true;
     this.screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, screenProperties);
   }
     /**
@@ -90,7 +91,16 @@ class Communication {
    * @returns {Promise} <resolve: empty, reject: Error>
    */
   publish = (publisherProperties) => {
-    const { analytics, state, createPublisher, session, triggerEvent } = this;
+    const { analytics, state, createPublisher, session, triggerEvent, subscribeOnly } = this;
+
+    /**
+     * For subscriber tokens or cases where we just don't want to be seen or heard.
+     */
+    if (subscribeOnly) {
+      message('Instance is configured with subscribeOnly set to true. Cannot publish to session');
+      return Promise.resolve();
+    }
+
     return new Promise((resolve, reject) => {
       const onPublish = publisher => (error) => {
         if (error) {
