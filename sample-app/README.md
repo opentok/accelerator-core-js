@@ -29,4 +29,4 @@ $ npm run start
 
 ----------
 
-*Looking for a sample in plain JavaScript? Click [here](https://github.com/opentok/accelerator-core-js/tree/master/vanilla-js-sample-app).*
+*Looking for a sample in plain JavaScript? Click [here](https://github.com/opentok/accelerator-sample-apps-js/tree/master/vanilla-js-sample-app).*
