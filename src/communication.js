@@ -41,7 +41,7 @@ class Communication {
     this.callProperties = Object.assign({}, defaultCallProperties, callProperties);
     this.connectionLimit = options.connectionLimit || null;
     this.autoSubscribe = options.hasOwnProperty('autoSubscribe') ? autoSubscribe : true;
-    this.subscribeOnly = options.hasOwnProperty('subscribeOnly') ? subscribeOnly : true;
+    this.subscribeOnly = options.hasOwnProperty('subscribeOnly') ? subscribeOnly : false;
     this.screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, screenProperties);
   }
     /**
