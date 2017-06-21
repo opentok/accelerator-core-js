@@ -71,10 +71,10 @@ The `streamContainers` property is a function that specifies which DOM element s
 
 ```javascript
   /**
-   * @param {String} pubSub - 'publisher' or 'subscriber'
-   * @param {String} type - 'camera' or 'screen'
-   * @param {*} data - Parsed stream connection data (subscriber only)
-   * @param {Object} stream - The new stream (subscriber only)
+ * @param {String} pubSub - 'publisher' or 'subscriber'
+ * @param {String} type - 'camera' or 'screen'
+ * @param {*} data - Parsed stream connection data (subscriber only)
+ * @param {Object} stream - The new stream (subscriber only)
    */
   streamContainers(pubSub, type, data, stream){
     return {
@@ -91,11 +91,17 @@ The `streamContainers` property is a function that specifies which DOM element s
   controlsContainer: '#videoControls',
 ```
 #### Communication Options
-The `communication` properties relate to the multi-party communication provided by `Core`.  `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.  `connectionLimit` limits the number of parties that may publish/subscribe to the session.  `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI.
+The `communication` properties relate to the multi-party communication provided by `Core`:
+
+ * `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.
+ * `subscribeOnly`, which is set to `false` by default, allows users to join an OpenTok session and subscribe to streams without publishing any audio or video.
+ * `connectionLimit` limits the number of parties that may publish/subscribe to the session.
+ * `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI.
 
 ```javascript
   communication: {
   autoSubscribe: true,
+  subscribeOnly: false,
   connectionLimit: null,
     callProperties: myCallProperties,
   },
