@@ -3,3 +3,5 @@ engines:
     enabled: true
     config:
       config: ./.eslintrc.json
+    exclude_paths:
+    - "test/"
