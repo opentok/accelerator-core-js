@@ -38,6 +38,9 @@ describe('Core Tests', function() {
        packages: ["any"],
        containers: _containers
      };
+     it('Should pass', function() {
+      expect(true).to.be.true;
+     });
        xit('Should init core', function() {
         expect(Core.init.bind(Core.init, _options)).not.to.throw('');
        });
