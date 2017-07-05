@@ -52,7 +52,8 @@ class AccCore {
     this.analytics.log(logAction.init, logVariation.attempt);
 
     // Create session, setup state
-    this.session = OT.initSession(credentials.apiKey, credentials.sessionId);
+    const sessionProps = options.largeScale ? { connectionEventsSuppressed: true } : undefined;
+    this.session = OT.initSession(credentials.apiKey, credentials.sessionId, sessionProps);
     this.internalState = new State();
     this.internalState.setSession(this.session);
     this.internalState.setCredentials(credentials);
