@@ -90,6 +90,11 @@ The `streamContainers` property is a function that specifies which DOM element s
   },
   controlsContainer: '#videoControls',
 ```
+#### Large-Scale Session
+If you need to support an OpenTok session with [more than 300 connections](https://tokbox.com/developer/beta/large-sessions/), set `largeScale` to `true`.  This option is set to `false` by default.
+```
+  largeScale: false,
+```
 #### Communication Options
 The `communication` properties relate to the multi-party communication provided by `Core`:
 
