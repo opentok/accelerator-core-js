@@ -33,12 +33,12 @@ const logAction = {
 
 class Analytics {
 
-  constructor(source, sessionId, connectionId, apikey) {
+  constructor(source, sessionId, connectionId, apikey, applicationName) {
     const otkanalyticsData = {
       clientVersion: 'js-vsol-x.y.z', // x.y.z filled by npm build script
       source,
       componentId: 'acceleratorCore',
-      name: 'coreAccelerator',
+      name: applicationName || 'coreAccelerator',
       partnerId: apikey,
     };
 

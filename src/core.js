@@ -48,6 +48,7 @@ class AccCore {
     this.name = options.name;
 
     // Init analytics
+    this.applicationName = options.name;
     this.analytics = new Analytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);
     this.analytics.log(logAction.init, logVariation.attempt);
 
