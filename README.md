@@ -105,9 +105,9 @@ The `communication` properties relate to the multi-party communication provided 
 
 ```javascript
   communication: {
-  autoSubscribe: true,
-  subscribeOnly: false,
-  connectionLimit: null,
+    autoSubscribe: true,
+    subscribeOnly: false,
+    connectionLimit: null,
     callProperties: myCallProperties,
   },
 ```
