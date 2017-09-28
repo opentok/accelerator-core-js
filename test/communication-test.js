@@ -35,7 +35,7 @@ describe('Core Communication Tests', function() {
 
    describe('Test init communications', function() {
 
-       it('Should init communications', function() {
+       xit('Should init communications', function() {
          _options = {
            session: _session,
            publishers: "any",
@@ -50,21 +50,21 @@ describe('Core Communication Tests', function() {
    });
 
    describe('Test Start Call', function() {
-      it('Should start call', function() {
+      xit('Should start call', function() {
         expect(Communication.startCall.bind(Communication.startCall)).not.to.throw('');
        });
-       it('Should start call even if the call is started', function() {
+       xit('Should start call even if the call is started', function() {
          Communication.startCall();
          expect(Communication.startCall.bind(Communication.startCall)).not.to.throw('');
         });
    });
 
    describe('Test End Call', function() {
-      it('Should throw error when end a not started call ', function() {
+      xit('Should throw error when end a not started call ', function() {
         expect(Communication.endCall.bind(Communication.endCall)).to.throw('Cannot read property \'logEvent\' of null');
        });
    });
-   
+
   // TO DO
   //  describe('Test Enable Local Audio-Video', function() {
   //     it('Should enable local audio', function() {
