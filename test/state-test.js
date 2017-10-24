@@ -36,7 +36,7 @@ describe('Core State Tests', function() {
   //  });
 
    describe('Test Get Publisher and Subscribers', function() {
-      it('Should get publishers and subscribers', function() {
+      xit('Should get publishers and subscribers', function() {
         expect(State.getPubSub.bind(State.getPubSub)).not.to.throw('');
         var _pubSubsCount = State.getPubSub();
         expect(_pubSubsCount).not.to.be.null;
@@ -56,7 +56,7 @@ describe('Core State Tests', function() {
        id: "any",
        videoType: "any"
      };
-     it('Should add stream', function() {
+     xit('Should add stream', function() {
         expect(State.addStream.bind(State.addStream, _stream)).not.to.throw('');
         var _streams = State.getStreams();
         expect(_streams[_stream.id]).not.to.be.null;
