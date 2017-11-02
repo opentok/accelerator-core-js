@@ -5,25 +5,18 @@ before_install:
 - export CHROME_BIN=chromium-browser
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
-before_script:
-- npm install
-- npm install chai karma karma-chai karma-chrome-launcher karma-coverage
-  karma-firefox-launcher karma-html2js-preprocessor mocha karma-mocha karma-phantomjs-launcher
-  karma-browserify babel-plugin-espower browserify
-- npm install opentok-text-chat opentok-screen-sharing opentok-annotation
-  opentok-archiving
 script:
 - npm run build
 - npm test
 - if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     VERSION=$(jq '.version' package.json | sed -e 's/^"//' -e 's/"$//');
+    git commit -m "New build. Bump npm version." --allow-empty;
     git tag v$VERSION;
-    git commit -m "New build. Bump npm version.";
     git push --quiet https://$GITHUBKEY@github.com/opentok/accelerator-core-js v$VERSION;
   fi
 deploy:
   provider: npm
-  email: opentok-vsolutions@tokbox.com
+  email: vsolutions@tokbox.com
   api_key:
     secure: VBTJVEciesgOR67rcLoRSnP1ZHPBUee4u5pO+TFBLI7WlBCOZNHey3gO2Fow5HmgD9Ef8kzFxMCkC+qEyVNfXe0Lab+l5ldIIjqq1aLGf8K/rGVByrmU/L1sWttdcNNtNDohW3L9u23IstZe1eOZzCUTOrayco1n3NK8vUUQeu8ScODtCi3sPs89qYf6N+eCcPTjfmrWTT/d3eakdCHFREEaXqk3U+fOoshdc/p5sgMae0/B+vll8q+08TsFKCs6n3kiWpoSaU+yarpHflyDxTAVOCLcAX5D+cAkiwF5x+H1qjOFsdvU75xnA3BG9GTSj6/EJMKyOKsko1KqlKLgxlQqQ6HYaoBxWxvf/1dihCMZpgtQqmkRRVhub0TJDIDTYdVK+gSZJj87mA4ZvFERFpy+p+AeFtsMVELW94AbWxikq53bwowmDqry3gM+yeU6O8HjgeAUzXpW6SV2Qymi8JNdrL9xAtiOKX78ATs7uIPi8bruR4KbIG276MX3UL2IvDNgaSOB04ZYIN/moDx2XoMR4iQc60DPFLrGBTq7MyI0UCIbwogPZRaTPji8NRutilhNABU4nOsFPC3Rws1a6oCc4qHidJZTtmQGws6ox1o9k7g1eEerLgV2rl40KqiMemg2kJL5vc6CrhC9WSxWHeyXjooCa1jhl8yH/rcl2WM=
   on:
