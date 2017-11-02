@@ -180,7 +180,7 @@ class OpenTokSDK {
     const { streamMap, subscribers } = stateMap.get(this).all();
     const subscriberId = streamMap[streamId];
     const subscriber = subscribers.camera[subscriberId] || subscribers.screen[subscriberId];
-    subscriber && subscriber.subscribeToVideo(enable);
+    subscriber && subscriber.subscribeToAudio(enable);
   }
 
   /**
@@ -192,7 +192,7 @@ class OpenTokSDK {
     const { streamMap, subscribers } = stateMap.get(this).all();
     const subscriberId = streamMap[streamId];
     const subscriber = subscribers.camera[subscriberId] || subscribers.screen[subscriberId];
-    subscriber && subscriber.subscribeToAudio(enable);
+    subscriber && subscriber.subscribeToVideo(enable);
   }
 
   /**
