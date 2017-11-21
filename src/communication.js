@@ -154,7 +154,7 @@ class Communication {
         } catch (e) {
           connectionData = path(['connection', 'data'], stream);
         }
-        const container = dom.query(streamContainers('subscriber', type, connectionData, stream));
+        const container = dom.element(streamContainers('subscriber', type, connectionData, stream));
         const options = Object.assign(
           {},
           type === 'camera' || type === 'sip' ? callProperties : screenProperties,
