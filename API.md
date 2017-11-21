@@ -170,7 +170,7 @@
 **Returns**: `Object`
 
 
-### `subscribe(stream, subscriberProperties)`
+### `subscribe(stream, subscriberProperties = {}, networkTest = false)`
 
 *Subscribe to a stream and update the state*
 
@@ -179,6 +179,8 @@
 **stream**: `Object` An OpenTok stream object
 
 **stream**: `Object` Optional subscriber properties - https://goo.gl/bzjoLL
+
+**stream**: `Boolean` Optional boolean indicating that we are subscribing to our own publisher as part of a network test
 
 **Returns**: `Promise => <resolve: Subscriber, reject: Error >`
 
@@ -238,4 +240,3 @@
 **Returns**: `Promise => <resolve: empty>`
 
 * * *
-

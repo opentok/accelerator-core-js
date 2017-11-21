@@ -132,9 +132,10 @@ class Communication {
    * Subscribe to a stream and update the state
    * @param {Object} stream - An OpenTok stream object
    * @param {Object} [subsriberOptions]
+   * @param {Boolean} [networkTest] - Are we subscribing to our own publisher for a network test?
    * @returns {Promise} <resolve: Object, reject: Error >
    */
-  subscribe = (stream, subscriberProperties = {}) => {
+  subscribe = (stream, subscriberProperties = {}, networkTest = false) => {
     const { analytics, state, streamContainers, session, triggerEvent, callProperties, screenProperties } = this;
     return new Promise((resolve, reject) => {
       let connectionData;
@@ -143,7 +144,7 @@ class Communication {
       const { streamId } = stream;
       // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
       const type = pathOr('sip', 'videoType', stream);
-      if (streamMap[streamId]) {
+      if (streamMap[streamId] && !networkTest) {
         // Are we already subscribing to the stream?
         const { subscribers } = state.all();
         resolve(subscribers[type][streamMap[streamId]]);

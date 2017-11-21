@@ -524,9 +524,11 @@ class AccCore {
    * Manually subscribe to a stream
    * @param {Object} stream - An OpenTok stream
    * @param {Object} [subscriberProperties] - https://tokbox.com/developer/sdks/js/reference/Session.html#subscribe
+   * @param {Boolean} [networkTest] - Subscribing to our own publisher as part of a network test?
    * @returns {Promise} <resolve: Subscriber, reject: Error>
    */
-  subscribe = (stream, subscriberProperties) => this.communication.subscribe(stream, subscriberProperties)
+  subscribe = (stream, subscriberProperties, networkTest = false) =>
+    this.communication.subscribe(stream, subscriberProperties, networkTest)
 
   /**
    * Manually unsubscribe from a stream
