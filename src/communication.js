@@ -236,6 +236,9 @@ class Communication {
     const { analytics, state, subscribe, ableToJoin, triggerEvent, autoSubscribe, publish } = this;
     return new Promise((resolve, reject) => { // eslint-disable-line consistent-return
       analytics.log(logAction.startCall, logVariation.attempt);
+      
+      this.active = true;
+      const initialStreamIds = Object.keys(state.getStreams());
 
       /**
        * Determine if we're able to join the session based on an existing connection limit
@@ -255,7 +258,7 @@ class Communication {
         const initialSubscriptions = () => {
           if (autoSubscribe) {
             const streams = state.getStreams();
-            return Object.keys(streams).map(id => subscribe(streams[id]));
+            return initialStreamIds.map(id => subscribe(streams[id]));
           }
           return [Promise.resolve()];
         };
@@ -264,7 +267,6 @@ class Communication {
         const onSubscribeToAll = () => {
           const pubSubData = Object.assign({}, state.getPubSub(), { publisher });
           triggerEvent('startCall', pubSubData);
-          this.active = true;
           resolve(pubSubData);
         };
 
