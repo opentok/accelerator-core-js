@@ -8,8 +8,9 @@ before_install:
 script:
 - npm run build
 - npm test
+- VER_DEPL=$(npm show opentok-accelerator-core version);
+- VERSION=$(jq '.version' package.json | sed -e 's/^"//' -e 's/"$//');
 - if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-    VERSION=$(jq '.version' package.json | sed -e 's/^"//' -e 's/"$//');
     git commit -m "New build. Bump npm version." --allow-empty;
     git tag v$VERSION;
     git push --quiet https://$GITHUBKEY@github.com/opentok/accelerator-core-js v$VERSION;
@@ -17,10 +18,10 @@ script:
 deploy:
   provider: npm
   email: vsolutions@tokbox.com
-  api_key:
-    secure: p9jyhkhbjaKnr/9iJj1xDSDBem7dIUIOvh/LnGrO1WE0iDd6wLQ9R0XVfW6DpwKws8q/B2Aw16WS4/Brp65KqFjmAXhws/tJPLcuBLzW2J34qICEOxotNuGvchv+5uoNJpOM06ntyq6WU//lxle0FdretkKOQOAyX+CvIAlWO8QIQaRgu7HcsKr5qnZQfOJV3P7JO0Fu8sWQR8oWvaR+qJp1Aps6kg5EZ60KyorH1+2WmLXfYIiI6vT32plQqeXP91nNN/WnEBy2k5URapGWdngr8/7Dc3YQ4/QAfDCCeSkyGv9X5W46uTfmwCE8MMAsyaI93mpphY1pL6rz+hZqm0yiKTLrMXzMSNuTMWdBKgNQnEe3a2G0HfPLxR5P2KLY1CCsopimy6Xr0nVgEpmSD1LbhzjcRk21ZNJhGw2PmNPK9DPJzF4+eywj1dk9l9i92QTpESxviTWd0S8XLxLIq6SYW+RyW4M913jOH2jbXqJMT8WCjSM86V1u27DeBLPwpNsCfuHCnNlF0/vZDtnpkfexfhvULut7ZnCpZh4TxWyfaInZzI+2eSmbwuU28BeyRuDf3uA24xKHjLl3YAKj9cEQTi7BhPsPV2I90Gbrfasf1snAe8argwdzGct6l/8C8aL+qkHggvENgTf+R1UGw841hfIYLtCjupL/G2kLRDg=
+  api_key: $NPM_TOKEN
   on:
     branch: master
+    condition: $VERSION != $VER_DEPL
   skip_cleanup: true
 notifications:
   slack:
