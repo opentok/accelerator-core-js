@@ -10,7 +10,7 @@ script:
 - npm test
 - VER_DEPL=$(npm show opentok-accelerator-core version);
 - VERSION=$(jq '.version' package.json | sed -e 's/^"//' -e 's/"$//');
-- if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+- if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_BRANCH" == "master" && "$VER_DEPL" != "$VERSION" ]]; then
     git commit -m "New build. Bump npm version." --allow-empty;
     git tag v$VERSION;
     git push --quiet https://$GITHUBKEY@github.com/opentok/accelerator-core-js v$VERSION;
