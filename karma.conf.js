@@ -28,7 +28,15 @@ module.exports = function(config) {
         port: 9877,
         colors: true,
         autoWatch: true,
-        browsers: [],
+        browsers: ['Chrome'],
+        browserDisconnectTimeout: 10000,
+        browserDisconnectTolerance: 3,
+        browserNoActivityTimeout: 60000,
+        flags: [
+          '--disable-web-security',
+          '--disable-gpu',
+          '--no-sandbox'
+        ],
         singleRun: true,
         browserify: {
           debug: true,
@@ -51,7 +59,8 @@ module.exports = function(config) {
         customLaunchers: {
           Chrome_travis_ci: {
             base: 'Chrome',
-            flags: ['--no-sandbox']
+            flags: ['--no-sandbox', '--disable-web-security',
+            '--disable-gpu']
           }
         }
     };
