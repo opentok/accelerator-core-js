@@ -587,7 +587,7 @@ class AccCore {
       const session = getSession();
       const signalObj = Object.assign({},
         type ? { type } : null,
-        data ? { data: JSON.stringify(data) } : null,
+        data ? { data } : null,
         to ? { to } : null // eslint-disable-line comma-dangle
       );
       session.signal(signalObj, (error) => {
