@@ -178,12 +178,11 @@ class State {
   removePublisher = (type, publisher) => {
     const { streamMap, publishers } = this;
     const id = publisher.id || streamMap[publisher.streamId];
-    if (id) {
-      delete publishers[type][id];
-      delete streamMap[publisher.streamId];
-    } else {
+    if (id == null) {
       throw 'Publisher no longer exists. It may have been previously destroyed.'
     }
+    delete publishers[type][id];
+    delete streamMap[publisher.streamId];
   }
 
   /**
@@ -218,12 +217,11 @@ class State {
   removeSubscriber = (type, subscriber) => {
     const { subscribers, streamMap } = this;
     const id = subscriber.id || streamMap[subscriber.streamId];
-    if (id) {
-      delete subscribers[type][id];
-      delete streamMap[subscriber.streamId];
-    } else {
+    if (id == null) {
       throw 'Subscriber no longer exists. It may have been previously destroyed.'
     }
+    delete subscribers[type][id];
+    delete streamMap[subscriber.streamId];
   }
 
   /**
