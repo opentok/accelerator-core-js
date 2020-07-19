@@ -34,8 +34,8 @@ class State {
  */
 
   /**
-   * Returns the count of current publishers and subscribers by type
-   * @retuns {Object}
+  * Returns the count of current publishers and subscribers by type
+   * @returns {Object}
    *    {
    *      publishers: {
    *        camera: 1,
