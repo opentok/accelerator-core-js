@@ -33,22 +33,22 @@ class State {
  * Internal methods
  */
 
-/**
- * Returns the count of current publishers and subscribers by type
- * @retuns {Object}
- *    {
- *      publishers: {
- *        camera: 1,
- *        screen: 1,
- *        total: 2
- *      },
- *      subscribers: {
- *        camera: 3,
- *        screen: 1,
- *        total: 4
- *      }
- *   }
- */
+  /**
+  * Returns the count of current publishers and subscribers by type
+   * @returns {Object}
+   *    {
+   *      publishers: {
+   *        camera: 1,
+   *        screen: 1,
+   *        total: 2
+   *      },
+   *      subscribers: {
+   *        camera: 3,
+   *        screen: 1,
+   *        total: 4
+   *      }
+   *   }
+   */
   pubSubCount = () => {
     const { publishers, subscribers } = this;
     /* eslint-disable no-param-reassign */
@@ -178,6 +178,9 @@ class State {
   removePublisher = (type, publisher) => {
     const { streamMap, publishers } = this;
     const id = publisher.id || streamMap[publisher.streamId];
+    if (id == null) {
+      throw 'Publisher no longer exists. It may have been previously destroyed.'
+    }
     delete publishers[type][id];
     delete streamMap[publisher.streamId];
   }
@@ -214,6 +217,9 @@ class State {
   removeSubscriber = (type, subscriber) => {
     const { subscribers, streamMap } = this;
     const id = subscriber.id || streamMap[subscriber.streamId];
+    if (id == null) {
+      throw 'Subscriber no longer exists. It may have been previously destroyed.'
+    }
     delete subscribers[type][id];
     delete streamMap[subscriber.streamId];
   }
