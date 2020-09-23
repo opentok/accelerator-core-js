@@ -3,11 +3,13 @@ class State {
     this.publishers = {
       camera: {},
       screen: {},
+      custom: {},
     };
 
     this.subscribers = {
       camera: {},
       screen: {},
+      custom: {},
     };
 
     this.streams = {};
@@ -56,11 +58,13 @@ class State {
    *      publishers: {
    *        camera: 1,
    *        screen: 1,
+   *        custom: 0
    *        total: 2
    *      },
    *      subscribers: {
    *        camera: 3,
    *        screen: 1,
+   *        custom: 0,
    *        total: 4
    *      }
    *   }
@@ -72,13 +76,13 @@ class State {
       acc[source] = Object.keys(publishers[source]).length;
       acc.total += acc[source];
       return acc;
-    }, { camera: 0, screen: 0, total: 0 });
+    }, { camera: 0, screen: 0, custom: 0, total: 0 });
 
     const subs = Object.keys(subscribers).reduce((acc, source) => {
       acc[source] = Object.keys(subscribers[source]).length;
       acc.total += acc[source];
       return acc;
-    }, { camera: 0, screen: 0, total: 0 });
+    }, { camera: 0, screen: 0, custom: 0, total: 0 });
     /* eslint-enable no-param-reassign */
     return { publisher: pubs, subscriber: subs };
   }
@@ -104,6 +108,7 @@ class State {
   removeAllPublishers() {
     this.publishers.camera = {};
     this.publishers.screen = {};
+    this.publishers.custom = {};
   }
 
   addSubscriber(subscriber) {
@@ -139,8 +144,8 @@ class State {
   reset() {
     this.streams = {};
     this.streamMap = {};
-    this.publishers = { camera: {}, screen: {} };
-    this.subscribers = { camera: {}, screen: {} };
+    this.publishers = { camera: {}, screen: {}, custom: {} };
+    this.subscribers = { camera: {}, screen: {}, custom: {} };
   }
 
   all() {
