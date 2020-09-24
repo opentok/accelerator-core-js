@@ -241,11 +241,13 @@ will always include the current `publishers`, `subscribers`, and a `meta` object
     publishers: {
       camera: 1,
       screen: 0,
+      custom: 0,
       total: 1,
     },
     subscribers: {
       camera: 2,
       screen: 1,
+      custom: 0,
       total: 3,
     },
   },
@@ -253,7 +255,8 @@ will always include the current `publishers`, `subscribers`, and a `meta` object
     camera: {
       'OT_d18d5027-21eb-093f-8c18-e3959f3e7585': OTPublisherObject,
     },
-    screen: {}
+    screen: {},
+    custom: {},
   },
   subscribers: {
     camera: {
@@ -263,6 +266,9 @@ will always include the current `publishers`, `subscribers`, and a `meta` object
     screen: {
       'OT_nd872bd9s-0d82-n431-809l-k1kdjd72mdks': OTSubscriberObject,
     },
+    custom: {
+      'OT_d38n82s-21eb-8dn8-8c18-eadnfdf92nf90': OTSubscriberObject,
+    }
   }
 ```
 

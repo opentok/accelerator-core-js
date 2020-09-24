@@ -5,6 +5,7 @@ class State {
     this.publishers = {
       camera: {},
       screen: {},
+      custom: {},
     };
 
     // Map subscriber id to subscriber objects
@@ -12,6 +13,7 @@ class State {
       camera: {},
       screen: {},
       sip: {},
+      custom: {},
     };
 
     // Map stream ids to stream objects
@@ -40,11 +42,13 @@ class State {
    *      publishers: {
    *        camera: 1,
    *        screen: 1,
+   *        custom: 0,
    *        total: 2
    *      },
    *      subscribers: {
    *        camera: 3,
    *        screen: 1,
+   *        custom: 0,
    *        total: 4
    *      }
    *   }
@@ -56,13 +60,13 @@ class State {
       acc[source] = Object.keys(publishers[source]).length;
       acc.total += acc[source];
       return acc;
-    }, { camera: 0, screen: 0, total: 0 });
+    }, { camera: 0, screen: 0, custom: 0, total: 0 });
 
     const subs = Object.keys(subscribers).reduce((acc, source) => {
       acc[source] = Object.keys(subscribers[source]).length;
       acc.total += acc[source];
       return acc;
-    }, { camera: 0, screen: 0, sip: 0, total: 0 });
+    }, { camera: 0, screen: 0, sip: 0, custom: 0, total: 0 });
     /* eslint-enable no-param-reassign */
     return { publisher: pubs, subscriber: subs };
   }
@@ -190,7 +194,7 @@ class State {
    */
   removeAllPublishers = () => {
     const { publishers, removePublisher } = this;
-    ['camera', 'screen'].forEach((type) => {
+    ['camera', 'screen', 'custom'].forEach((type) => {
       Object.values(publishers[type]).forEach((publisher) => {
         removePublisher(type, publisher);
       });
@@ -228,7 +232,7 @@ class State {
    * Remove all subscribers from state
    */
   removeAllSubscribers = () => {
-    ['camera', 'screen', 'sip'].forEach((type) => {
+    ['camera', 'screen', 'sip', 'custom'].forEach((type) => {
       Object.values(this.subscribers[type]).forEach((subscriber) => {
         this.removeSubscriber(type, subscriber);
       });
