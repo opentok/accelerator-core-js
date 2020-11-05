@@ -111,6 +111,7 @@ The `communication` properties relate to the multi-party communication provided 
 - `autoSubscribe` dictates whether or not `Core` automatically subscribes to new streams and is set to `true` by default.
 - `subscribeOnly`, which is set to `false` by default, allows users to join an OpenTok session and subscribe to streams without publishing any audio or video.
 - `connectionLimit` limits the number of parties that may publish/subscribe to the session.
+- `publisherCreatedCallback` is a callback `(error, publisher) => {...}` used to subscribe to events on publisher before we try to publish to the session. e.g. register to `accessDialogOpened` event.
 - `callProperties` allows for [customization](https://www.tokbox.com/developer/guides/customize-ui/js/) of the UI.
 
 ```javascript
@@ -118,6 +119,7 @@ The `communication` properties relate to the multi-party communication provided 
     autoSubscribe: true,
     subscribeOnly: false,
     connectionLimit: null,
+    publisherCreatedCallback: null,
     callProperties: myCallProperties,
   },
 ```

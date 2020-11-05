@@ -41,6 +41,7 @@ class Communication {
     this.callProperties = Object.assign({}, defaultCallProperties, callProperties);
     this.connectionLimit = options.connectionLimit || null;
     this.autoSubscribe = options.hasOwnProperty('autoSubscribe') ? autoSubscribe : true;
+    this.publisherCreatedCallback = options.publisherCreatedCallback || null,
     this.subscribeOnly = options.hasOwnProperty('subscribeOnly') ? subscribeOnly : false;
     this.screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, screenProperties);
   }
@@ -72,7 +73,7 @@ class Communication {
    * @returns {Promise} <resolve: Object, reject: Error>
    */
   createPublisher = (publisherProperties) => {
-    const { callProperties, streamContainers } = this;
+    const { callProperties, publisherCreatedCallback, streamContainers } = this;
     return new Promise((resolve, reject) => {
       // TODO: Handle adding 'name' option to props
       const props = Object.assign({}, callProperties, publisherProperties);
@@ -80,6 +81,12 @@ class Communication {
       // ^^^ This may already be available through package options
       const container = dom.element(streamContainers('publisher', 'camera'));
       const publisher = OT.initPublisher(container, props, (error) => {
+
+        // Allow the user to register to events on the newly created publisher
+        // e.g.: accessDialogOpened
+        if(publisherCreatedCallback) {
+          publisherCreatedCallback(error, publisher)
+        }
         error ? reject(error) : resolve(publisher);
       });
     });
