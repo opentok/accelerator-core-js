@@ -1,43 +1,41 @@
-# Contributing Guidelines
+# Contributing
 
-For anyone looking to get involved to this project, we are glad to hear from you. Here are a few types of contributions
-that we would be interested in hearing about.
+We appreciate contributions of any kind and acknowledge them on our [README][readme]. By participating
+in this project, you agree to abide by our [code of conduct](CODE_OF_CONDUCT.md).
 
-*  Bug fixes
-    -  If you find a bug, please first report it using Github Issues.
-    -  Issues that have already been identified as a bug will be labelled `bug`.
-    -  If you'd like to submit a fix for a bug, send a Pull Request from your own fork and mention the Issue number.
-        +  Include a test that isolates the bug and verifies that it was fixed.
-*  New Features
-    -  If you'd like to accomplish something in the library that it doesn't already do, describe the problem in a new
-       Github Issue.
-    -  Issues that have been identified as a feature request will be labelled `enhancement`.
-    -  If you'd like to implement the new feature, please wait for feedback from the project maintainers before spending
-       too much time writing the code. In some cases, `enhancement`s may not align well with the project objectives at
-       the time.
-*  Tests, Documentation, Miscellaneous
-    -  If you think the test coverage could be improved, the documentation could be clearer, you've got an alternative
-       implementation of something that may have more advantages, or any other change we would still be glad hear about
-       it.
-       -  If its a trivial change, go ahead and send a Pull Request with the changes you have in mind
-       -  If not, open a Github Issue to discuss the idea first.
+### Any enhancements/bugs/etc you see?
 
-## Requirements
+Add an issue. We'll review it, add labels and reply.
 
-For a contribution to be accepted:
+### See an issue you'd like to work on?
 
-*  The test suite must be complete and pass
-*  Code must follow existing styling conventions
-*  Commit messages must be descriptive. Related issues should be mentioned by number.
+Comment on the issue that you'd like to work on it
+and we'll add the `claimed` label. If you see the `claimed` label already on the issue you
+might want to ask the contributor if they'd like some help.
 
-If the contribution doesn't meet these criteria, a maintainer will discuss it with you on the Issue. You can still
-continue to add more commits to the branch you have sent the Pull Request from.
+### Documentation/etc need updating?
 
-## How To
+Go right ahead! Just submit a pull request when you're done.
 
-1. Fork this repository on GitHub.
-1. Clone/fetch your fork to your local development machine.
-1. Create a new branch (e.g. `issue-12`, `feat.add_foo`, etc) and check it out.
-1. Make your changes and commit them. (Did the tests pass?)
-1. Push your new branch to your fork. (e.g. `git push myname issue-12`)
-1. Open a Pull Request from your new branch to the original fork's `master` branch.
+## Pull Requests
+
+We love pull requests from everyone.
+
+Fork, then clone the repo:
+
+    git clone git@github.com:your-username/accelerator-core-js.git
+
+**All changes should be based from the `main` branch.**
+
+Push to your fork and [submit a pull request](https://github.com/opentok/accelerator-core-js/compare/) against the `main` branch.
+
+At this point you're waiting on us. We may suggest some changes or improvements or alternatives.
+
+Some things that will increase the chance that your pull request is accepted:
+
+- Update [README][readme] with any needed changes
+- Update [CHANGELOG](CHANGELOG.md) with any changes
+- **Write tests.**
+- Write a [good commit message](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
+
+[readme]: README.md

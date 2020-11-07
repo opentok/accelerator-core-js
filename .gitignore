@@ -4,3 +4,5 @@ node_modules
 npm-debug.log
 dist
 browser
+coverage
+.nyc_output
