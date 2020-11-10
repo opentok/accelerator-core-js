@@ -1,0 +1,19 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_type = space
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.json]
+insert_final_newline = false
+
+[**.min.js]
+indent_style = unset
+insert_final_newline = unset
+
+[*.md]
+trim_trailing_whitespace = false
