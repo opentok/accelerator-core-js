@@ -2,12 +2,15 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
-    "outDir": "./dist",
+    "outDir": "./build",
     "downlevelIteration": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "rootDirs": [
       "./src"
     ],
     "esModuleInterop": true
-  }
+  },
+  "exclude": [
+    "node_modules"
+  ]
 }

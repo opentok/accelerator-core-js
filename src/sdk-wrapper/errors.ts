@@ -3,11 +3,12 @@
  */
 export default class SDKError extends Error {
   constructor(
-    public errorMessage: string,
-    public errorName: string,
-    public stack?: string
+    source: string,
+    errorMessage: string,
+    errorName: string,
+    stack?: string
   ) {
-    super(`otSDK: ${errorMessage}`);
+    super(`${source}: ${errorMessage}`);
     this.name = errorName;
     this.stack = stack;
   }

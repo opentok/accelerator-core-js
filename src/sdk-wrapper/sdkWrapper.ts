@@ -1,4 +1,3 @@
-import OT from '@opentok/client';
 import SDKError from './errors';
 import State from './state';
 import { Credential, StreamType } from '../models';
@@ -52,7 +51,7 @@ export default class OpenTokSDK extends State {
    * to register callbacks for multiple events.
    * @param events The name of the events
    * @param callback
-   * https://tokbox.com/developer/sdks/js/reference/Session.html#on
+   * @see https://tokbox.com/developer/sdks/js/reference/Session.html#on
    */
   public on(
     events:
@@ -75,7 +74,7 @@ export default class OpenTokSDK extends State {
    * Remove a callback for a specific event. If no parameters are passed,
    * all callbacks for the session will be removed.
    * @param events The name of the events
-   * https://tokbox.com/developer/sdks/js/reference/Session.html#off
+   * @see https://tokbox.com/developer/sdks/js/reference/Session.html#off
    */
   off(...events: string[]): void {
     const session = this.getSession();
@@ -140,11 +139,12 @@ export default class OpenTokSDK extends State {
     preview = false
   ): Promise<OT.Publisher> {
     const publisher = await this.initPublisher(element, properties);
-
-    if (eventListeners && preview) {
+    if (eventListeners) {
       bindListeners(publisher, this, eventListeners);
+    }
+
+    if (preview) {
       return publisher;
-      8;
     } else {
       return await this.publishPreview(publisher);
     }
@@ -159,11 +159,15 @@ export default class OpenTokSDK extends State {
       const session = this.getSession();
       if (session) {
         session.publish(publisher, (error) => {
-          error && reject(error);
+          if (error) {
+            reject(error);
+          }
+
           this.addPublisher(
             publisher.stream.videoType as StreamType,
             publisher
           );
+
           resolve(publisher);
         });
       } else {
@@ -191,7 +195,7 @@ export default class OpenTokSDK extends State {
    * @param container The id of the container or a reference to the element
    * @param properties Settings to use in the subscription of the stream
    * @param eventListeners An object eventName/callback key/value pairs
-   * https://tokbox.com/developer/sdks/js/reference/Session.html#subscribe
+   * @see https://tokbox.com/developer/sdks/js/reference/Session.html#subscribe
    */
   async subscribe(
     stream: OT.Stream,
@@ -303,7 +307,7 @@ export default class OpenTokSDK extends State {
    * @param type Message type
    * @param signalData Data to send
    * @param to An OpenTok connection object
-   * https://tokbox.com/developer/guides/signaling/js/
+   * @see https://tokbox.com/developer/guides/signaling/js/
    */
   async signal(
     type: string,
@@ -359,8 +363,7 @@ export default class OpenTokSDK extends State {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let window: any;
-
-if (globalThis === window) {
+if (typeof window !== 'undefined') {
   window.OpenTokSDK = OpenTokSDK;
 }
 
@@ -378,7 +381,7 @@ const bindListener = (
   const paramsError =
     "'on' requires a string and a function to create an event listener.";
   if (typeof event !== 'string' || typeof callback !== 'function') {
-    throw new SDKError(paramsError, 'invalidParameters');
+    throw new SDKError('okSDK', paramsError, 'invalidParameters');
   }
   target.on(event, callback.bind(context));
 };

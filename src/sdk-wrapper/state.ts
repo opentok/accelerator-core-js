@@ -1,4 +1,3 @@
-import OT from '@opentok/client';
 import {
   Credential,
   Options,
@@ -13,11 +12,11 @@ export default class State {
   private connected: boolean;
   private credentials: Credential | null = null;
   private options: Options;
-  private publishers: StreamCollection<OT.Publisher>;
+  private publishers = new StreamCollection<OT.Publisher>();
   private session: OT.Session | null = null;
-  private streamMap: Record<string, string>;
-  private streams: Record<string, OT.Stream>;
-  private subscribers: StreamCollection<OT.Subscriber>;
+  private streamMap: Record<string, string> = {};
+  private streams: Record<string, OT.Stream> = {};
+  private subscribers = new StreamCollection<OT.Subscriber>();
 
   constructor(credentials: Credential) {
     this.validateCredentials(credentials);
@@ -32,6 +31,7 @@ export default class State {
     required.forEach((credential) => {
       if (!credentials[credential]) {
         throw new SDKError(
+          'otSDK',
           `${credential} is a required credential`,
           'invalidParameters'
         );
@@ -73,7 +73,7 @@ export default class State {
   /**
    * Gets the current OpenTok session
    */
-  protected getSession(): OT.Session | null {
+  public getSession(): OT.Session | null {
     return this.session;
   }
 

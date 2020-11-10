@@ -1,0 +1,1 @@
+{"version":3,"file":"pubSubSummary.js","sourceRoot":"","sources":["../../../src/models/pubSubSummary.ts"],"names":[],"mappings":";;;AAIA;IAIE,uBACE,UAA0C,EAC1C,WAA4C;QAE5C,IAAI,CAAC,SAAS,GAAG,UAAU,CAAC,QAAQ,EAAE,CAAC;QACvC,IAAI,CAAC,UAAU,GAAG,WAAW,CAAC,QAAQ,EAAE,CAAC;IAC3C,CAAC;IACH,oBAAC;AAAD,CAAC,AAXD,IAWC;AAXY,sCAAa"}

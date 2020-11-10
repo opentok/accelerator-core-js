@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://static.opentok.com/v2/js/opentok.min.js"></script>
+  <script src="dist/sdk.js"></script>
+  <title>OT SDK Wrapper</title>
+
+</head>
+
+<body>
+
+  <div id="publishers"></div>
+  <div id="subscribers"></div>
+
+  <script type="text/javascript">
+    const credentials = {
+      apiKey: '46980014',
+      sessionId: '2_MX40Njk4MDAxNH5-MTYwNDgxMzYwMTg0Mn55SytqQ3JMeTR3TVhSNU9nUlF6c3BMNUF-fg',
+      token: 'T1==cGFydG5lcl9pZD00Njk4MDAxNCZzaWc9ODQ3NjlhOTJjNWY2MWRmOWY5ZTlmZTE1YTEwZmQ1Y2UxN2U3MzdlYjpzZXNzaW9uX2lkPTJfTVg0ME5qazRNREF4Tkg1LU1UWXdORGd4TXpZd01UZzBNbjU1U3l0cVEzSk1lVFIzVFZoU05VOW5VbEY2YzNCTU5VRi1mZyZjcmVhdGVfdGltZT0xNjA0ODE2NDU0Jm5vbmNlPTAuNzg3MjQwMjA2NTI4MDUxNyZyb2xlPXB1Ymxpc2hlciZleHBpcmVfdGltZT0xNjA1NDIxMjUzJmluaXRpYWxfbGF5b3V0X2NsYXNzX2xpc3Q9'
+    };
+    const callProperties = {
+      insertMode: 'append',
+      width: '100%',
+      height: '100%',
+      showControls: true
+    };
+    const otSDK = new OpenTokSDK(credentials);
+    let state;
+
+    const subscribeToStream = stream => {
+      const type = stream.videoType;
+      otSDK.subscribe(stream, `${type}SubscriberContainer`, callProperties);
+    };
+
+    otSDK.connect().then(() => {
+
+      const session = otSDK.getSession();
+
+      session.streams.forEach(subscribeToStream);
+
+      otSDK.on({
+        'streamCreated': ({ stream }) => subscribeToStream(stream)
+      });
+
+      otSDK.publish('publishers', callProperties).then((publisher) => {
+        state = otSDK.state();
+      }).catch(error => console.log(error));
+    });
+
+  </script>
+</body>
+
+</html>

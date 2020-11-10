@@ -1,0 +1,1 @@
+{"version":3,"file":"errors.js","sourceRoot":"","sources":["../../../src/sdk-wrapper/errors.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;AAAA;;GAEG;AACH;IAAsC,4BAAK;IACzC,kBAAY,YAAoB,EAAE,SAAiB,EAAE,KAAc;QAAnE,YACE,kBAAM,YAAU,YAAc,CAAC,SAGhC;QAFC,KAAI,CAAC,IAAI,GAAG,SAAS,CAAC;QACtB,KAAI,CAAC,KAAK,GAAG,KAAK,CAAC;;IACrB,CAAC;IACH,eAAC;AAAD,CAAC,AAND,CAAsC,KAAK,GAM1C"}

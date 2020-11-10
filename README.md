@@ -1,6 +1,6 @@
 # Accelerator Core JS
 
-[![Build Status](https://travis-ci.org/opentok/accelerator-core-js.svg?branch=master)](https://travis-ci.org/opentok/accelerator-core-js)
+![CI](https://github.com/opentok/accelerator-core-js/workflows/CI/badge.svg?branch=master)
 [![GitHub release](https://img.shields.io/github/release/opentok/accelerator-core-js.svg)](./README.md)
 [![license](https://img.shields.io/github/license/opentok/accelerator-core-js.svg)](./.github/CONTRIBUTING.md)
 [![npm](https://img.shields.io/npm/v/opentok-accelerator-core.svg)](https://www.npmjs.com/package/opentok-accelerator-core)
