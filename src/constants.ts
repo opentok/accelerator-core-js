@@ -1,7 +1,7 @@
 /**
- *
+ * All the events in the Accelerators
  */
-export const events = {
+export const acceleratorEvents = {
   session: [
     'archiveStarted',
     'archiveStopped',

@@ -1,6 +1,6 @@
 import {
   Credential,
-  Options,
+  CoreOptions,
   PubSubDetail,
   PubSubSummary,
   StreamCollection,
@@ -11,7 +11,7 @@ import SDKError from './errors';
 export default class State {
   private connected: boolean;
   private credentials: Credential | null = null;
-  private options: Options;
+  private options: CoreOptions;
   private publishers = new StreamCollection<OT.Publisher>();
   private session: OT.Session | null = null;
   private streamMap: Record<string, string> = {};
@@ -26,7 +26,15 @@ export default class State {
    * Ensures that we have the required credentials
    * @param credentials Credentials for the OpenTok session/user
    */
-  private validateCredentials(credentials: Credential): void {
+  private validateCredentials(credentials?: Credential): void {
+    if (credentials === null) {
+      throw new SDKError(
+        'otSDK',
+        'Missing credentails required for initialization',
+        'invalidParameters'
+      );
+    }
+
     const required = ['apiKey', 'sessionId', 'token'];
     required.forEach((credential) => {
       if (!credentials[credential]) {
@@ -37,7 +45,7 @@ export default class State {
         );
       }
     });
-    this.credentials = credentials;
+    this.setCredentials(credentials);
   }
 
   /**
@@ -58,7 +66,7 @@ export default class State {
   /**
    * Get the options defined
    */
-  protected getOptions(): Options {
+  public getOptions(): CoreOptions {
     return this.options;
   }
 
@@ -66,7 +74,7 @@ export default class State {
    * Set the options defined for core
    * @param options Options to use for the session
    */
-  protected setOptions(options: Options): void {
+  public setOptions(options: CoreOptions): void {
     this.options = options;
   }
 
@@ -81,14 +89,14 @@ export default class State {
    * Sets the current OpenTok session
    * @param session Current OpenTok session
    */
-  protected setSession(session: OT.Session): void {
+  public setSession(session: OT.Session): void {
     this.session = session;
   }
 
   /**
    * Gets the current OpenTok credentials
    */
-  protected getCredentials(): Credential | null {
+  public getCredentials(): Credential | null {
     return this.credentials;
   }
 
@@ -96,28 +104,28 @@ export default class State {
    * Set the current OpenTok credentials
    * @param credentials OpenTok credentials
    */
-  protected setCredentials(credentials: Credential): void {
+  public setCredentials(credentials: Credential): void {
     this.validateCredentials(credentials);
   }
 
   /**
    * Retrieves all streams
    */
-  protected getStreams(): Record<string, OT.Stream> {
+  public getStreams(): Record<string, OT.Stream> {
     return this.streams;
   }
 
   /**
    * Returns the count of current publishers and subscribers by type
    */
-  protected pubSubCount(): PubSubSummary {
+  public pubSubCount(): PubSubSummary {
     return new PubSubSummary(this.publishers, this.subscribers);
   }
 
   /**
    * Returns the current publishers and subscribers, along with a count of each
    */
-  protected getPubSub(): PubSubDetail {
+  public getPubSub(): PubSubDetail {
     return new PubSubDetail(this.publishers, this.subscribers);
   }
 
@@ -125,7 +133,7 @@ export default class State {
    * Gets a subscriber
    * @param streamId Unique identifier of the stream
    */
-  protected getSubscriber(streamId: string): OT.Subscriber | undefined {
+  public getSubscriber(streamId: string): OT.Subscriber | undefined {
     const id = this.streamMap[streamId];
     if (id) {
       return this.subscribers.getStream(id);
@@ -137,7 +145,7 @@ export default class State {
    * Gets a subscriber
    * @param streamId Unique identifier of the stream
    */
-  protected getPublisher(streamId: string): OT.Publisher | undefined {
+  public getPublisher(streamId: string): OT.Publisher | undefined {
     const id = this.streamMap[streamId];
     if (id) {
       return this.publishers.getStream(id);
@@ -149,7 +157,7 @@ export default class State {
    * Gets a subscriber
    * @param type Type of publishers to return
    */
-  protected getPublishers(type: StreamType): OT.Publisher[] {
+  public getPublishers(type: StreamType): OT.Publisher[] {
     return Object.values(this.publishers[type]).map((publisher) => publisher);
   }
 
@@ -158,7 +166,7 @@ export default class State {
    * @param type Type of stream being published
    * @param publisher OpenTok publisher
    */
-  protected addPublisher(type: StreamType, publisher: OT.Publisher): void {
+  public addPublisher(type: StreamType, publisher: OT.Publisher): void {
     this.publishers.addStream(type, publisher);
     this.streamMap[publisher.stream.streamId] = publisher.id;
   }
@@ -168,14 +176,14 @@ export default class State {
    * @param type Type of stream being removed
    * @param publisher OpenTok publisher
    */
-  protected removePublisher(type: StreamType, publisher: OT.Publisher): void {
+  public removePublisher(type: StreamType, publisher: OT.Publisher): void {
     this.publishers.removeStream(type, publisher);
   }
 
   /**
    * Removes all publishers
    */
-  protected removeAllPublishers(): void {
+  public removeAllPublishers(): void {
     this.publishers.reset();
   }
 
@@ -183,7 +191,7 @@ export default class State {
    * Adds subscriber
    * @param subscriber Subscriber to add
    */
-  protected addSubscriber(subscriber: OT.Subscriber): void {
+  public addSubscriber(subscriber: OT.Subscriber): void {
     this.subscribers.addStream(
       subscriber.stream.videoType as StreamType,
       subscriber
@@ -195,7 +203,7 @@ export default class State {
    * Removes a subscriber
    * @param subscriber Subscriber to remove
    */
-  protected removeSubscriber(subscriber: OT.Subscriber): void {
+  public removeSubscriber(subscriber: OT.Subscriber): void {
     this.subscribers.removeStream(
       subscriber.stream.videoType as StreamType,
       subscriber
@@ -206,7 +214,7 @@ export default class State {
    * Add a stream to state
    * @param stream An OpenTok stream
    */
-  protected addStream(stream: OT.Stream): void {
+  public addStream(stream: OT.Stream): void {
     this.streams[stream.streamId] = stream;
   }
 
@@ -214,7 +222,7 @@ export default class State {
    * Remove a stream from state and any associated subscribers
    * @param stream An OpenTok stream object
    */
-  protected removeStream(stream: OT.Stream): void {
+  public removeStream(stream: OT.Stream): void {
     const type = stream.videoType;
     const subscriberId = this.streamMap[stream.streamId];
     delete this.streamMap[stream.streamId];
@@ -225,7 +233,7 @@ export default class State {
   /**
    * Reset publishers, streams, and subscribers
    */
-  protected reset(): void {
+  public reset(): void {
     this.publishers.reset();
     this.subscribers.reset();
     this.streamMap = {};
@@ -235,7 +243,7 @@ export default class State {
   /**
    * Returns the contents of state
    */
-  protected all(): unknown {
+  public all(): unknown {
     return Object.assign(
       this.streams,
       this.streamMap,

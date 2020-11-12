@@ -26,7 +26,6 @@ export default class Communication {
       }
     });
 
-
     const { callProperties, screenProperties, autoSubscribe, subscribeOnly } = options;
     this.core = options.core;
     this.state = options.state;
