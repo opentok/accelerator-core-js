@@ -75,6 +75,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var errors_1 = __importDefault(require("./errors"));
 var state_1 = __importDefault(require("./state"));
 var models_1 = require("../models");
+var enums_1 = require("../enums");
 var OpenTokSDK = /** @class */ (function (_super) {
     __extends(OpenTokSDK, _super);
     function OpenTokSDK(credentials, sessionOptions) {
@@ -104,18 +105,18 @@ var OpenTokSDK = /** @class */ (function (_super) {
              * Wrap session events and update state when streams are created
              * or destroyed
              */
-            session.on('streamCreated', function (_a) {
+            session.on(enums_1.OpenTokEvents.StreamCreated, function (_a) {
                 var stream = _a.stream;
                 return _this.addStream(stream);
             });
-            session.on('streamDestroyed', function (_a) {
+            session.on(enums_1.OpenTokEvents.StreamDestroyed, function (_a) {
                 var stream = _a.stream;
                 return _this.removeStream(stream);
             });
-            session.on('sessionConnected sessionReconnected', function () {
-                return _this.setConnected(true);
+            session.on(enums_1.OpenTokEvents.SessionConnected + " " + enums_1.OpenTokEvents.SessionReconnected, function () { return _this.setConnected(true); });
+            session.on(enums_1.OpenTokEvents.SessionDisconnected, function () {
+                return _this.setConnected(false);
             });
-            session.on('sessionDisconnected', function () { return _this.setConnected(false); });
         }
     };
     /**
@@ -124,7 +125,7 @@ var OpenTokSDK = /** @class */ (function (_super) {
      * to register callbacks for multiple events.
      * @param events The name of the events
      * @param callback
-     * https://tokbox.com/developer/sdks/js/reference/Session.html#on
+     * @see https://tokbox.com/developer/sdks/js/reference/Session.html#on
      */
     OpenTokSDK.prototype.on = function (events, callback) {
         var session = this.getSession();
@@ -141,7 +142,7 @@ var OpenTokSDK = /** @class */ (function (_super) {
      * Remove a callback for a specific event. If no parameters are passed,
      * all callbacks for the session will be removed.
      * @param events The name of the events
-     * https://tokbox.com/developer/sdks/js/reference/Session.html#off
+     * @see https://tokbox.com/developer/sdks/js/reference/Session.html#off
      */
     OpenTokSDK.prototype.off = function () {
         var events = [];
@@ -266,7 +267,7 @@ var OpenTokSDK = /** @class */ (function (_super) {
      * @param container The id of the container or a reference to the element
      * @param properties Settings to use in the subscription of the stream
      * @param eventListeners An object eventName/callback key/value pairs
-     * https://tokbox.com/developer/sdks/js/reference/Session.html#subscribe
+     * @see https://tokbox.com/developer/sdks/js/reference/Session.html#subscribe
      */
     OpenTokSDK.prototype.subscribe = function (stream, container, properties, eventListeners) {
         if (eventListeners === void 0) { eventListeners = null; }
@@ -405,7 +406,7 @@ var OpenTokSDK = /** @class */ (function (_super) {
      * @param type Message type
      * @param signalData Data to send
      * @param to An OpenTok connection object
-     * https://tokbox.com/developer/guides/signaling/js/
+     * @see https://tokbox.com/developer/guides/signaling/js/
      */
     OpenTokSDK.prototype.signal = function (type, signalData, to) {
         return __awaiter(this, void 0, void 0, function () {
@@ -467,7 +468,9 @@ var OpenTokSDK = /** @class */ (function (_super) {
     return OpenTokSDK;
 }(state_1.default));
 exports.default = OpenTokSDK;
-window.OpenTokSDK = OpenTokSDK;
+if (typeof window !== 'undefined') {
+    window.OpenTokSDK = OpenTokSDK;
+}
 /**
  * Binds and sets a single event listener on the OpenTok session
  * @param event The name of the event
@@ -476,7 +479,7 @@ window.OpenTokSDK = OpenTokSDK;
 var bindListener = function (target, context, event, callback) {
     var paramsError = "'on' requires a string and a function to create an event listener.";
     if (typeof event !== 'string' || typeof callback !== 'function') {
-        throw new errors_1.default(paramsError, 'invalidParameters');
+        throw new errors_1.default('otSDK', paramsError, 'invalidParameters');
     }
     target.on(event, callback.bind(context));
 };

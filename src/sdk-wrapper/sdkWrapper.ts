@@ -1,6 +1,7 @@
 import SDKError from './errors';
 import State from './state';
 import { Credential, StreamType } from '../models';
+import { OpenTokEvents } from '../enums';
 
 export default class OpenTokSDK extends State {
   constructor(credentials: Credential, sessionOptions?: unknown) {
@@ -36,12 +37,19 @@ export default class OpenTokSDK extends State {
        * Wrap session events and update state when streams are created
        * or destroyed
        */
-      session.on('streamCreated', ({ stream }) => this.addStream(stream));
-      session.on('streamDestroyed', ({ stream }) => this.removeStream(stream));
-      session.on('sessionConnected sessionReconnected', () =>
-        this.setConnected(true)
+      session.on(OpenTokEvents.StreamCreated, ({ stream }) =>
+        this.addStream(stream)
       );
-      session.on('sessionDisconnected', () => this.setConnected(false));
+      session.on(OpenTokEvents.StreamDestroyed, ({ stream }) =>
+        this.removeStream(stream)
+      );
+      session.on(
+        `${OpenTokEvents.SessionConnected} ${OpenTokEvents.SessionReconnected}`,
+        () => this.setConnected(true)
+      );
+      session.on(OpenTokEvents.SessionDisconnected, () =>
+        this.setConnected(false)
+      );
     }
   }
 
@@ -53,7 +61,7 @@ export default class OpenTokSDK extends State {
    * @param callback
    * @see https://tokbox.com/developer/sdks/js/reference/Session.html#on
    */
-  public on(
+  on(
     events:
       | string
       | Record<string, (event: string) => void>
@@ -381,7 +389,7 @@ const bindListener = (
   const paramsError =
     "'on' requires a string and a function to create an event listener.";
   if (typeof event !== 'string' || typeof callback !== 'function') {
-    throw new SDKError('okSDK', paramsError, 'invalidParameters');
+    throw new SDKError('otSDK', paramsError, 'invalidParameters');
   }
   target.on(event, callback.bind(context));
 };

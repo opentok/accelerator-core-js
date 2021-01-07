@@ -1,321 +1,362 @@
 import SDKError from './sdk-wrapper/errors';
-import { dom, message, path, pathOr, properCase } from './utils';
-import { LogAction, LogVariation } from './enums';
+import { dom, message, properCase } from './utils';
 
 import { defaultCallProperties } from './constants';
-import { CommunicationOptions } from './models';
+import { CommunicationOptions, PubSubDetail, StreamType } from './models';
+import AccCore from './core';
+import OpenTokSDK from './sdk-wrapper/sdkWrapper';
+import Analytics from './analytics';
+import { LogAction, LogVariation } from './enums';
 
 /**
  *
  */
 export default class Communication {
-
-  private active: boolean = false;
-  private core:
+  private active = false;
+  private core: AccCore;
+  private OpenTokSDK: OpenTokSDK;
+  private analytics: Analytics;
+  private streamContainers: (
+    pubSub: 'publisher' | 'subscriber',
+    type: StreamType,
+    data?: unknown,
+    streamId?: string
+  ) => string | Element;
+  private callProperties: OT.PublisherProperties;
+  private screenProperties: OT.PublisherProperties;
+  private subscribeOnly: boolean;
+  private autoSubscribe: boolean;
+  private connectionLimit?: number;
 
   constructor(options: CommunicationOptions) {
     this.validateOptions(options);
     this.createEventListeners();
   }
 
-  validateOptions(options: CommunicationOptions) {
-    const requiredOptions = ['core', 'state', 'analytics', 'session'];
+  validateOptions = (options: CommunicationOptions): void => {
+    const requiredOptions = ['core', 'analytics', 'session'];
     requiredOptions.forEach((option) => {
       if (!options[option]) {
-        throw new SDKError('otAccCore', `${option} is a required option.`, 'invalidParameters');
+        throw new SDKError(
+          'otAccCore',
+          `${option} is a required option.`,
+          'invalidParameters'
+        );
       }
     });
 
-    const { callProperties, screenProperties, autoSubscribe, subscribeOnly } = options;
     this.core = options.core;
-    this.state = options.state;
+    this.OpenTokSDK = this.core.OpenTokSDK;
     this.analytics = options.analytics;
     this.streamContainers = options.streamContainers;
-    this.callProperties = Object.assign({}, defaultCallProperties, callProperties);
-    this.connectionLimit = options.connectionLimit || null;
-    this.autoSubscribe = options.hasOwnProperty('autoSubscribe') ? autoSubscribe : true;
-    this.subscribeOnly = options.hasOwnProperty('subscribeOnly') ? subscribeOnly : false;
-    this.screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, screenProperties);
-  }
+    this.connectionLimit = options.coreCommunicationOptions?.connectionLimit;
+    this.autoSubscribe =
+      (options.coreCommunicationOptions &&
+        options.coreCommunicationOptions.autoSubscribe) ||
+      true;
+    this.subscribeOnly =
+      (options.coreCommunicationOptions &&
+        options.coreCommunicationOptions.subscribeOnly) ||
+      false;
+
+    this.callProperties = Object.assign(
+      {},
+      defaultCallProperties,
+      options.coreCommunicationOptions?.callProperties
+    );
+    this.screenProperties = Object.assign(
+      {},
+      defaultCallProperties,
+      { videoSource: 'window' },
+      options.coreCommunicationOptions?.screenProperties
+    );
+  };
 
   /**
    * Trigger an event through the API layer
-   * @param {String} event - The name of the event
-   * @param {*} [data]
+   * @param event The name of the event
+   * @param data
    */
-  triggerEvent = (event, data) => this.core.triggerEvent(event, data);
+  triggerEvent = (event: string, data: unknown): void =>
+    this.core.triggerEvent(event, data);
 
   /**
    * Determine whether or not the party is able to join the call based on
    * the specified connection limit, if any.
-   * @return {Boolean}
    */
-  ableToJoin = () => {
-    const { connectionLimit, state } = this;
-    if (!connectionLimit) {
+  ableToJoin = (): boolean => {
+    if (!this.connectionLimit) {
       return true;
     }
     // Not using the session here since we're concerned with number of active publishers
-    const connections = Object.values(state.getStreams()).filter(s => s.videoType === 'camera');
-    return connections.length < connectionLimit;
+    const connections = Object.values(this.OpenTokSDK.getStreams()).filter(
+      (s) => s.videoType === StreamType.Camera
+    );
+    return connections.length < this.connectionLimit;
   };
 
   /**
-   * Create a camera publisher object
-   * @param {Object} publisherProperties
-   * @returns {Promise} <resolve: Object, reject: Error>
-   */
-  createPublisher = (publisherProperties) => {
-    const { callProperties, streamContainers } = this;
-    return new Promise((resolve, reject) => {
-      // TODO: Handle adding 'name' option to props
-      const props = Object.assign({}, callProperties, publisherProperties);
-      // TODO: Figure out how to handle common vs package-specific options
-      // ^^^ This may already be available through package options
-      const container = dom.element(streamContainers('publisher', 'camera'));
-      const publisher = OT.initPublisher(container, props, (error) => {
-        error ? reject(error) : resolve(publisher);
-      });
-    });
-  }
-
-  /**
    * Publish the local camera stream and update state
-   * @param {Object} publisherProperties
-   * @returns {Promise} <resolve: empty, reject: Error>
+   * @param publisherProperties Properties of the published stream
    */
-  publish = (publisherProperties) => {
-    const { analytics, state, createPublisher, session, triggerEvent, subscribeOnly } = this;
-
+  publish = async (
+    publisherProperties: OT.PublisherProperties
+  ): Promise<OT.Publisher | undefined> => {
     /**
      * For subscriber tokens or cases where we just don't want to be seen or heard.
      */
-    if (subscribeOnly) {
-      message('Instance is configured with subscribeOnly set to true. Cannot publish to session');
-      return Promise.resolve();
+    if (this.subscribeOnly) {
+      message(
+        'Instance is configured with subscribeOnly set to true. Cannot publish to session'
+      );
+      return undefined;
     }
 
-    return new Promise((resolve, reject) => {
-      const onPublish = publisher => (error) => {
-        if (error) {
-          reject(error);
-          analytics.log(logAction.startCall, logVariation.fail);
-        } else {
-          analytics.log(logAction.startCall, logVariation.success);
-          state.addPublisher('camera', publisher);
-          resolve(publisher);
-        }
-      };
+    this.analytics.log(LogAction.startCall, LogVariation.attempt);
 
-      const publishToSession = publisher => session.publish(publisher, onPublish(publisher));
-
-      const handleError = (error) => {
-        analytics.log(logAction.startCall, logVariation.fail);
-        const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
-        triggerEvent('error', errorMessage);
-        reject(error);
-      };
-
-      createPublisher(publisherProperties)
-        .then(publishToSession)
-        .catch(handleError);
-    });
-  }
+    try {
+      const props = Object.assign({}, this.callProperties, publisherProperties);
+      const container = dom.element(
+        this.streamContainers('publisher', StreamType.Camera)
+      );
+      const publisher = await this.OpenTokSDK.publish(
+        container as HTMLElement,
+        props
+      );
+      this.OpenTokSDK.addPublisher(StreamType.Camera, publisher);
+      return publisher;
+    } catch (error) {
+      this.analytics.log(LogAction.startCall, LogVariation.fail);
+      const errorMessage =
+        error.code === 1010 ? 'Check your network connection' : error.message;
+      this.triggerEvent('error', errorMessage);
+      return undefined;
+    }
+  };
 
   /**
    * Subscribe to a stream and update the state
-   * @param {Object} stream - An OpenTok stream object
-   * @param {Object} [subsriberOptions]
-   * @param {Boolean} [networkTest] - Are we subscribing to our own publisher for a network test?
-   * @returns {Promise} <resolve: Object, reject: Error >
+   * @param stream An OpenTok stream object
+   * @param subsriberOptions Specific options for this subscriber
+   * @param networkTest Are we subscribing to our own publisher for a network test?
    */
-  subscribe = (stream, subscriberProperties = {}, networkTest = false) => {
-    const { analytics, state, streamContainers, session, triggerEvent, callProperties, screenProperties } = this;
-    return new Promise((resolve, reject) => {
-      let connectionData;
-      analytics.log(logAction.subscribe, logVariation.attempt);
-      const streamMap = state.getStreamMap();
-      const { streamId } = stream;
-      // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
-      const type = pathOr('sip', 'videoType', stream);
-      if (streamMap[streamId] && !networkTest) {
-        // Are we already subscribing to the stream?
-        const { subscribers } = state.all();
-        resolve(subscribers[type][streamMap[streamId]]);
-      } else {
-        try {
-          connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
-        } catch (e) {
-          connectionData = path(['connection', 'data'], stream);
-        }
-        const container = dom.element(streamContainers('subscriber', type, connectionData, stream));
-        const options = Object.assign(
-          {},
-          type === 'camera' || type === 'sip' ? callProperties : screenProperties,
-          subscriberProperties,
-        );
-        const subscriber = session.subscribe(stream, container, options, (error) => {
-          if (error) {
-            analytics.log(logAction.subscribe, logVariation.fail);
-            reject(error);
-          } else {
-            state.addSubscriber(subscriber);
-            triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, state.all()));
-            type === 'screen' && triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
-            analytics.log(logAction.subscribe, logVariation.success);
-            resolve(subscriber);
-          }
-        });
+  subscribe = async (
+    stream: OT.Stream,
+    subscriberProperties?: OT.SubscriberProperties,
+    networkTest = false
+  ): Promise<OT.Subscriber> => {
+    this.analytics.log(LogAction.subscribe, LogVariation.attempt);
+
+    const streamMap = this.OpenTokSDK.getStreamMap();
+
+    // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
+    const type: StreamType = (stream.videoType as StreamType) || StreamType.SIP;
+
+    if (streamMap[stream.streamId] && !networkTest) {
+      // Are we already subscribing to the stream?
+      return this.OpenTokSDK.getSubscriber(stream.streamId);
+    } else {
+      let connectionData: string | unknown;
+      try {
+        connectionData = JSON.parse(stream.connection.data || null);
+      } catch (e) {
+        connectionData = stream.connection.data;
       }
-    });
-  }
+
+      const container = dom.element(
+        this.streamContainers(
+          'subscriber',
+          type,
+          connectionData,
+          stream.streamId
+        )
+      );
+      const options = Object.assign(
+        {},
+        type === StreamType.Camera || type === StreamType.SIP
+          ? this.callProperties
+          : this.screenProperties,
+        subscriberProperties
+      );
+
+      try {
+        const subscriber = await this.OpenTokSDK.subscribe(
+          stream,
+          container as HTMLElement,
+          options
+        );
+
+        this.triggerEvent(
+          `subscribeTo${properCase(type)}`,
+          Object.assign({}, { subscriber }, this.OpenTokSDK.all())
+        );
+
+        this.analytics.log(LogAction.subscribe, LogVariation.success);
+        return subscriber;
+      } catch (error) {
+        this.analytics.log(LogAction.subscribe, LogVariation.fail);
+        return Promise.reject(error);
+      }
+    }
+  };
 
   /**
    * Unsubscribe from a stream and update the state
-   * @param {Object} subscriber - An OpenTok subscriber object
-   * @returns {Promise} <resolve: empty>
+   * @param subscriber An OpenTok subscriber object
    */
-  unsubscribe = (subscriber) => {
-    const { analytics, session, state } = this;
-    return new Promise((resolve) => {
-      analytics.log(logAction.unsubscribe, logVariation.attempt);
-      const type = pathOr('sip', 'stream.videoType', subscriber);
-      state.removeSubscriber(type, subscriber);
-      session.unsubscribe(subscriber);
-      analytics.log(logAction.unsubscribe, logVariation.success);
-      resolve();
-    });
-  }
+  unsubscribe = async (subscriber: OT.Subscriber): Promise<void> => {
+    this.analytics.log(LogAction.unsubscribe, LogVariation.attempt);
+    this.OpenTokSDK.unsubscribe(subscriber);
+    this.analytics.log(LogAction.unsubscribe, LogVariation.success);
+  };
 
   /**
    * Subscribe to new stream unless autoSubscribe is set to false
-   * @param {Object} stream
+   * @param pubSub An OpenTok Publisher or Subscriber
    */
-  onStreamCreated = ({ stream }) => this.active && this.autoSubscribe && this.subscribe(stream);
+  onStreamCreated = async (
+    pubSub: OT.Publisher | OT.Subscriber
+  ): Promise<void> => {
+    this.active &&
+      this.autoSubscribe &&
+      pubSub.stream &&
+      this.subscribe(pubSub.stream);
+  };
 
   /**
    * Update state and trigger corresponding event(s) when stream is destroyed
-   * @param {Object} stream
+   * @param pubSub An OpenTok Publisher or Subscriber
    */
-  onStreamDestroyed = ({ stream }) => {
-    const { state, triggerEvent } = this;
-    state.removeStream(stream);
-    const type = pathOr('sip', 'videoType', stream);
-    type === 'screen' && triggerEvent('endViewingSharedScreen'); // Legacy event
-    triggerEvent(`unsubscribeFrom${properCase(type)}`, state.getPubSub());
-  }
+  onStreamDestroyed = (pubSub: OT.Publisher | OT.Subscriber): void => {
+    const type = (pubSub.stream.videoType as StreamType) || StreamType.SIP;
+    this.triggerEvent(
+      `unsubscribeFrom${properCase(type)}`,
+      this.OpenTokSDK.getPubSub()
+    );
+  };
 
   /**
    * Listen for API-level events
    */
-  createEventListeners = () => {
-    const { core, onStreamCreated, onStreamDestroyed } = this;
-    core.on('streamCreated', onStreamCreated);
-    core.on('streamDestroyed', onStreamDestroyed);
-  }
+  createEventListeners = (): void => {
+    this.core.on('streamCreated', this.onStreamCreated);
+    this.core.on('streamDestroyed', this.onStreamDestroyed);
+  };
 
   /**
    * Start publishing the local camera feed and subscribing to streams in the session
-   * @param {Object} publisherProperties
-   * @returns {Promise} <resolve: Object, reject: Error>
+   * @param publisherProperties Properties for this specific publisher
    */
-  startCall = (publisherProperties) => {
-    const { analytics, state, subscribe, ableToJoin, triggerEvent, autoSubscribe, publish } = this;
-    return new Promise((resolve, reject) => { // eslint-disable-line consistent-return
-      analytics.log(logAction.startCall, logVariation.attempt);
+  startCall = async (
+    publisherProperties: OT.PublisherProperties
+  ): Promise<PubSubDetail & { publisher: OT.Publisher }> => {
+    this.analytics.log(LogAction.startCall, LogVariation.attempt);
 
-      this.active = true;
-      const initialStreamIds = Object.keys(state.getStreams());
+    this.active = true;
+    const initialStreams = this.OpenTokSDK.getStreams();
 
-      /**
-       * Determine if we're able to join the session based on an existing connection limit
-       */
-      if (!ableToJoin()) {
-        const errorMessage = 'Session has reached its connection limit';
-        triggerEvent('error', errorMessage);
-        analytics.log(logAction.startCall, logVariation.fail);
-        return reject(new CoreError(errorMessage, 'connectionLimit'));
-      }
+    /**
+     * Determine if we're able to join the session based on an existing connection limit
+     */
+    if (!this.ableToJoin()) {
+      const errorMessage = 'Session has reached its connection limit';
+      this.triggerEvent('error', errorMessage);
+      this.analytics.log(LogAction.startCall, LogVariation.fail);
+      return Promise.reject(
+        new SDKError('otCore', errorMessage, 'connectionLimit')
+      );
+    }
+
+    let publisher;
+
+    try {
+      publisher = await this.publish(publisherProperties);
 
       /**
        * Subscribe to any streams that existed before we start the call from our side.
        */
-      const subscribeToInitialStreams = (publisher) => {
-        // Get an array of initial subscription promises
-        const initialSubscriptions = () => {
-          if (autoSubscribe) {
-            const streams = state.getStreams();
-            return initialStreamIds.map(id => subscribe(streams[id]));
-          }
-          return [Promise.resolve()];
-        };
 
-        // Handle success
-        const onSubscribeToAll = () => {
-          const pubSubData = Object.assign({}, state.getPubSub(), { publisher });
-          triggerEvent('startCall', pubSubData);
-          resolve(pubSubData);
-        };
-
-        // Handle error
-        const onError = (reason) => {
-          message(`Failed to subscribe to all existing streams: ${reason}`);
-          // We do not reject here in case we still successfully publish to the session
-          resolve(Object.assign({}, this.state.getPubSub(), { publisher }));
-        };
-
-        Promise.all(initialSubscriptions())
-          .then(onSubscribeToAll)
-          .catch(onError);
+      // Get an array of initial subscription promises
+      const initialSubscriptions = (): Promise<OT.Subscriber | void>[] => {
+        if (this.autoSubscribe) {
+          return Object.values(initialStreams).map((stream) =>
+            this.subscribe(stream)
+          );
+        }
+        return [Promise.resolve()];
       };
 
-      publish(publisherProperties)
-        .then(subscribeToInitialStreams)
-        .catch(reject);
-    });
-  }
+      await Promise.all(initialSubscriptions());
+
+      const pubSubData = Object.assign({}, this.OpenTokSDK.getPubSub(), {
+        publisher
+      });
+      this.triggerEvent('startCall', pubSubData);
+      return pubSubData;
+    } catch (error) {
+      message(`Failed to subscribe to all existing streams: ${error}`);
+      // We do not reject here in case we still successfully publish to the session
+      return Object.assign({}, this.OpenTokSDK.getPubSub(), { publisher });
+    }
+  };
 
   /**
    * Stop publishing and unsubscribe from all streams
    */
-  endCall = () => {
-    const { analytics, state, session, unsubscribe, triggerEvent } = this;
-    analytics.log(logAction.endCall, logVariation.attempt);
-    const { publishers, subscribers } = state.getPubSub();
-    const unpublish = publisher => session.unpublish(publisher);
+  endCall = async (): Promise<void> => {
+    this.analytics.log(LogAction.endCall, LogVariation.attempt);
+    const { publishers, subscribers } = this.OpenTokSDK.getPubSub();
+
+    const unpublish = (publisher) => this.OpenTokSDK.unpublish(publisher);
+
     Object.values(publishers.camera).forEach(unpublish);
     Object.values(publishers.screen).forEach(unpublish);
-    // TODO Promise.all for unsubsribing
-    Object.values(subscribers.camera).forEach(unsubscribe);
-    Object.values(subscribers.screen).forEach(unsubscribe);
-    state.removeAllPublishers();
+
+    const unsubscribeFromAll = (subscribers) => {
+      const streams = [...subscribers.camera, ...subscribers.screen];
+      return Object.values(streams).map((stream) => this.unsubscribe(stream));
+    };
+
+    await Promise.all(unsubscribeFromAll(subscribers));
+
     this.active = false;
-    triggerEvent('endCall');
-    analytics.log(logAction.endCall, logVariation.success);
-  }
+    this.triggerEvent('endCall', null);
+    this.analytics.log(LogAction.endCall, LogVariation.success);
+  };
 
   /**
    * Enable/disable local audio or video
-   * @param {String} source - 'audio' or 'video'
-   * @param {Boolean} enable
+   * @param id
+   * @param source 'audio' or 'video'
+   * @param enable Whether to device is enabled or not
    */
-  enableLocalAV = (id, source, enable) => {
+  enableLocalAV = (
+    id: string,
+    source: 'audio' | 'video',
+    enable: boolean
+  ): void => {
     const method = `publish${properCase(source)}`;
-    const { publishers } = this.state.getPubSub();
-    publishers.camera[id][method](enable);
-  }
+    const { publishers } = this.OpenTokSDK.getPubSub();
+
+    const publisher = publishers.camera[id] || publishers.screen[id];
+    publisher[method](enable);
+  };
 
   /**
    * Enable/disable remote audio or video
-   * @param {String} subscriberId
-   * @param {String} source - 'audio' or 'video'
-   * @param {Boolean} enable
+   * @param subscriberId
+   * @param source 'audio' or 'video'
+   * @param enable
    */
-  enableRemoteAV = (subscriberId, source, enable) => {
+  enableRemoteAV = (
+    subscriberId: string,
+    source: 'audio' | 'video',
+    enable: boolean
+  ): void => {
     const method = `subscribeTo${properCase(source)}`;
-    const { subscribers } = this.state.getPubSub();
-    const subscriber = subscribers.camera[subscriberId] || subscribers.sip[subscriberId];
+    const { subscribers } = this.OpenTokSDK.getPubSub();
+    const subscriber =
+      subscribers.camera[subscriberId] || subscribers.sip[subscriberId];
     subscriber[method](enable);
-  }
-
+  };
 }

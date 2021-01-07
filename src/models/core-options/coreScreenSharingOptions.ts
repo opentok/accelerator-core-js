@@ -5,6 +5,6 @@ export class CoreScreenSharingOptions {
     public annotation: boolean,
     public externalWindow: boolean,
     public dev: boolean,
-    public screenProperties: any
+    public screenProperties: unknown
   ) {}
 }

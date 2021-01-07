@@ -13,20 +13,22 @@ var State = /** @class */ (function () {
         this.streamMap = {};
         this.streams = {};
         this.subscribers = new models_1.StreamCollection();
-        this.validateCredentials(credentials);
+        this.setCredentials(credentials);
     }
     /**
      * Ensures that we have the required credentials
      * @param credentials Credentials for the OpenTok session/user
      */
     State.prototype.validateCredentials = function (credentials) {
+        if (credentials === null) {
+            throw new errors_1.default('otSDK', 'Missing credentails required for initialization', 'invalidParameters');
+        }
         var required = ['apiKey', 'sessionId', 'token'];
         required.forEach(function (credential) {
             if (!credentials[credential]) {
-                throw new errors_1.default(credential + " is a required credential", 'invalidParameters');
+                throw new errors_1.default('otSDK', credential + " is a required credential", 'invalidParameters');
             }
         });
-        this.credentials = credentials;
     };
     /**
      * Sets the current connection state
@@ -79,6 +81,7 @@ var State = /** @class */ (function () {
      */
     State.prototype.setCredentials = function (credentials) {
         this.validateCredentials(credentials);
+        this.credentials = credentials;
     };
     /**
      * Retrieves all streams
@@ -191,6 +194,12 @@ var State = /** @class */ (function () {
         this.subscribers.reset();
         this.streamMap = {};
         this.streams = {};
+    };
+    /**
+     * Returns the map of stream ids to publisher/subscriber ids
+     */
+    State.prototype.getStreamMap = function () {
+        return this.streamMap;
     };
     /**
      * Returns the contents of state

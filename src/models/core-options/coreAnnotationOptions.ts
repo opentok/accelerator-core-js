@@ -1,8 +1,8 @@
 export class CoreAnnotationOptions {
   constructor(
-    public items: any,
-    public colors: any,
-    public onScreenCapture: Function,
+    public items: unknown,
+    public colors: unknown,
+    public onScreenCapture: unknown,
     public absoluteParent: ParentOptions
   ) {}
 }

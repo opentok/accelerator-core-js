@@ -1,17 +1,10 @@
 {
   "name": "opentok-accelerator-core",
-  "version": "2.0.17",
+  "version": "3.0.0",
   "description": "Opentok Accelerator Core",
   "repository": "https://github.com/opentok/accelerator-core-js",
   "main": "dist/core.js",
   "scripts": {
-    "old:build:node": "babel -d ./dist/ ./src/",
-    "old:build:browser-polyfill": "(echo \"require('babel-polyfill');\\n\"; cat src/core.js) > src/browser-temp.js",
-    "old:build:browser-browserify": "mkdir -p browser && browserify src/browser-temp.js -o browser/opentok-acc-core.js -t [ babelify --presets [ es2015 ] --plugins [ transform-class-properties ] ] --im",
-    "old:build:browser": "npm run build:browser-polyfill && npm run build:browser-browserify && rm src/browser-temp.js",
-    "old:build:logversion": "replace '(js-vsol-)(x.y.z)' '$1'$npm_package_version dist/* browser/*",
-    "old:build": "npm run build:node && npm run build:browser && npm run build:logversion",
-    "old:test": "karma start",
     "build": "tsc",
     "build:logversion": "replace '(js-vsol-)(x.y.z)' '$1'$npm_package_version build/*",
     "lint": "eslint . --ext .ts",
@@ -19,6 +12,8 @@
     "prettier:format": "prettier --config .prettierrc '**/*.ts' --write",
     "test": "mocha -r ts-node/register test/**/*spec.ts --insect",
     "coverage": "nyc mocha -r ts-node/register test/**/*spec.ts --insect",
+    "browserify": "npm run browserify:sdk && npm run browserify:core",
+    "browserify:core": "browserify -p tinyify build/src/core.js -o dist/core.js",
     "browserify:sdk": "browserify -p tinyify build/src/sdk-wrapper/sdkWrapper.js -o dist/sdk.js"
   },
   "keywords": [
@@ -49,6 +44,10 @@
     "eslint-plugin-prettier": "^3.1.4",
     "mocha": "^8.2.1",
     "nyc": "^15.1.0",
+    "opentok-annotation": "^2.0.59",
+    "opentok-archiving": "^1.0.19",
+    "opentok-screen-sharing": "^1.0.34",
+    "opentok-text-chat": "^1.0.36",
     "prettier": "^2.1.2",
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0",

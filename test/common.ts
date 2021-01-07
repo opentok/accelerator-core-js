@@ -26,9 +26,15 @@ export const notFakeConnection: OT.Connection = {
 export const fakeSession = {
   connection: fakeConnection,
   sessionId: sessionId,
-  connect(): void {},
-  off(): void {},
-  on(): void {}
+  connect(): void {
+    return;
+  },
+  off(): void {
+    return;
+  },
+  on(): void {
+    return;
+  }
 };
 
 export const fakeStream: OT.Stream = {

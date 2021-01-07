@@ -19,9 +19,15 @@ exports.notFakeConnection = {
 exports.fakeSession = {
     connection: exports.fakeConnection,
     sessionId: exports.sessionId,
-    connect: function () { },
-    off: function () { },
-    on: function () { }
+    connect: function () {
+        return;
+    },
+    off: function () {
+        return;
+    },
+    on: function () {
+        return;
+    }
 };
 exports.fakeStream = {
     connection: exports.fakeConnection,

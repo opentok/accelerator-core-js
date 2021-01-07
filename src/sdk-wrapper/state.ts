@@ -19,7 +19,7 @@ export default class State {
   private subscribers = new StreamCollection<OT.Subscriber>();
 
   constructor(credentials: Credential) {
-    this.validateCredentials(credentials);
+    this.setCredentials(credentials);
   }
 
   /**
@@ -45,7 +45,6 @@ export default class State {
         );
       }
     });
-    this.setCredentials(credentials);
   }
 
   /**
@@ -106,6 +105,7 @@ export default class State {
    */
   public setCredentials(credentials: Credential): void {
     this.validateCredentials(credentials);
+    this.credentials = credentials;
   }
 
   /**
@@ -238,6 +238,13 @@ export default class State {
     this.subscribers.reset();
     this.streamMap = {};
     this.streams = {};
+  }
+
+  /**
+   * Returns the map of stream ids to publisher/subscriber ids
+   */
+  public getStreamMap(): Record<string, string> {
+    return this.streamMap;
   }
 
   /**

@@ -18,8 +18,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var SDKError = /** @class */ (function (_super) {
     __extends(SDKError, _super);
-    function SDKError(errorMessage, errorName, stack) {
-        var _this = _super.call(this, "otSDK: " + errorMessage) || this;
+    function SDKError(source, errorMessage, errorName, stack) {
+        var _this = _super.call(this, source + ": " + errorMessage) || this;
         _this.name = errorName;
         _this.stack = stack;
         return _this;
