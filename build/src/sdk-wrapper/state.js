@@ -166,6 +166,8 @@ var State = /** @class */ (function () {
      * @param subscriber Subscriber to remove
      */
     State.prototype.removeSubscriber = function (subscriber) {
+        if (!subscriber)
+            return;
         this.subscribers.removeStream(subscriber.stream.videoType, subscriber);
     };
     /**

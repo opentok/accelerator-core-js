@@ -311,10 +311,10 @@ var OpenTokSDK = /** @class */ (function (_super) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, new Promise(function (resolve) {
                             var session = _this.getSession();
+                            _this.removeSubscriber(subscriber);
                             if (session) {
                                 session.unsubscribe(subscriber);
                             }
-                            _this.removeSubscriber(subscriber);
                             resolve();
                         })];
                     case 1: return [2 /*return*/, _a.sent()];

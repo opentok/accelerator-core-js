@@ -126,11 +126,10 @@ export default class AccCore {
       });
       return;
     }
-    const eventCallbacks = this.eventListeners[event];
-    if (!eventCallbacks) {
+    if (!this.eventListeners[event]) {
       message(`${event} is not a registered event.`);
     } else {
-      eventCallbacks.add(callback);
+      this.eventListeners[event].add(callback);
     }
   };
 
@@ -141,17 +140,15 @@ export default class AccCore {
    * @param callback
    */
   off = (event: string, callback: (event: unknown) => void): void => {
-    const { eventListeners } = this;
     if (!event && !callback) {
-      Object.keys(eventListeners).forEach((eventType) => {
-        eventListeners[eventType].clear();
+      Object.keys(this.eventListeners).forEach((eventType) => {
+        this.eventListeners[eventType].clear();
       });
     } else {
-      const eventCallbacks = eventListeners[event];
-      if (!eventCallbacks) {
+      if (!this.eventListeners[event]) {
         message(`${event} is not a registered event.`);
       } else {
-        eventCallbacks.delete(callback);
+        this.eventListeners[event].delete(callback);
       }
     }
   };
@@ -184,14 +181,7 @@ export default class AccCore {
      * or destroyed
      */
     acceleratorEvents.session.forEach((eventName: string) => {
-      session.on(eventName, (event) => {
-        const stream = event.target.stream as OT.Stream;
-        if (eventName === OpenTokEvents.StreamCreated) {
-          this.OpenTokSDK.addStream(stream);
-        }
-        if (eventName === OpenTokEvents.StreamDestroyed) {
-          this.OpenTokSDK.removeStream(stream);
-        }
+      this.OpenTokSDK.on(eventName, (event) => {
         this.triggerEvent(eventName, event);
       });
     });
@@ -293,6 +283,7 @@ export default class AccCore {
    */
   triggerEvent = (event: string, data: unknown): void => {
     const eventCallbacks = this.eventListeners[event];
+    console.log(`triggerEvent: ${event}`);
     if (!eventCallbacks) {
       this.registerEvents(event);
       message(`${event} has been registered as a new event.`);
@@ -321,22 +312,22 @@ export default class AccCore {
     ): (() => void) => {
       let result;
       try {
-        switch (packageName) {
-          case 'opentok-text-chat':
-            result = require('opentok-text-chat');
-            break;
-          case 'opentok-screen-sharing':
-            result = require('opentok-screen-sharing');
-            break;
-          case 'opentok-annotation':
-            result = require('opentok-annotation');
-            break;
-          case 'opentok-archiving':
-            result = require('opentok-archiving');
-            break;
-          default:
-            break;
-        }
+        // switch (packageName) {
+        //   case 'opentok-text-chat':
+        //     result = require('opentok-text-chat');
+        //     break;
+        //   case 'opentok-screen-sharing':
+        //     result = require('opentok-screen-sharing');
+        //     break;
+        //   case 'opentok-annotation':
+        //     result = require('opentok-annotation');
+        //     break;
+        //   case 'opentok-archiving':
+        //     result = require('opentok-archiving');
+        //     break;
+        //   default:
+        //     break;
+        // }
       } catch (error) {
         result = window[globalName];
       }

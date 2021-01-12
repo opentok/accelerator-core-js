@@ -6,6 +6,10 @@ app.use(express.static('public'));
 
 app.use('/dist', express.static('../../dist'));
 
+app.get('/', (req, res) => {
+  res.redirect('/index.html');
+});
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });

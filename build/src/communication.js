@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,26 +45,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
-};
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -165,6 +156,7 @@ var Communication = /** @class */ (function () {
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
+                            console.log('yuppers');
                             this.analytics.log(enums_1.LogAction.subscribe, enums_1.LogVariation.attempt);
                             streamMap = this.OpenTokSDK.getStreamMap();
                             type = stream.videoType || models_1.StreamType.SIP;
@@ -207,10 +199,15 @@ var Communication = /** @class */ (function () {
          */
         this.unsubscribe = function (subscriber) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.analytics.log(enums_1.LogAction.unsubscribe, enums_1.LogVariation.attempt);
-                this.OpenTokSDK.unsubscribe(subscriber);
-                this.analytics.log(enums_1.LogAction.unsubscribe, enums_1.LogVariation.success);
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0:
+                        this.analytics.log(enums_1.LogAction.unsubscribe, enums_1.LogVariation.attempt);
+                        return [4 /*yield*/, this.OpenTokSDK.unsubscribe(subscriber)];
+                    case 1:
+                        _a.sent();
+                        this.analytics.log(enums_1.LogAction.unsubscribe, enums_1.LogVariation.success);
+                        return [2 /*return*/];
+                }
             });
         }); };
         /**
@@ -218,12 +215,27 @@ var Communication = /** @class */ (function () {
          * @param pubSub An OpenTok Publisher or Subscriber
          */
         this.onStreamCreated = function (pubSub) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                this.active &&
-                    this.autoSubscribe &&
-                    pubSub.stream &&
-                    this.subscribe(pubSub.stream);
-                return [2 /*return*/];
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        console.dir({
+                            a: this.active,
+                            b: this.autoSubscribe,
+                            c: pubSub
+                        });
+                        _a = this.active &&
+                            this.autoSubscribe &&
+                            pubSub.stream;
+                        if (!_a) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.subscribe(pubSub.stream)];
+                    case 1:
+                        _a = (_b.sent());
+                        _b.label = 2;
+                    case 2:
+                        _a;
+                        return [2 /*return*/];
+                }
             });
         }); };
         /**
@@ -308,9 +320,11 @@ var Communication = /** @class */ (function () {
                         unpublish = function (publisher) { return _this.OpenTokSDK.unpublish(publisher); };
                         Object.values(publishers.camera).forEach(unpublish);
                         Object.values(publishers.screen).forEach(unpublish);
-                        unsubscribeFromAll = function (subscribers) {
-                            var streams = __spread(subscribers.camera, subscribers.screen);
-                            return Object.values(streams).map(function (stream) { return _this.unsubscribe(stream); });
+                        unsubscribeFromAll = function (subscriberCollection) {
+                            var subscribers = __assign(__assign({}, subscriberCollection.camera), subscriberCollection.screen);
+                            return Object.values(subscribers).map(function (subscriber) {
+                                return _this.unsubscribe(subscriber);
+                            });
                         };
                         return [4 /*yield*/, Promise.all(unsubscribeFromAll(subscribers))];
                     case 1:

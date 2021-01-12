@@ -204,6 +204,7 @@ export default class State {
    * @param subscriber Subscriber to remove
    */
   public removeSubscriber(subscriber: OT.Subscriber): void {
+    if (!subscriber) return;
     this.subscribers.removeStream(
       subscriber.stream.videoType as StreamType,
       subscriber

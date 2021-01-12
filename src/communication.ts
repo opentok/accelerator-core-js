@@ -2,7 +2,12 @@ import SDKError from './sdk-wrapper/errors';
 import { dom, message, properCase } from './utils';
 
 import { defaultCallProperties } from './constants';
-import { CommunicationOptions, PubSubDetail, StreamType } from './models';
+import {
+  CommunicationOptions,
+  PubSubDetail,
+  StreamCollection,
+  StreamType
+} from './models';
 import AccCore from './core';
 import OpenTokSDK from './sdk-wrapper/sdkWrapper';
 import Analytics from './analytics';
@@ -206,7 +211,7 @@ export default class Communication {
    */
   unsubscribe = async (subscriber: OT.Subscriber): Promise<void> => {
     this.analytics.log(LogAction.unsubscribe, LogVariation.attempt);
-    this.OpenTokSDK.unsubscribe(subscriber);
+    await this.OpenTokSDK.unsubscribe(subscriber);
     this.analytics.log(LogAction.unsubscribe, LogVariation.success);
   };
 
@@ -220,7 +225,7 @@ export default class Communication {
     this.active &&
       this.autoSubscribe &&
       pubSub.stream &&
-      this.subscribe(pubSub.stream);
+      (await this.subscribe(pubSub.stream));
   };
 
   /**
@@ -312,9 +317,16 @@ export default class Communication {
     Object.values(publishers.camera).forEach(unpublish);
     Object.values(publishers.screen).forEach(unpublish);
 
-    const unsubscribeFromAll = (subscribers) => {
-      const streams = [...subscribers.camera, ...subscribers.screen];
-      return Object.values(streams).map((stream) => this.unsubscribe(stream));
+    const unsubscribeFromAll = (
+      subscriberCollection: StreamCollection<OT.Subscriber>
+    ) => {
+      const subscribers = {
+        ...subscriberCollection.camera,
+        ...subscriberCollection.screen
+      };
+      return Object.values(subscribers).map((subscriber) =>
+        this.unsubscribe(subscriber as OT.Subscriber)
+      );
     };
 
     await Promise.all(unsubscribeFromAll(subscribers));

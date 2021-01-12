@@ -64,9 +64,9 @@ export default class OpenTokSDK extends State {
   on(
     events:
       | string
-      | Record<string, (event: string) => void>
-      | Record<string, (event: string) => void>[],
-    callback?: (event: string) => void
+      | Record<string, (event: OT.Event<string, unknown>) => void>
+      | Record<string, (event: OT.Event<string, unknown>) => void>[],
+    callback?: (event: OT.Event<string, unknown>) => void
   ): void {
     const session = this.getSession();
     if (session) {
@@ -143,7 +143,10 @@ export default class OpenTokSDK extends State {
   async publish(
     element: string | HTMLElement,
     properties: OT.PublisherProperties,
-    eventListeners: Record<string, (event: string) => void> = null,
+    eventListeners: Record<
+      string,
+      (event: OT.Event<string, unknown>) => void
+    > = null,
     preview = false
   ): Promise<OT.Publisher> {
     const publisher = await this.initPublisher(element, properties);
@@ -209,7 +212,10 @@ export default class OpenTokSDK extends State {
     stream: OT.Stream,
     container: string | HTMLElement,
     properties: OT.SubscriberProperties,
-    eventListeners: Record<string, (event: string) => void> = null
+    eventListeners: Record<
+      string,
+      (event: OT.Event<string, unknown>) => void
+    > = null
   ): Promise<OT.Subscriber> {
     return await new Promise((resolve, reject) => {
       const session = this.getSession();
@@ -245,10 +251,10 @@ export default class OpenTokSDK extends State {
   async unsubscribe(subscriber: OT.Subscriber): Promise<void> {
     return await new Promise((resolve) => {
       const session = this.getSession();
+      this.removeSubscriber(subscriber);
       if (session) {
         session.unsubscribe(subscriber);
       }
-      this.removeSubscriber(subscriber);
       resolve();
     });
   }
@@ -258,7 +264,10 @@ export default class OpenTokSDK extends State {
    * @param eventListeners An object with eventName/callback key/value pairs
    */
   async connect(
-    eventListeners: Record<string, (event: string) => void> = null
+    eventListeners: Record<
+      string,
+      (event: OT.Event<string, unknown>) => void
+    > = null
   ): Promise<void> {
     this.off();
     this.setInternalListeners();
@@ -384,7 +393,7 @@ const bindListener = (
   target: OT.Session | OT.Publisher | OT.Subscriber,
   context: unknown,
   event: string,
-  callback: (event: string) => void
+  callback: (event: OT.Event<string, unknown>) => void
 ) => {
   const paramsError =
     "'on' requires a string and a function to create an event listener.";
@@ -405,15 +414,15 @@ const bindListeners = (
   context: unknown,
   listeners:
     | string
-    | Record<string, (event: string) => void>
-    | Record<string, (event: string) => void>[]
+    | Record<string, (event: OT.Event<string, unknown>) => void>
+    | Record<string, (event: OT.Event<string, unknown>) => void>[]
 ): void => {
   /**
    * Create listeners from an object with event/callback k/v pairs
    * @param listeners
    */
   const createListenersFromObject = (
-    eventListeners: Record<string, (event: string) => void>
+    eventListeners: Record<string, (event: OT.Event<string, unknown>) => void>
   ): void => {
     Object.keys(eventListeners).forEach((event) => {
       bindListener(target, context, event, eventListeners[event]);
@@ -424,7 +433,7 @@ const bindListeners = (
     listeners.forEach((listener) => createListenersFromObject(listener));
   } else {
     createListenersFromObject(
-      listeners as Record<string, (event: string) => void>
+      listeners as Record<string, (event: OT.Event<string, unknown>) => void>
     );
   }
 };

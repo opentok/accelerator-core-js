@@ -1,0 +1,17 @@
+html, body {
+  margin: 0;
+  padding: 5px;
+  height: calc(100% - 10px);
+  width: calc(100% - 10px);
+}
+
+body, #publishers, #subscribers {
+  display: flex;
+  gap: 10px;
+}
+
+
+.OT_publisher, .OT_subscriber {
+  width: 250px !important;
+  height: 150px !important;
+}

@@ -109,12 +109,11 @@ var AccCore = /** @class */ (function () {
                 });
                 return;
             }
-            var eventCallbacks = _this.eventListeners[event];
-            if (!eventCallbacks) {
+            if (!_this.eventListeners[event]) {
                 utils_1.message(event + " is not a registered event.");
             }
             else {
-                eventCallbacks.add(callback);
+                _this.eventListeners[event].add(callback);
             }
         };
         /**
@@ -124,19 +123,17 @@ var AccCore = /** @class */ (function () {
          * @param callback
          */
         this.off = function (event, callback) {
-            var eventListeners = _this.eventListeners;
             if (!event && !callback) {
-                Object.keys(eventListeners).forEach(function (eventType) {
-                    eventListeners[eventType].clear();
+                Object.keys(_this.eventListeners).forEach(function (eventType) {
+                    _this.eventListeners[eventType].clear();
                 });
             }
             else {
-                var eventCallbacks = eventListeners[event];
-                if (!eventCallbacks) {
+                if (!_this.eventListeners[event]) {
                     utils_1.message(event + " is not a registered event.");
                 }
                 else {
-                    eventCallbacks.delete(callback);
+                    _this.eventListeners[event].delete(callback);
                 }
             }
         };
@@ -162,14 +159,7 @@ var AccCore = /** @class */ (function () {
              * or destroyed
              */
             constants_1.acceleratorEvents.session.forEach(function (eventName) {
-                session.on(eventName, function (event) {
-                    var stream = event.target.stream;
-                    if (eventName === enums_1.OpenTokEvents.StreamCreated) {
-                        _this.OpenTokSDK.addStream(stream);
-                    }
-                    if (eventName === enums_1.OpenTokEvents.StreamDestroyed) {
-                        _this.OpenTokSDK.removeStream(stream);
-                    }
+                _this.OpenTokSDK.on(eventName, function (event) {
                     _this.triggerEvent(eventName, event);
                 });
             });
@@ -236,6 +226,7 @@ var AccCore = /** @class */ (function () {
          */
         this.triggerEvent = function (event, data) {
             var eventCallbacks = _this.eventListeners[event];
+            console.log("triggerEvent: " + event);
             if (!eventCallbacks) {
                 _this.registerEvents(event);
                 utils_1.message(event + " has been registered as a new event.");
@@ -257,7 +248,7 @@ var AccCore = /** @class */ (function () {
              * @param globalName The name of the package if exposed on global/window
              */
             var optionalRequire = function (packageName, globalName) {
-                var result = window[globalName];
+                var result;
                 try {
                     // switch (packageName) {
                     //   case 'opentok-text-chat':
