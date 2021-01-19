@@ -156,7 +156,6 @@ var Communication = /** @class */ (function () {
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            console.log('yuppers');
                             this.analytics.log(enums_1.LogAction.subscribe, enums_1.LogVariation.attempt);
                             streamMap = this.OpenTokSDK.getStreamMap();
                             type = stream.videoType || models_1.StreamType.SIP;
@@ -219,11 +218,6 @@ var Communication = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        console.dir({
-                            a: this.active,
-                            b: this.autoSubscribe,
-                            c: pubSub
-                        });
                         _a = this.active &&
                             this.autoSubscribe &&
                             pubSub.stream;
@@ -250,8 +244,8 @@ var Communication = /** @class */ (function () {
          * Listen for API-level events
          */
         this.createEventListeners = function () {
-            _this.core.on('streamCreated', _this.onStreamCreated);
-            _this.core.on('streamDestroyed', _this.onStreamDestroyed);
+            _this.core.on(enums_1.OpenTokEvents.StreamCreated, _this.onStreamCreated);
+            _this.core.on(enums_1.OpenTokEvents.StreamDestroyed, _this.onStreamDestroyed);
         };
         /**
          * Start publishing the local camera feed and subscribing to streams in the session

@@ -7,8 +7,7 @@ import {
   LogAction,
   LogVariation,
   Packages,
-  ScreenSharingEvents,
-  OpenTokEvents
+  ScreenSharingEvents
 } from './enums';
 import {
   IAnnotation,
@@ -181,9 +180,9 @@ export default class AccCore {
      * or destroyed
      */
     acceleratorEvents.session.forEach((eventName: string) => {
-      this.OpenTokSDK.on(eventName, (event) => {
-        this.triggerEvent(eventName, event);
-      });
+      this.OpenTokSDK.on(eventName, (data) =>
+        this.triggerEvent(eventName, data)
+      );
     });
 
     /**

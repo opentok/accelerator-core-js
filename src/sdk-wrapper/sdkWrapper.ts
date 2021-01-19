@@ -71,9 +71,9 @@ export default class OpenTokSDK extends State {
     const session = this.getSession();
     if (session) {
       if (typeof events !== 'string') {
-        bindListeners(session, this, events);
+        this.bindListeners(session, this, events);
       } else if (callback) {
-        bindListener(session, this, events, callback);
+        this.bindListener(session, this, events, callback);
       }
     }
   }
@@ -151,7 +151,7 @@ export default class OpenTokSDK extends State {
   ): Promise<OT.Publisher> {
     const publisher = await this.initPublisher(element, properties);
     if (eventListeners) {
-      bindListeners(publisher, this, eventListeners);
+      this.bindListeners(publisher, this, eventListeners);
     }
 
     if (preview) {
@@ -230,7 +230,7 @@ export default class OpenTokSDK extends State {
             } else {
               this.addSubscriber(subscriber);
               if (eventListeners) {
-                bindListeners(subscriber, this, eventListeners);
+                this.bindListeners(subscriber, this, eventListeners);
               }
               resolve(subscriber);
             }
@@ -376,6 +376,61 @@ export default class OpenTokSDK extends State {
       });
     });
   }
+
+  /**
+   * Binds and sets a single event listener on the OpenTok session
+   * @param target An OpenTok session, publisher, or subscriber object
+   * @param context The context to which to bind event listeners
+   * @param event The name of the event
+   * @param callback
+   */
+  bindListener(
+    target: OT.Session | OT.Publisher | OT.Subscriber,
+    context: unknown,
+    event: string,
+    callback: (event: OT.Event<string, unknown>) => void
+  ): void {
+    let paramsError;
+    ("'on' requires a string and a function to create an event listener.");
+    if (typeof event !== 'string' || typeof callback !== 'function') {
+      throw new SDKError('otSDK', paramsError, 'invalidParameters');
+    }
+    target.on(event, callback.bind(context));
+  }
+
+  /**
+   * Bind and set event listeners
+   * @param target An OpenTok session, publisher, or subscriber object
+   * @param context The context to which to bind event listeners
+   * @param listeners An object (or array of objects) with eventName/callback k/v pairs
+   */
+  bindListeners = (
+    target: OT.Session | OT.Publisher | OT.Subscriber,
+    context: unknown,
+    listeners:
+      | Record<string, (event: OT.Event<string, unknown>) => void>
+      | Record<string, (event: OT.Event<string, unknown>) => void>[]
+  ): void => {
+    /**
+     * Create listeners from an object with event/callback k/v pairs
+     * @param listeners
+     */
+    const createListenersFromObject = (
+      eventListeners: Record<string, (event: OT.Event<string, unknown>) => void>
+    ): void => {
+      Object.keys(eventListeners).forEach((event) => {
+        this.bindListener(target, context, event, eventListeners[event]);
+      });
+    };
+
+    if (Array.isArray(listeners)) {
+      listeners.forEach((listener) => createListenersFromObject(listener));
+    } else {
+      createListenersFromObject(
+        listeners as Record<string, (event: OT.Event<string, unknown>) => void>
+      );
+    }
+  };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -383,57 +438,3 @@ declare let window: any;
 if (typeof window !== 'undefined') {
   window.OpenTokSDK = OpenTokSDK;
 }
-
-/**
- * Binds and sets a single event listener on the OpenTok session
- * @param event The name of the event
- * @param callback
- */
-const bindListener = (
-  target: OT.Session | OT.Publisher | OT.Subscriber,
-  context: unknown,
-  event: string,
-  callback: (event: OT.Event<string, unknown>) => void
-) => {
-  const paramsError =
-    "'on' requires a string and a function to create an event listener.";
-  if (typeof event !== 'string' || typeof callback !== 'function') {
-    throw new SDKError('otSDK', paramsError, 'invalidParameters');
-  }
-  target.on(event, callback.bind(context));
-};
-
-/**
- * Bind and set event listeners
- * @param target An OpenTok session, publisher, or subscriber object
- * @param context The context to which to bind event listeners
- * @param listeners An object (or array of objects) with eventName/callback k/v pairs
- */
-const bindListeners = (
-  target: OT.Session | OT.Publisher | OT.Subscriber,
-  context: unknown,
-  listeners:
-    | string
-    | Record<string, (event: OT.Event<string, unknown>) => void>
-    | Record<string, (event: OT.Event<string, unknown>) => void>[]
-): void => {
-  /**
-   * Create listeners from an object with event/callback k/v pairs
-   * @param listeners
-   */
-  const createListenersFromObject = (
-    eventListeners: Record<string, (event: OT.Event<string, unknown>) => void>
-  ): void => {
-    Object.keys(eventListeners).forEach((event) => {
-      bindListener(target, context, event, eventListeners[event]);
-    });
-  };
-
-  if (Array.isArray(listeners)) {
-    listeners.forEach((listener) => createListenersFromObject(listener));
-  } else {
-    createListenersFromObject(
-      listeners as Record<string, (event: OT.Event<string, unknown>) => void>
-    );
-  }
-};

@@ -159,8 +159,8 @@ var AccCore = /** @class */ (function () {
              * or destroyed
              */
             constants_1.acceleratorEvents.session.forEach(function (eventName) {
-                _this.OpenTokSDK.on(eventName, function (event) {
-                    _this.triggerEvent(eventName, event);
+                _this.OpenTokSDK.on(eventName, function (data) {
+                    return _this.triggerEvent(eventName, data);
                 });
             });
             /**

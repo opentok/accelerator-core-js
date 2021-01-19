@@ -113,7 +113,9 @@ export default {
   },
   mounted() {
     this.otCore = new AccCore(otCoreOptions);
-    this.otCore.connect().then(() => (this.connected = true));
+    this.otCore.connect().then(() => {
+      this.connected = true;
+    });
   },
   methods: {
     startCall() {
@@ -135,6 +137,14 @@ export default {
     toggleLocalVideo() {
       this.otCore.toggleLocalVideo(!this.localVideoEnabled);
       this.localVideoEnabled = !this.localVideoEnabled;
+    },
+    subscribeToStream(stream) {
+      const type = stream.videoType;
+      this.otCore.subscribe(
+        stream,
+        `${type}SubscriberContainer`,
+        callProperties
+      );
     }
   }
 };

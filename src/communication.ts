@@ -1,7 +1,7 @@
 import SDKError from './sdk-wrapper/errors';
 import { dom, message, properCase } from './utils';
 
-import { defaultCallProperties } from './constants';
+import { acceleratorEvents, defaultCallProperties } from './constants';
 import {
   CommunicationOptions,
   PubSubDetail,
@@ -11,7 +11,7 @@ import {
 import AccCore from './core';
 import OpenTokSDK from './sdk-wrapper/sdkWrapper';
 import Analytics from './analytics';
-import { LogAction, LogVariation } from './enums';
+import { LogAction, LogVariation, OpenTokEvents } from './enums';
 
 /**
  *
@@ -244,8 +244,8 @@ export default class Communication {
    * Listen for API-level events
    */
   createEventListeners = (): void => {
-    this.core.on('streamCreated', this.onStreamCreated);
-    this.core.on('streamDestroyed', this.onStreamDestroyed);
+    this.core.on(OpenTokEvents.StreamCreated, this.onStreamCreated);
+    this.core.on(OpenTokEvents.StreamDestroyed, this.onStreamDestroyed);
   };
 
   /**
