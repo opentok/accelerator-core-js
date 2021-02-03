@@ -1,6 +1,6 @@
 import { CoreCommunicationOptions } from './core-options';
-import Analytics from '../analytics';
-import AccCore from '../core';
+import { Analytics } from '../analytics';
+import { AccCore } from '../core';
 import { StreamType } from './streamCollectionSummary';
 
 export class CommunicationOptions {

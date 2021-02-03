@@ -1,6 +1,6 @@
-import State from './state';
+import { State } from './state';
 import { Credential } from '../models';
-export default class OpenTokSDK extends State {
+export declare class OpenTokSDK extends State {
     constructor(credentials: Credential, sessionOptions?: unknown);
     /**
      * Determines if a connection object is my local connection

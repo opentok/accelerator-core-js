@@ -2,7 +2,7 @@ import { CommunicationOptions, PubSubDetail, StreamEvent } from './models';
 /**
  *
  */
-export default class Communication {
+export declare class Communication {
     private active;
     private core;
     private OpenTokSDK;

@@ -1,4 +1,4 @@
-export default class Analytics {
+export declare class Analytics {
     private analytics;
     /**
      * @param source Source of the logging event

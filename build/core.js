@@ -35,19 +35,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var sdkWrapper_1 = __importDefault(require("./sdk-wrapper/sdkWrapper"));
-var analytics_1 = __importDefault(require("./analytics"));
-var communication_1 = __importDefault(require("./communication"));
+exports.AccCore = void 0;
+var sdkWrapper_1 = require("./sdk-wrapper/sdkWrapper");
+var analytics_1 = require("./analytics");
+var communication_1 = require("./communication");
 var enums_1 = require("./enums");
 var models_1 = require("./models");
 var constants_1 = require("./constants");
 var utils_1 = require("./utils");
 var acceleratorPackages_1 = require("./models/acceleratorPackages");
-var errors_1 = __importDefault(require("./sdk-wrapper/errors"));
+var errors_1 = require("./sdk-wrapper/errors");
 var linkCanvasOptions_1 = require("./models/accelerator-packs/annotation/linkCanvasOptions");
 var AccCore = /** @class */ (function () {
     function AccCore(options) {
@@ -273,7 +271,7 @@ var AccCore = /** @class */ (function () {
                 }
                 if (!result) {
                     _this.analytics.log(enums_1.LogAction.initPackages, enums_1.LogVariation.fail);
-                    throw new errors_1.default('otAccCore', "Could not load " + packageName, 'missingDependency');
+                    throw new errors_1.SDKError('otAccCore', "Could not load " + packageName, 'missingDependency');
                 }
                 return result;
             };
@@ -367,7 +365,7 @@ var AccCore = /** @class */ (function () {
                 }
             };
             /** Create instances of each package */
-            _this.communication = new communication_1.default(packageOptions('communication'));
+            _this.communication = new communication_1.Communication(packageOptions('communication'));
             _this.textChat = packages.TextChat
                 ? packages.TextChat(packageOptions('textChat'))
                 : null;
@@ -622,9 +620,9 @@ var AccCore = /** @class */ (function () {
             _this.communication.enableRemoteAV(subscriberId, 'video', enable);
             _this.analytics.log(enums_1.LogAction.toggleRemoteVideo, enums_1.LogVariation.success);
         };
-        this.OpenTokSDK = new sdkWrapper_1.default(options ? options.credentials : null, options.largeScale ? { connectionEventsSuppressed: true } : undefined);
+        this.OpenTokSDK = new sdkWrapper_1.OpenTokSDK(options ? options.credentials : null, options.largeScale ? { connectionEventsSuppressed: true } : undefined);
         // Initialize analytics
-        this.analytics = new analytics_1.default(window.location.origin, options.credentials.sessionId, null, options.credentials.apiKey, options.applicationName);
+        this.analytics = new analytics_1.Analytics(window.location.origin, options.credentials.sessionId, null, options.credentials.apiKey, options.applicationName);
         this.analytics.log(enums_1.LogAction.init, enums_1.LogVariation.attempt);
         // save options
         this.OpenTokSDK.setOptions(options);
@@ -633,7 +631,7 @@ var AccCore = /** @class */ (function () {
     AccCore.utils = { dom: utils_1.dom, message: utils_1.message, path: utils_1.path, pathOr: utils_1.pathOr, properCase: utils_1.properCase };
     return AccCore;
 }());
-exports.default = AccCore;
+exports.AccCore = AccCore;
 if (typeof window !== 'undefined') {
     window.AccCore = AccCore;
 }

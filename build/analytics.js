@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Analytics = void 0;
 var opentok_solutions_logging_1 = __importDefault(require("opentok-solutions-logging"));
 var Analytics = /** @class */ (function () {
     /**
@@ -51,5 +52,5 @@ var Analytics = /** @class */ (function () {
     };
     return Analytics;
 }());
-exports.default = Analytics;
+exports.Analytics = Analytics;
 //# sourceMappingURL=analytics.js.map

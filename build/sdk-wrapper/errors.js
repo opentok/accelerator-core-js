@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SDKError = void 0;
 /**
  * Defines errors emitted from the SDK
  */
@@ -26,5 +27,5 @@ var SDKError = /** @class */ (function (_super) {
     }
     return SDKError;
 }(Error));
-exports.default = SDKError;
+exports.SDKError = SDKError;
 //# sourceMappingURL=errors.js.map

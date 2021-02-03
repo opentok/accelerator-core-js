@@ -1,7 +1,7 @@
-import OpenTokSDK from './sdk-wrapper/sdkWrapper';
+import { OpenTokSDK } from './sdk-wrapper/sdkWrapper';
 
-import Analytics from './analytics';
-import Communication from './communication';
+import { Analytics } from './analytics';
+import { Communication } from './communication';
 import {
   CoreEvents,
   LogAction,
@@ -26,10 +26,10 @@ import {
 import { acceleratorEvents } from './constants';
 import { dom, message, path, pathOr, properCase } from './utils';
 import { AcceleratorPackages } from './models/acceleratorPackages';
-import SDKError from './sdk-wrapper/errors';
+import { SDKError } from './sdk-wrapper/errors';
 import { LinkCanvasOptions } from './models/accelerator-packs/annotation/linkCanvasOptions';
 
-export default class AccCore {
+export class AccCore {
   public OpenTokSDK: OpenTokSDK;
   public analytics: Analytics;
   public communication: Communication;

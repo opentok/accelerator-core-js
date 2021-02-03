@@ -1,10 +1,10 @@
-import OpenTokSDK from './sdk-wrapper/sdkWrapper';
-import Analytics from './analytics';
-import Communication from './communication';
+import { OpenTokSDK } from './sdk-wrapper/sdkWrapper';
+import { Analytics } from './analytics';
+import { Communication } from './communication';
 import { Packages } from './enums';
 import { IAnnotation, CoreOptions, Credential, PubSubDetail, ITextChat, IScreenSharing, IArchiving } from './models';
 import { dom } from './utils';
-export default class AccCore {
+export declare class AccCore {
     OpenTokSDK: OpenTokSDK;
     analytics: Analytics;
     communication: Communication;

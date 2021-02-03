@@ -1,5 +1,5 @@
 import { Credential, CoreOptions, PubSubDetail, PubSubSummary, StreamType } from '../models';
-export default class State {
+export declare class State {
     private connected;
     private credentials;
     private options;

@@ -1,10 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.State = void 0;
 var models_1 = require("../models");
-var errors_1 = __importDefault(require("./errors"));
+var errors_1 = require("./errors");
 var State = /** @class */ (function () {
     function State(credentials) {
         this.credentials = null;
@@ -21,12 +19,12 @@ var State = /** @class */ (function () {
      */
     State.prototype.validateCredentials = function (credentials) {
         if (credentials === null) {
-            throw new errors_1.default('otSDK', 'Missing credentails required for initialization', 'invalidParameters');
+            throw new errors_1.SDKError('otSDK', 'Missing credentails required for initialization', 'invalidParameters');
         }
         var required = ['apiKey', 'sessionId', 'token'];
         required.forEach(function (credential) {
             if (!credentials[credential]) {
-                throw new errors_1.default('otSDK', credential + " is a required credential", 'invalidParameters');
+                throw new errors_1.SDKError('otSDK', credential + " is a required credential", 'invalidParameters');
             }
         });
     };
@@ -211,5 +209,5 @@ var State = /** @class */ (function () {
     };
     return State;
 }());
-exports.default = State;
+exports.State = State;
 //# sourceMappingURL=state.js.map

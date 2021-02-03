@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var log = function (messageText) { return console.log("otSDK: " + messageText); };
-exports.default = log;
+exports.log = void 0;
+exports.log = function (messageText) {
+    return console.log("otSDK: " + messageText);
+};
 //# sourceMappingURL=logging.js.map

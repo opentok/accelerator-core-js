@@ -1,6 +1,6 @@
 import OTKAnalytics from 'opentok-solutions-logging';
 
-export default class Analytics {
+export class Analytics {
   private analytics: OTKAnalytics;
 
   /**

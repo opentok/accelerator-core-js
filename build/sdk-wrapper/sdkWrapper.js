@@ -68,12 +68,10 @@ var __spread = (this && this.__spread) || function () {
     for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
     return ar;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var errors_1 = __importDefault(require("./errors"));
-var state_1 = __importDefault(require("./state"));
+exports.OpenTokSDK = void 0;
+var errors_1 = require("./errors");
+var state_1 = require("./state");
 var models_1 = require("../models");
 var enums_1 = require("../enums");
 var OpenTokSDK = /** @class */ (function (_super) {
@@ -477,7 +475,7 @@ var OpenTokSDK = /** @class */ (function (_super) {
     callback) {
         var paramsError = "'on' requires a string and a function to create an event listener.";
         if (typeof event !== 'string' || typeof callback !== 'function') {
-            throw new errors_1.default('otSDK', paramsError, 'invalidParameters');
+            throw new errors_1.SDKError('otSDK', paramsError, 'invalidParameters');
         }
         target.on(event, callback.bind(context));
     };
@@ -510,8 +508,8 @@ var OpenTokSDK = /** @class */ (function (_super) {
         }
     };
     return OpenTokSDK;
-}(state_1.default));
-exports.default = OpenTokSDK;
+}(state_1.State));
+exports.OpenTokSDK = OpenTokSDK;
 if (typeof window !== 'undefined') {
     window.OpenTokSDK = OpenTokSDK;
 }

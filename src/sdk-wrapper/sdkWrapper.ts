@@ -1,9 +1,9 @@
-import SDKError from './errors';
-import State from './state';
+import { SDKError } from './errors';
+import { State } from './state';
 import { Credential, StreamType } from '../models';
 import { OpenTokEvents } from '../enums';
 
-export default class OpenTokSDK extends State {
+export class OpenTokSDK extends State {
   constructor(credentials: Credential, sessionOptions?: unknown) {
     super(credentials);
     const session = OT.initSession(

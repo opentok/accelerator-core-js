@@ -1,2 +1,1 @@
-declare const log: (messageText: string) => void;
-export default log;
+export declare const log: (messageText: string) => void;

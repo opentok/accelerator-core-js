@@ -6,9 +6,9 @@ import {
   StreamCollection,
   StreamType
 } from '../models';
-import SDKError from './errors';
+import { SDKError } from './errors';
 
-export default class State {
+export class State {
   private connected: boolean;
   private credentials: Credential | null = null;
   private options: CoreOptions;

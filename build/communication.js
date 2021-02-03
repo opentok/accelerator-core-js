@@ -46,11 +46,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var errors_1 = __importDefault(require("./sdk-wrapper/errors"));
+exports.Communication = void 0;
+var errors_1 = require("./sdk-wrapper/errors");
 var utils_1 = require("./utils");
 var constants_1 = require("./constants");
 var models_1 = require("./models");
@@ -67,7 +65,7 @@ var Communication = /** @class */ (function () {
             var requiredOptions = ['core', 'analytics', 'session'];
             requiredOptions.forEach(function (option) {
                 if (!options[option]) {
-                    throw new errors_1.default('otAccCore', option + " is a required option.", 'invalidParameters');
+                    throw new errors_1.SDKError('otAccCore', option + " is a required option.", 'invalidParameters');
                 }
             });
             _this.core = options.core;
@@ -267,7 +265,7 @@ var Communication = /** @class */ (function () {
                             errorMessage = 'Session has reached its connection limit';
                             this.triggerEvent('error', errorMessage);
                             this.analytics.log(enums_1.LogAction.startCall, enums_1.LogVariation.fail);
-                            return [2 /*return*/, Promise.reject(new errors_1.default('otCore', errorMessage, 'connectionLimit'))];
+                            return [2 /*return*/, Promise.reject(new errors_1.SDKError('otCore', errorMessage, 'connectionLimit'))];
                         }
                         _a.label = 1;
                     case 1:
@@ -359,5 +357,5 @@ var Communication = /** @class */ (function () {
     }
     return Communication;
 }());
-exports.default = Communication;
+exports.Communication = Communication;
 //# sourceMappingURL=communication.js.map
