@@ -4,6 +4,7 @@
   "description": "Opentok Accelerator Core",
   "repository": "https://github.com/opentok/accelerator-core-js",
   "main": "dist/core.js",
+  "types": "build/index.d.ts",
   "scripts": {
     "build": "tsc",
     "build:logversion": "replace '(js-vsol-)(x.y.z)' '$1'$npm_package_version build/*",
@@ -14,7 +15,8 @@
     "coverage": "nyc mocha -r ts-node/register test/**/*spec.ts --insect",
     "browserify": "npm run browserify:sdk && npm run browserify:core",
     "browserify:core": "browserify -p tinyify build/src/core.js -o dist/core.js",
-    "browserify:sdk": "browserify -p tinyify build/src/sdk-wrapper/sdkWrapper.js -o dist/sdk.js"
+    "browserify:sdk": "browserify -p tinyify build/src/sdk-wrapper/sdkWrapper.js -o dist/sdk.js",
+    "package": ""
   },
   "keywords": [
     "opentok",

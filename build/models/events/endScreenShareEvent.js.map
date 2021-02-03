@@ -1,0 +1,1 @@
+{"version":3,"file":"endScreenShareEvent.js","sourceRoot":"","sources":["../../../src/models/events/endScreenShareEvent.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;AAAA,gDAA+C;AAE/C;IAAyC,uCAAY;IACnD,6BAAY,YAA0B;eACpC,kBAAM,YAAY,CAAC,UAAU,EAAE,YAAY,CAAC,WAAW,CAAC;IAC1D,CAAC;IACH,0BAAC;AAAD,CAAC,AAJD,CAAyC,2BAAY,GAIpD;AAJY,kDAAmB"}

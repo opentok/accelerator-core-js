@@ -3,6 +3,7 @@
     "target": "es5",
     "module": "commonjs",
     "outDir": "./build",
+    "declaration": true,
     "downlevelIteration": true,
     "sourceMap": true,
     "rootDirs": [
@@ -11,6 +12,7 @@
     "esModuleInterop": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "test"
   ]
 }
