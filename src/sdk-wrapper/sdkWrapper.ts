@@ -72,7 +72,7 @@ export default class OpenTokSDK extends State {
     if (session) {
       if (typeof events !== 'string') {
         this.bindListeners(session, this, events);
-      } else if (callback) {
+      } else if (callback !== undefined) {
         this.bindListener(session, this, events, callback);
       }
     }
@@ -388,10 +388,11 @@ export default class OpenTokSDK extends State {
     target: OT.Session | OT.Publisher | OT.Subscriber,
     context: unknown,
     event: string,
-    callback: (event: OT.Event<string, unknown>) => void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    callback: (event: OT.Event<string, any>) => void
   ): void {
-    let paramsError;
-    ("'on' requires a string and a function to create an event listener.");
+    const paramsError =
+      "'on' requires a string and a function to create an event listener.";
     if (typeof event !== 'string' || typeof callback !== 'function') {
       throw new SDKError('otSDK', paramsError, 'invalidParameters');
     }
@@ -404,19 +405,21 @@ export default class OpenTokSDK extends State {
    * @param context The context to which to bind event listeners
    * @param listeners An object (or array of objects) with eventName/callback k/v pairs
    */
-  bindListeners = (
+  bindListeners(
     target: OT.Session | OT.Publisher | OT.Subscriber,
     context: unknown,
-    listeners:
-      | Record<string, (event: OT.Event<string, unknown>) => void>
-      | Record<string, (event: OT.Event<string, unknown>) => void>[]
-  ): void => {
+    listeners: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    | Record<string, (event: OT.Event<string, any>) => void>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      | Record<string, (event: OT.Event<string, any>) => void>[]
+  ): void {
     /**
      * Create listeners from an object with event/callback k/v pairs
      * @param listeners
      */
     const createListenersFromObject = (
-      eventListeners: Record<string, (event: OT.Event<string, unknown>) => void>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      eventListeners: Record<string, (event: OT.Event<string, any>) => void>
     ): void => {
       Object.keys(eventListeners).forEach((event) => {
         this.bindListener(target, context, event, eventListeners[event]);
@@ -427,10 +430,11 @@ export default class OpenTokSDK extends State {
       listeners.forEach((listener) => createListenersFromObject(listener));
     } else {
       createListenersFromObject(
-        listeners as Record<string, (event: OT.Event<string, unknown>) => void>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        listeners as Record<string, (event: OT.Event<string, any>) => void>
       );
     }
-  };
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

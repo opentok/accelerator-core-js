@@ -1,11 +1,12 @@
 import SDKError from './sdk-wrapper/errors';
 import { dom, message, properCase } from './utils';
 
-import { acceleratorEvents, defaultCallProperties } from './constants';
+import { defaultCallProperties } from './constants';
 import {
   CommunicationOptions,
   PubSubDetail,
   StreamCollection,
+  StreamEvent,
   StreamType
 } from './models';
 import AccCore from './core';
@@ -217,23 +218,21 @@ export default class Communication {
 
   /**
    * Subscribe to new stream unless autoSubscribe is set to false
-   * @param pubSub An OpenTok Publisher or Subscriber
+   * @param streamEvent An OpenTok event with a stream property
    */
-  onStreamCreated = async (
-    pubSub: OT.Publisher | OT.Subscriber
-  ): Promise<void> => {
+  onStreamCreated = async (streamEvent: StreamEvent): Promise<void> => {
     this.active &&
       this.autoSubscribe &&
-      pubSub.stream &&
-      (await this.subscribe(pubSub.stream));
+      streamEvent.stream &&
+      (await this.subscribe(streamEvent.stream));
   };
 
   /**
    * Update state and trigger corresponding event(s) when stream is destroyed
-   * @param pubSub An OpenTok Publisher or Subscriber
+   * @param streamEvent An OpenTok event with a stream property
    */
-  onStreamDestroyed = (pubSub: OT.Publisher | OT.Subscriber): void => {
-    const type = (pubSub.stream.videoType as StreamType) || StreamType.SIP;
+  onStreamDestroyed = (streamEvent: StreamEvent): void => {
+    const type = (streamEvent.stream.videoType as StreamType) || StreamType.SIP;
     this.triggerEvent(
       `unsubscribeFrom${properCase(type)}`,
       this.OpenTokSDK.getPubSub()

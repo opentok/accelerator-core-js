@@ -211,18 +211,18 @@ var Communication = /** @class */ (function () {
         }); };
         /**
          * Subscribe to new stream unless autoSubscribe is set to false
-         * @param pubSub An OpenTok Publisher or Subscriber
+         * @param streamEvent An OpenTok event with a stream property
          */
-        this.onStreamCreated = function (pubSub) { return __awaiter(_this, void 0, void 0, function () {
+        this.onStreamCreated = function (streamEvent) { return __awaiter(_this, void 0, void 0, function () {
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.active &&
                             this.autoSubscribe &&
-                            pubSub.stream;
+                            streamEvent.stream;
                         if (!_a) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.subscribe(pubSub.stream)];
+                        return [4 /*yield*/, this.subscribe(streamEvent.stream)];
                     case 1:
                         _a = (_b.sent());
                         _b.label = 2;
@@ -234,10 +234,10 @@ var Communication = /** @class */ (function () {
         }); };
         /**
          * Update state and trigger corresponding event(s) when stream is destroyed
-         * @param pubSub An OpenTok Publisher or Subscriber
+         * @param streamEvent An OpenTok event with a stream property
          */
-        this.onStreamDestroyed = function (pubSub) {
-            var type = pubSub.stream.videoType || models_1.StreamType.SIP;
+        this.onStreamDestroyed = function (streamEvent) {
+            var type = streamEvent.stream.videoType || models_1.StreamType.SIP;
             _this.triggerEvent("unsubscribeFrom" + utils_1.properCase(type), _this.OpenTokSDK.getPubSub());
         };
         /**

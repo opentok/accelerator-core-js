@@ -13,4 +13,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./startScreenShareEvent"), exports);
 __exportStar(require("./endScreenShareEvent"), exports);
 __exportStar(require("./subscribeToScreenEvent"), exports);
+__exportStar(require("./streamEvent"), exports);
 //# sourceMappingURL=index.js.map

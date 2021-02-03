@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://static.opentok.com/v2/js/opentok.min.js"></script>
+  <script src="dist/core.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <title>OT Accelerator Core</title>
+
+</head>
+
+<body>
+
+  <div class="app">
+    <header>
+      <img src="./assets/logo.png" class="logo" alt="Vonage" />
+      <h1>Video API Accelerator Core</h1>
+    </header>
+    <article>
+      <main class="app-video-container">
+        <div className="app-mask">
+          <button className="message button clickable" onclick="startCall()">
+            Click to Start Call
+          </button>
+        </div>
+        <div id="cameraPublisherContainer" class="cameraPublisherClass" />
+        <div id="screenPublisherContainer" class="screenPublisherClass" />
+        <div id="cameraSubscriberContainer" class="cameraSubscriberClass" />
+        <div id="screenSubscriberContainer" class="screenSubscriberClass" />
+      </main>
+      <section id="controls">
+
+      </section>
+      <aside id="chat" />
+    </article>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

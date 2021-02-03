@@ -61,9 +61,6 @@ export default class AccCore {
     // save options
     this.OpenTokSDK.setOptions(options);
 
-    // Create internal event listeners
-    this.createEventListeners();
-
     this.analytics.log(LogAction.init, LogVariation.success);
   }
 
@@ -75,6 +72,9 @@ export default class AccCore {
 
     try {
       await this.OpenTokSDK.connect();
+
+      // Create internal event listeners
+      this.createEventListeners();
 
       const session = this.getSession();
       const credentials = this.getCredentials();
@@ -180,9 +180,9 @@ export default class AccCore {
      * or destroyed
      */
     acceleratorEvents.session.forEach((eventName: string) => {
-      this.OpenTokSDK.on(eventName, (data) =>
-        this.triggerEvent(eventName, data)
-      );
+      this.OpenTokSDK.on(eventName, (data) => {
+        this.triggerEvent(eventName, data);
+      });
     });
 
     /**
@@ -282,7 +282,6 @@ export default class AccCore {
    */
   triggerEvent = (event: string, data: unknown): void => {
     const eventCallbacks = this.eventListeners[event];
-    console.log(`triggerEvent: ${event}`);
     if (!eventCallbacks) {
       this.registerEvents(event);
       message(`${event} has been registered as a new event.`);
@@ -311,22 +310,22 @@ export default class AccCore {
     ): (() => void) => {
       let result;
       try {
-        // switch (packageName) {
-        //   case 'opentok-text-chat':
-        //     result = require('opentok-text-chat');
-        //     break;
-        //   case 'opentok-screen-sharing':
-        //     result = require('opentok-screen-sharing');
-        //     break;
-        //   case 'opentok-annotation':
-        //     result = require('opentok-annotation');
-        //     break;
-        //   case 'opentok-archiving':
-        //     result = require('opentok-archiving');
-        //     break;
-        //   default:
-        //     break;
-        // }
+        switch (packageName) {
+          case 'opentok-text-chat':
+            result = require('opentok-text-chat');
+            break;
+          case 'opentok-screen-sharing':
+            result = require('opentok-screen-sharing');
+            break;
+          case 'opentok-annotation':
+            result = require('opentok-annotation');
+            break;
+          case 'opentok-archiving':
+            result = require('opentok-archiving');
+            break;
+          default:
+            break;
+        }
       } catch (error) {
         result = window[globalName];
       }

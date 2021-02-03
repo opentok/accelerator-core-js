@@ -74,30 +74,30 @@ const otCoreOptions = {
     ], // eslint-disable-line no-bitwise
     waitingMessage: 'Messages will be delivered when other users arrive',
     container: '#chat'
-  },
-  screenSharing: {
-    extensionID: config.extensionID,
-    annotation: true,
-    externalWindow: false,
-    dev: true,
-    screenProperties: {
-      insertMode: 'append',
-      width: '100%',
-      height: '100%',
-      showControls: false,
-      style: {
-        buttonDisplayMode: 'off'
-      },
-      videoSource: 'window',
-      fitMode: 'contain' // Using default
-    }
-  },
-  annotation: {
-    absoluteParent: {
-      publisher: '.app-video-container',
-      subscriber: '.app-video-container'
-    }
   }
+  // screenSharing: {
+  //   extensionID: config.extensionID,
+  //   annotation: true,
+  //   externalWindow: false,
+  //   dev: true,
+  //   screenProperties: {
+  //     insertMode: 'append',
+  //     width: '100%',
+  //     height: '100%',
+  //     showControls: false,
+  //     style: {
+  //       buttonDisplayMode: 'off'
+  //     },
+  //     videoSource: 'window',
+  //     fitMode: 'contain' // Using default
+  //   }
+  // },
+  // annotation: {
+  //   absoluteParent: {
+  //     publisher: '.app-video-container',
+  //     subscriber: '.app-video-container'
+  //   }
+  // }
 };
 
 export default {
@@ -137,15 +137,11 @@ export default {
     toggleLocalVideo() {
       this.otCore.toggleLocalVideo(!this.localVideoEnabled);
       this.localVideoEnabled = !this.localVideoEnabled;
-    },
-    subscribeToStream(stream) {
-      const type = stream.videoType;
-      this.otCore.subscribe(
-        stream,
-        `${type}SubscriberContainer`,
-        callProperties
-      );
     }
+    // subscribeToStream({ stream }) {
+    //   const type = stream.videoType;
+    //   this.otCore.subscribe(stream);
+    // }
   }
 };
 </script>

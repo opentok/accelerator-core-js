@@ -80,29 +80,6 @@ var OpenTokSDK = /** @class */ (function (_super) {
     __extends(OpenTokSDK, _super);
     function OpenTokSDK(credentials, sessionOptions) {
         var _this = _super.call(this, credentials) || this;
-        /**
-         * Bind and set event listeners
-         * @param target An OpenTok session, publisher, or subscriber object
-         * @param context The context to which to bind event listeners
-         * @param listeners An object (or array of objects) with eventName/callback k/v pairs
-         */
-        _this.bindListeners = function (target, context, listeners) {
-            /**
-             * Create listeners from an object with event/callback k/v pairs
-             * @param listeners
-             */
-            var createListenersFromObject = function (eventListeners) {
-                Object.keys(eventListeners).forEach(function (event) {
-                    _this.bindListener(target, context, event, eventListeners[event]);
-                });
-            };
-            if (Array.isArray(listeners)) {
-                listeners.forEach(function (listener) { return createListenersFromObject(listener); });
-            }
-            else {
-                createListenersFromObject(listeners);
-            }
-        };
         var session = OT.initSession(credentials.apiKey, credentials.sessionId, sessionOptions);
         if (session) {
             _this.setSession(session);
@@ -156,8 +133,7 @@ var OpenTokSDK = /** @class */ (function (_super) {
             if (typeof events !== 'string') {
                 this.bindListeners(session, this, events);
             }
-            else if (callback) {
-                console.log("on: " + events);
+            else if (callback !== undefined) {
                 this.bindListener(session, this, events, callback);
             }
         }
@@ -496,15 +472,42 @@ var OpenTokSDK = /** @class */ (function (_super) {
      * @param event The name of the event
      * @param callback
      */
-    OpenTokSDK.prototype.bindListener = function (target, context, event, callback) {
-        var paramsError;
-        ("'on' requires a string and a function to create an event listener.");
+    OpenTokSDK.prototype.bindListener = function (target, context, event, 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    callback) {
+        var paramsError = "'on' requires a string and a function to create an event listener.";
         if (typeof event !== 'string' || typeof callback !== 'function') {
             throw new errors_1.default('otSDK', paramsError, 'invalidParameters');
         }
-        target.on(event, function (data) {
-            callback(data);
-        });
+        target.on(event, callback.bind(context));
+    };
+    /**
+     * Bind and set event listeners
+     * @param target An OpenTok session, publisher, or subscriber object
+     * @param context The context to which to bind event listeners
+     * @param listeners An object (or array of objects) with eventName/callback k/v pairs
+     */
+    OpenTokSDK.prototype.bindListeners = function (target, context, listeners) {
+        var _this = this;
+        /**
+         * Create listeners from an object with event/callback k/v pairs
+         * @param listeners
+         */
+        var createListenersFromObject = function (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        eventListeners) {
+            Object.keys(eventListeners).forEach(function (event) {
+                _this.bindListener(target, context, event, eventListeners[event]);
+            });
+        };
+        if (Array.isArray(listeners)) {
+            listeners.forEach(function (listener) { return createListenersFromObject(listener); });
+        }
+        else {
+            createListenersFromObject(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            listeners);
+        }
     };
     return OpenTokSDK;
 }(state_1.default));

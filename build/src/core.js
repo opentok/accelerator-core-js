@@ -67,6 +67,8 @@ var AccCore = /** @class */ (function () {
                         return [4 /*yield*/, this.OpenTokSDK.connect()];
                     case 2:
                         _a.sent();
+                        // Create internal event listeners
+                        this.createEventListeners();
                         session = this.getSession();
                         credentials = this.getCredentials();
                         this.analytics.update(credentials.sessionId, session.connection.connectionId, credentials.apiKey);
@@ -160,7 +162,7 @@ var AccCore = /** @class */ (function () {
              */
             constants_1.acceleratorEvents.session.forEach(function (eventName) {
                 _this.OpenTokSDK.on(eventName, function (data) {
-                    return _this.triggerEvent(eventName, data);
+                    _this.triggerEvent(eventName, data);
                 });
             });
             /**
@@ -226,7 +228,6 @@ var AccCore = /** @class */ (function () {
          */
         this.triggerEvent = function (event, data) {
             var eventCallbacks = _this.eventListeners[event];
-            console.log("triggerEvent: " + event);
             if (!eventCallbacks) {
                 _this.registerEvents(event);
                 utils_1.message(event + " has been registered as a new event.");
@@ -250,22 +251,22 @@ var AccCore = /** @class */ (function () {
             var optionalRequire = function (packageName, globalName) {
                 var result;
                 try {
-                    // switch (packageName) {
-                    //   case 'opentok-text-chat':
-                    //     result = require('opentok-text-chat');
-                    //     break;
-                    //   case 'opentok-screen-sharing':
-                    //     result = require('opentok-screen-sharing');
-                    //     break;
-                    //   case 'opentok-annotation':
-                    //     result = require('opentok-annotation');
-                    //     break;
-                    //   case 'opentok-archiving':
-                    //     result = require('opentok-archiving');
-                    //     break;
-                    //   default:
-                    //     break;
-                    // }
+                    switch (packageName) {
+                        case 'opentok-text-chat':
+                            result = require('opentok-text-chat');
+                            break;
+                        case 'opentok-screen-sharing':
+                            result = require('opentok-screen-sharing');
+                            break;
+                        case 'opentok-annotation':
+                            result = require('opentok-annotation');
+                            break;
+                        case 'opentok-archiving':
+                            result = require('opentok-archiving');
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 catch (error) {
                     result = window[globalName];
@@ -627,8 +628,6 @@ var AccCore = /** @class */ (function () {
         this.analytics.log(enums_1.LogAction.init, enums_1.LogVariation.attempt);
         // save options
         this.OpenTokSDK.setOptions(options);
-        // Create internal event listeners
-        this.createEventListeners();
         this.analytics.log(enums_1.LogAction.init, enums_1.LogVariation.success);
     }
     AccCore.utils = { dom: utils_1.dom, message: utils_1.message, path: utils_1.path, pathOr: utils_1.pathOr, properCase: utils_1.properCase };
