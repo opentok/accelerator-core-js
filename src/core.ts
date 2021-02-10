@@ -434,15 +434,23 @@ export class AccCore {
         case Packages.TextChat: {
           const textChatOptions = {
             textChatContainer:
-              (options.textChat && options.textChat.container) || undefined,
+              options.textChat && options.textChat.container
+                ? options.textChat.container
+                : undefined,
             waitingMessage:
-              (options.textChat && options.textChat.waitingMessage) ||
-              undefined,
+              options.textChat && options.textChat.waitingMessage
+                ? options.textChat.waitingMessage
+                : undefined,
             sender: {
-              alias: (options.textChat && options.textChat.name) || undefined
+              alias:
+                options.textChat && options.textChat.name
+                  ? options.textChat.name
+                  : undefined
             },
             alwaysOpen:
-              (options.textChat && options.textChat.alwaysOpen) || undefined
+              options.textChat && options.textChat.alwaysOpen
+                ? options.textChat.alwaysOpen
+                : undefined
           };
           return Object.assign({}, baseOptions, textChatOptions);
         }
