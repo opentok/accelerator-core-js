@@ -3,11 +3,12 @@ import { OpenTokSDK } from './sdk-wrapper/sdkWrapper';
 import { Analytics } from './analytics';
 import { Communication } from './communication';
 import {
+  CommunicationEvents,
   CoreEvents,
   LogAction,
   LogVariation,
   Packages,
-  ScreenSharingEvents
+  SessionEvents
 } from './enums';
 import {
   IAnnotation,
@@ -26,9 +27,7 @@ import {
 } from './models';
 import { acceleratorEvents } from './constants';
 import { dom, message, path, pathOr, properCase } from './utils';
-import { AcceleratorPackages } from './models/acceleratorPackages';
 import { SDKError } from './sdk-wrapper/errors';
-import { LinkCanvasOptions } from './models/accelerator-packs/annotation/linkCanvasOptions';
 
 export class AccCore {
   public OpenTokSDK: OpenTokSDK;
@@ -160,9 +159,9 @@ export class AccCore {
   private createEventListeners = (): void => {
     this.eventListeners = {};
 
-    Object.keys(acceleratorEvents).forEach((type) =>
-      this.registerEvents(acceleratorEvents[type])
-    );
+    this.registerEvents(CoreEvents);
+    this.registerEvents(CommunicationEvents);
+    this.registerEvents(SessionEvents);
 
     const options = this.OpenTokSDK.getOptions();
     const session = this.OpenTokSDK.getSession();
@@ -173,8 +172,8 @@ export class AccCore {
      */
     const usingAnnotation: boolean =
       options.screenSharing && options.screenSharing.annotation;
-    const internalAnnotation: boolean =
-      usingAnnotation && options.screenSharing.externalWindow;
+    // const internalAnnotation: boolean =
+    //   usingAnnotation && options.screenSharing.externalWindow;
 
     /**
      * Wrap session events and update internalState when streams are created
@@ -219,57 +218,55 @@ export class AccCore {
       });
     }
 
-    this.on(
-      ScreenSharingEvents.StartScreensharing,
-      (publisher: OT.Publisher) => {
-        this.OpenTokSDK.addPublisher(StreamType.Screen, publisher);
-        this.triggerEvent(
-          CoreEvents.StartScreenShare,
-          new StartScreenShareEvent(publisher, this.OpenTokSDK.getPubSub())
-        );
+    // this.on(
+    //   ScreenSharingEvents.StartScreensharing,
+    //   (publisher: OT.Publisher) => {
+    //     this.OpenTokSDK.addPublisher(StreamType.Screen, publisher);
+    //     this.triggerEvent(
+    //       CoreEvents.StartScreenShare,
+    //       new StartScreenShareEvent(publisher, this.OpenTokSDK.getPubSub())
+    //     );
 
-        if (internalAnnotation) {
-          this.annotation.start(session).then(() => {
-            if (
-              options.annotation &&
-              options.annotation.absoluteParent &&
-              options.annotation.absoluteParent.publisher
-            ) {
-              const absoluteParent = dom.query(
-                options.annotation.absoluteParent.publisher
-              ) as HTMLElement | undefined;
-              const linkOptions = absoluteParent ? { absoluteParent } : null;
-              this.annotation.linkCanvas(
-                publisher,
-                publisher.element.parentElement,
-                linkOptions
-              );
-            }
-          });
-        }
-      }
-    );
+    //     if (internalAnnotation) {
+    //       this.annotation.start(session).then(() => {
+    //         if (
+    //           options.annotation &&
+    //           options.annotation.absoluteParent &&
+    //           options.annotation.absoluteParent.publisher
+    //         ) {
+    //           const absoluteParent = dom.query(
+    //             options.annotation.absoluteParent.publisher
+    //           ) as HTMLElement | undefined;
+    //           const linkOptions = absoluteParent ? { absoluteParent } : null;
+    //           this.annotation.linkCanvas(
+    //             publisher,
+    //             publisher.element.parentElement,
+    //             linkOptions
+    //           );
+    //         }
+    //       });
+    //     }
+    //   }
+    // );
 
-    this.on(ScreenSharingEvents.EndScreenSharing, (publisher: OT.Publisher) => {
-      this.OpenTokSDK.removePublisher(StreamType.Screen, publisher);
-      this.triggerEvent(
-        CoreEvents.EndScreenShare,
-        new EndScreenShareEvent(this.OpenTokSDK.getPubSub())
-      );
-      if (usingAnnotation) {
-        this.annotation.end();
-      }
-    });
+    // this.on(ScreenSharingEvents.EndScreenSharing, (publisher: OT.Publisher) => {
+    //   this.OpenTokSDK.removePublisher(StreamType.Screen, publisher);
+    //   this.triggerEvent(
+    //     CoreEvents.EndScreenShare,
+    //     new EndScreenShareEvent(this.OpenTokSDK.getPubSub())
+    //   );
+    //   if (usingAnnotation) {
+    //     this.annotation.end();
+    //   }
+    // });
   };
 
   /**
    * Register events that can be listened to be other components/modules
-   * @param events A list of event names. A single event may
-   * also be passed as a string.
+   * @param events An enum containing events
    */
-  registerEvents = (events: string | string[]): void => {
-    const eventList = Array.isArray(events) ? events : [events];
-    eventList.forEach((event) => {
+  registerEvents = (events: unknown): void => {
+    Object.values(events).forEach((event) => {
       if (!this.eventListeners[event]) {
         this.eventListeners[event] = new Set();
       }
