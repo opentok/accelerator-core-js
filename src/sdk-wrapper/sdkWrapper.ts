@@ -1,6 +1,6 @@
 import { SDKError } from './errors';
 import { State } from './state';
-import { Credential, StreamType } from '../models';
+import { Credential, ExtendedOTSession, StreamType } from '../models';
 import { OpenTokEvents } from '../enums';
 
 export class OpenTokSDK extends State {
@@ -12,7 +12,7 @@ export class OpenTokSDK extends State {
       sessionOptions
     );
     if (session) {
-      this.setSession(session);
+      this.setSession(session as ExtendedOTSession);
     }
   }
 

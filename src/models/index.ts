@@ -1,5 +1,6 @@
 export * from './communicationOptions';
 export * from './credential';
+export * from './extendedOTSession';
 export * from './pubSubDetail';
 export * from './pubSubSummary';
 export * from './streamCollection';

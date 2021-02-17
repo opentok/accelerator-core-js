@@ -253,15 +253,15 @@ var AccCore = /** @class */ (function () {
                         case 'opentok-text-chat':
                             result = require('opentok-text-chat');
                             break;
-                        case 'opentok-screen-sharing':
-                            result = require('opentok-screen-sharing');
-                            break;
-                        case 'opentok-annotation':
-                            result = require('opentok-annotation');
-                            break;
-                        case 'opentok-archiving':
-                            result = require('opentok-archiving');
-                            break;
+                        // case 'opentok-screen-sharing':
+                        //   result = require('opentok-screen-sharing');
+                        //   break;
+                        // case 'opentok-annotation':
+                        //   result = require('opentok-annotation');
+                        //   break;
+                        // case 'opentok-archiving':
+                        //   result = require('opentok-archiving');
+                        //   break;
                         default:
                             break;
                     }
@@ -278,16 +278,19 @@ var AccCore = /** @class */ (function () {
             var availablePackages = {
                 textChat: function () {
                     return optionalRequire('opentok-text-chat', 'TextChatAccPack');
-                },
-                screenSharing: function () {
-                    return optionalRequire('opentok-screen-sharing', 'ScreenSharingAccPack');
-                },
-                annotation: function () {
-                    return optionalRequire('opentok-annotation', 'AnnotationAccPack');
-                },
-                archiving: function () {
-                    return optionalRequire('opentok-archiving', 'ArchivingAccPack');
                 }
+                // screenSharing() {
+                //   return optionalRequire(
+                //     'opentok-screen-sharing',
+                //     'ScreenSharingAccPack'
+                //   );
+                // },
+                // annotation() {
+                //   return optionalRequire('opentok-annotation', 'AnnotationAccPack');
+                // },
+                // archiving() {
+                //   return optionalRequire('opentok-archiving', 'ArchivingAccPack');
+                // }
             };
             var packages = new acceleratorPackages_1.AcceleratorPackages();
             (options.packages || []).forEach(function (acceleratorPack) {
@@ -350,13 +353,20 @@ var AccCore = /** @class */ (function () {
                     }
                     case enums_1.Packages.TextChat: {
                         var textChatOptions = {
-                            textChatContainer: (options.textChat && options.textChat.container) || undefined,
-                            waitingMessage: (options.textChat && options.textChat.waitingMessage) ||
-                                undefined,
+                            textChatContainer: options.textChat && options.textChat.container
+                                ? options.textChat.container
+                                : undefined,
+                            waitingMessage: options.textChat && options.textChat.waitingMessage
+                                ? options.textChat.waitingMessage
+                                : undefined,
                             sender: {
-                                alias: (options.textChat && options.textChat.name) || undefined
+                                alias: options.textChat && options.textChat.name
+                                    ? options.textChat.name
+                                    : undefined
                             },
-                            alwaysOpen: (options.textChat && options.textChat.alwaysOpen) || undefined
+                            alwaysOpen: options.textChat && options.textChat.alwaysOpen
+                                ? options.textChat.alwaysOpen
+                                : undefined
                         };
                         return Object.assign({}, baseOptions, textChatOptions);
                     }
@@ -369,15 +379,15 @@ var AccCore = /** @class */ (function () {
             _this.textChat = packages.TextChat
                 ? packages.TextChat(packageOptions('textChat'))
                 : null;
-            _this.screenSharing = packages.ScreenSharing
-                ? packages.ScreenSharing(packageOptions('screenSharing'))
-                : null;
-            _this.annotation = packages.Annotation
-                ? packages.Annotation(packageOptions('annotation'))
-                : null;
-            _this.archiving = packages.Archiving
-                ? packages.Archiving(packageOptions('archiving'))
-                : null;
+            // this.screenSharing = packages.ScreenSharing
+            //   ? packages.ScreenSharing(packageOptions('screenSharing'))
+            //   : null;
+            // this.annotation = packages.Annotation
+            //   ? packages.Annotation(packageOptions('annotation'))
+            //   : null;
+            // this.archiving = packages.Archiving
+            //   ? packages.Archiving(packageOptions('archiving'))
+            //   : null;
             _this.analytics.log(enums_1.LogAction.initPackages, enums_1.LogVariation.success);
         };
         this.setupExternalAnnotation = function () { return __awaiter(_this, void 0, void 0, function () {

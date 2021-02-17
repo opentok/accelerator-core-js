@@ -4,7 +4,8 @@ import {
   PubSubDetail,
   PubSubSummary,
   StreamCollection,
-  StreamType
+  StreamType,
+  ExtendedOTSession
 } from '../models';
 import { SDKError } from './errors';
 
@@ -13,7 +14,7 @@ export class State {
   private credentials: Credential | null = null;
   private options: CoreOptions;
   private publishers = new StreamCollection<OT.Publisher>();
-  private session: OT.Session | null = null;
+  private session: ExtendedOTSession | null = null;
   private streamMap: Record<string, string> = {};
   private streams: Record<string, OT.Stream> = {};
   private subscribers = new StreamCollection<OT.Subscriber>();
@@ -80,7 +81,7 @@ export class State {
   /**
    * Gets the current OpenTok session
    */
-  public getSession(): OT.Session | null {
+  public getSession(): ExtendedOTSession | null {
     return this.session;
   }
 
@@ -88,7 +89,7 @@ export class State {
    * Sets the current OpenTok session
    * @param session Current OpenTok session
    */
-  public setSession(session: OT.Session): void {
+  public setSession(session: ExtendedOTSession): void {
     this.session = session;
   }
 

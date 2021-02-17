@@ -1,4 +1,4 @@
-import { Credential, CoreOptions, PubSubDetail, PubSubSummary, StreamType } from '../models';
+import { Credential, CoreOptions, PubSubDetail, PubSubSummary, StreamType, ExtendedOTSession } from '../models';
 export declare class State {
     private connected;
     private credentials;
@@ -35,12 +35,12 @@ export declare class State {
     /**
      * Gets the current OpenTok session
      */
-    getSession(): OT.Session | null;
+    getSession(): ExtendedOTSession | null;
     /**
      * Sets the current OpenTok session
      * @param session Current OpenTok session
      */
-    setSession(session: OT.Session): void;
+    setSession(session: ExtendedOTSession): void;
     /**
      * Gets the current OpenTok credentials
      */

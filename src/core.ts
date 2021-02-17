@@ -21,7 +21,8 @@ import {
   SubscribeToScreenEvent,
   ITextChat,
   IScreenSharing,
-  IArchiving
+  IArchiving,
+  ExtendedOTSession
 } from './models';
 import { acceleratorEvents } from './constants';
 import { dom, message, path, pathOr, properCase } from './utils';
@@ -99,7 +100,7 @@ export class AccCore {
   /**
    * Gets the current session
    */
-  getSession = (): OT.Session => this.OpenTokSDK.getSession();
+  getSession = (): ExtendedOTSession => this.OpenTokSDK.getSession();
 
   /**
    * Gets the current credentials
@@ -314,15 +315,15 @@ export class AccCore {
           case 'opentok-text-chat':
             result = require('opentok-text-chat');
             break;
-          case 'opentok-screen-sharing':
-            result = require('opentok-screen-sharing');
-            break;
-          case 'opentok-annotation':
-            result = require('opentok-annotation');
-            break;
-          case 'opentok-archiving':
-            result = require('opentok-archiving');
-            break;
+          // case 'opentok-screen-sharing':
+          //   result = require('opentok-screen-sharing');
+          //   break;
+          // case 'opentok-annotation':
+          //   result = require('opentok-annotation');
+          //   break;
+          // case 'opentok-archiving':
+          //   result = require('opentok-archiving');
+          //   break;
           default:
             break;
         }
@@ -343,19 +344,19 @@ export class AccCore {
     const availablePackages = {
       textChat() {
         return optionalRequire('opentok-text-chat', 'TextChatAccPack');
-      },
-      screenSharing() {
-        return optionalRequire(
-          'opentok-screen-sharing',
-          'ScreenSharingAccPack'
-        );
-      },
-      annotation() {
-        return optionalRequire('opentok-annotation', 'AnnotationAccPack');
-      },
-      archiving() {
-        return optionalRequire('opentok-archiving', 'ArchivingAccPack');
       }
+      // screenSharing() {
+      //   return optionalRequire(
+      //     'opentok-screen-sharing',
+      //     'ScreenSharingAccPack'
+      //   );
+      // },
+      // annotation() {
+      //   return optionalRequire('opentok-annotation', 'AnnotationAccPack');
+      // },
+      // archiving() {
+      //   return optionalRequire('opentok-archiving', 'ArchivingAccPack');
+      // }
     };
 
     const packages = new AcceleratorPackages();
@@ -467,15 +468,15 @@ export class AccCore {
     this.textChat = packages.TextChat
       ? packages.TextChat(packageOptions('textChat'))
       : null;
-    this.screenSharing = packages.ScreenSharing
-      ? packages.ScreenSharing(packageOptions('screenSharing'))
-      : null;
-    this.annotation = packages.Annotation
-      ? packages.Annotation(packageOptions('annotation'))
-      : null;
-    this.archiving = packages.Archiving
-      ? packages.Archiving(packageOptions('archiving'))
-      : null;
+    // this.screenSharing = packages.ScreenSharing
+    //   ? packages.ScreenSharing(packageOptions('screenSharing'))
+    //   : null;
+    // this.annotation = packages.Annotation
+    //   ? packages.Annotation(packageOptions('annotation'))
+    //   : null;
+    // this.archiving = packages.Archiving
+    //   ? packages.Archiving(packageOptions('archiving'))
+    //   : null;
 
     this.analytics.log(LogAction.initPackages, LogVariation.success);
   };

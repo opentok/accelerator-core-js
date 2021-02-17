@@ -12,6 +12,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./communicationOptions"), exports);
 __exportStar(require("./credential"), exports);
+__exportStar(require("./extendedOTSession"), exports);
 __exportStar(require("./pubSubDetail"), exports);
 __exportStar(require("./pubSubSummary"), exports);
 __exportStar(require("./streamCollection"), exports);

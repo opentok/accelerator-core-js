@@ -2,7 +2,7 @@ import { OpenTokSDK } from './sdk-wrapper/sdkWrapper';
 import { Analytics } from './analytics';
 import { Communication } from './communication';
 import { Packages } from './enums';
-import { IAnnotation, CoreOptions, Credential, PubSubDetail, ITextChat, IScreenSharing, IArchiving } from './models';
+import { IAnnotation, CoreOptions, Credential, PubSubDetail, ITextChat, IScreenSharing, IArchiving, ExtendedOTSession } from './models';
 import { dom } from './utils';
 export declare class AccCore {
     OpenTokSDK: OpenTokSDK;
@@ -28,7 +28,7 @@ export declare class AccCore {
     /**
      * Gets the current session
      */
-    getSession: () => OT.Session;
+    getSession: () => ExtendedOTSession;
     /**
      * Gets the current credentials
      */
