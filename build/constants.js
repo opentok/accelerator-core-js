@@ -1,59 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defaultCallProperties = exports.acceleratorEvents = void 0;
-/**
- * All the events in the Accelerators
- */
-exports.acceleratorEvents = {
-    session: [
-        'archiveStarted',
-        'archiveStopped',
-        'connectionCreated',
-        'connectionDestroyed',
-        'sessionConnected',
-        'sessionDisconnected',
-        'sessionReconnected',
-        'sessionReconnecting',
-        'signal',
-        'streamCreated',
-        'streamDestroyed',
-        'streamPropertyChanged'
-    ],
-    core: ['connected', 'startScreenShare', 'endScreenShare', 'error'],
-    communication: [
-        'startCall',
-        'endCall',
-        'callPropertyChanged',
-        'subscribeToCamera',
-        'subscribeToScreen',
-        'subscribeToSip',
-        'unsubscribeFromCamera',
-        'unsubscribeFromSip',
-        'unsubscribeFromScreen',
-        'startViewingSharedScreen',
-        'endViewingSharedScreen'
-    ],
-    textChat: [
-        'showTextChat',
-        'hideTextChat',
-        'messageSent',
-        'errorSendingMessage',
-        'messageReceived'
-    ],
-    screenSharing: [
-        'startScreenSharing',
-        'endScreenSharing',
-        'screenSharingError'
-    ],
-    annotation: [
-        'startAnnotation',
-        'linkAnnotation',
-        'resizeCanvas',
-        'annotationWindowClosed',
-        'endAnnotation'
-    ],
-    archiving: ['startArchive', 'stopArchive', 'archiveReady', 'archiveError']
-};
+exports.defaultCallProperties = void 0;
 /**
  * Default UI properties
  * https://tokbox.com/developer/guides/customize-ui/js/

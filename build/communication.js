@@ -287,7 +287,7 @@ var Communication = /** @class */ (function () {
                         pubSubData = Object.assign({}, this.OpenTokSDK.getPubSub(), {
                             publisher: publisher
                         });
-                        this.triggerEvent('startCall', pubSubData);
+                        this.triggerEvent(enums_1.CommunicationEvents.StartCall, pubSubData);
                         return [2 /*return*/, pubSubData];
                     case 4:
                         error_3 = _a.sent();
@@ -322,7 +322,7 @@ var Communication = /** @class */ (function () {
                     case 1:
                         _b.sent();
                         this.active = false;
-                        this.triggerEvent('endCall', null);
+                        this.triggerEvent(enums_1.CommunicationEvents.EndCall, null);
                         this.analytics.log(enums_1.LogAction.endCall, enums_1.LogVariation.success);
                         return [2 /*return*/];
                 }

@@ -59,10 +59,9 @@ export declare class AccCore {
     private createEventListeners;
     /**
      * Register events that can be listened to be other components/modules
-     * @param events A list of event names. A single event may
-     * also be passed as a string.
+     * @param events An enum containing events
      */
-    registerEvents: (events: string | string[]) => void;
+    registerEvents: (events: unknown) => void;
     /**
      * Trigger an event and fire all registered callbacks
      * @param event The name of the event

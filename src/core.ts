@@ -11,13 +11,12 @@ import {
   SessionEvents
 } from './enums';
 import {
+  AcceleratorPackages,
   IAnnotation,
   CommunicationOptions,
   CoreOptions,
   Credential,
-  EndScreenShareEvent,
   PubSubDetail,
-  StartScreenShareEvent,
   StreamType,
   SubscribeToScreenEvent,
   ITextChat,
@@ -25,7 +24,6 @@ import {
   IArchiving,
   ExtendedOTSession
 } from './models';
-import { acceleratorEvents } from './constants';
 import { dom, message, path, pathOr, properCase } from './utils';
 import { SDKError } from './sdk-wrapper/errors';
 
@@ -179,7 +177,7 @@ export class AccCore {
      * Wrap session events and update internalState when streams are created
      * or destroyed
      */
-    acceleratorEvents.session.forEach((eventName: string) => {
+    Object.values(SessionEvents).forEach((eventName: string) => {
       this.OpenTokSDK.on(eventName, (data) => {
         this.triggerEvent(eventName, data);
       });
@@ -307,6 +305,7 @@ export class AccCore {
       globalName: string
     ): (() => void) => {
       let result;
+      /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
       try {
         switch (packageName) {
           case 'opentok-text-chat':
@@ -488,11 +487,11 @@ export class AccCore {
     annotationContainer: HTMLElement,
     externalWindow: string | HTMLElement
   ): void => {
-    this.annotation.linkCanvas(
-      pubSub,
-      annotationContainer,
-      new LinkCanvasOptions(externalWindow)
-    );
+    // this.annotation.linkCanvas(
+    //   pubSub,
+    //   annotationContainer,
+    //   new LinkCanvasOptions(externalWindow)
+    // );
 
     if (externalWindow) {
       // Add subscribers to the external window

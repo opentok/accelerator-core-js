@@ -1,3 +1,4 @@
+export * from './acceleratorPackages';
 export * from './communicationOptions';
 export * from './credential';
 export * from './extendedOTSession';

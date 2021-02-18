@@ -12,7 +12,13 @@ import {
 import { AccCore } from './core';
 import { OpenTokSDK } from './sdk-wrapper/sdkWrapper';
 import { Analytics } from './analytics';
-import { CoreEvents, LogAction, LogVariation, OpenTokEvents } from './enums';
+import {
+  CommunicationEvents,
+  CoreEvents,
+  LogAction,
+  LogVariation,
+  OpenTokEvents
+} from './enums';
 
 /**
  *
@@ -295,7 +301,7 @@ export class Communication {
       const pubSubData = Object.assign({}, this.OpenTokSDK.getPubSub(), {
         publisher
       });
-      this.triggerEvent(CoreEvents.StartCall, pubSubData);
+      this.triggerEvent(CommunicationEvents.StartCall, pubSubData);
       return pubSubData;
     } catch (error) {
       message(`Failed to subscribe to all existing streams: ${error}`);
@@ -331,7 +337,7 @@ export class Communication {
     await Promise.all(unsubscribeFromAll(subscribers));
 
     this.active = false;
-    this.triggerEvent('endCall', null);
+    this.triggerEvent(CommunicationEvents.EndCall, null);
     this.analytics.log(LogAction.endCall, LogVariation.success);
   };
 

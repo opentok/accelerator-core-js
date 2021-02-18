@@ -42,11 +42,8 @@ var analytics_1 = require("./analytics");
 var communication_1 = require("./communication");
 var enums_1 = require("./enums");
 var models_1 = require("./models");
-var constants_1 = require("./constants");
 var utils_1 = require("./utils");
-var acceleratorPackages_1 = require("./models/acceleratorPackages");
 var errors_1 = require("./sdk-wrapper/errors");
-var linkCanvasOptions_1 = require("./models/accelerator-packs/annotation/linkCanvasOptions");
 var AccCore = /** @class */ (function () {
     function AccCore(options) {
         var _this = this;
@@ -143,9 +140,9 @@ var AccCore = /** @class */ (function () {
          */
         this.createEventListeners = function () {
             _this.eventListeners = {};
-            Object.keys(constants_1.acceleratorEvents).forEach(function (type) {
-                return _this.registerEvents(constants_1.acceleratorEvents[type]);
-            });
+            _this.registerEvents(enums_1.CoreEvents);
+            _this.registerEvents(enums_1.CommunicationEvents);
+            _this.registerEvents(enums_1.SessionEvents);
             var options = _this.OpenTokSDK.getOptions();
             var session = _this.OpenTokSDK.getSession();
             /**
@@ -153,12 +150,13 @@ var AccCore = /** @class */ (function () {
              * package will take care of calling annotation.start() and annotation.linkCanvas()
              */
             var usingAnnotation = options.screenSharing && options.screenSharing.annotation;
-            var internalAnnotation = usingAnnotation && options.screenSharing.externalWindow;
+            // const internalAnnotation: boolean =
+            //   usingAnnotation && options.screenSharing.externalWindow;
             /**
              * Wrap session events and update internalState when streams are created
              * or destroyed
              */
-            constants_1.acceleratorEvents.session.forEach(function (eventName) {
+            Object.values(enums_1.SessionEvents).forEach(function (eventName) {
                 _this.OpenTokSDK.on(eventName, function (data) {
                     _this.triggerEvent(eventName, data);
                 });
@@ -183,37 +181,52 @@ var AccCore = /** @class */ (function () {
                     _this.annotation.end();
                 });
             }
-            _this.on(enums_1.ScreenSharingEvents.StartScreensharing, function (publisher) {
-                _this.OpenTokSDK.addPublisher(models_1.StreamType.Screen, publisher);
-                _this.triggerEvent(enums_1.CoreEvents.StartScreenShare, new models_1.StartScreenShareEvent(publisher, _this.OpenTokSDK.getPubSub()));
-                if (internalAnnotation) {
-                    _this.annotation.start(session).then(function () {
-                        if (options.annotation &&
-                            options.annotation.absoluteParent &&
-                            options.annotation.absoluteParent.publisher) {
-                            var absoluteParent = utils_1.dom.query(options.annotation.absoluteParent.publisher);
-                            var linkOptions = absoluteParent ? { absoluteParent: absoluteParent } : null;
-                            _this.annotation.linkCanvas(publisher, publisher.element.parentElement, linkOptions);
-                        }
-                    });
-                }
-            });
-            _this.on(enums_1.ScreenSharingEvents.EndScreenSharing, function (publisher) {
-                _this.OpenTokSDK.removePublisher(models_1.StreamType.Screen, publisher);
-                _this.triggerEvent(enums_1.CoreEvents.EndScreenShare, new models_1.EndScreenShareEvent(_this.OpenTokSDK.getPubSub()));
-                if (usingAnnotation) {
-                    _this.annotation.end();
-                }
-            });
+            // this.on(
+            //   ScreenSharingEvents.StartScreensharing,
+            //   (publisher: OT.Publisher) => {
+            //     this.OpenTokSDK.addPublisher(StreamType.Screen, publisher);
+            //     this.triggerEvent(
+            //       CoreEvents.StartScreenShare,
+            //       new StartScreenShareEvent(publisher, this.OpenTokSDK.getPubSub())
+            //     );
+            //     if (internalAnnotation) {
+            //       this.annotation.start(session).then(() => {
+            //         if (
+            //           options.annotation &&
+            //           options.annotation.absoluteParent &&
+            //           options.annotation.absoluteParent.publisher
+            //         ) {
+            //           const absoluteParent = dom.query(
+            //             options.annotation.absoluteParent.publisher
+            //           ) as HTMLElement | undefined;
+            //           const linkOptions = absoluteParent ? { absoluteParent } : null;
+            //           this.annotation.linkCanvas(
+            //             publisher,
+            //             publisher.element.parentElement,
+            //             linkOptions
+            //           );
+            //         }
+            //       });
+            //     }
+            //   }
+            // );
+            // this.on(ScreenSharingEvents.EndScreenSharing, (publisher: OT.Publisher) => {
+            //   this.OpenTokSDK.removePublisher(StreamType.Screen, publisher);
+            //   this.triggerEvent(
+            //     CoreEvents.EndScreenShare,
+            //     new EndScreenShareEvent(this.OpenTokSDK.getPubSub())
+            //   );
+            //   if (usingAnnotation) {
+            //     this.annotation.end();
+            //   }
+            // });
         };
         /**
          * Register events that can be listened to be other components/modules
-         * @param events A list of event names. A single event may
-         * also be passed as a string.
+         * @param events An enum containing events
          */
         this.registerEvents = function (events) {
-            var eventList = Array.isArray(events) ? events : [events];
-            eventList.forEach(function (event) {
+            Object.values(events).forEach(function (event) {
                 if (!_this.eventListeners[event]) {
                     _this.eventListeners[event] = new Set();
                 }
@@ -248,6 +261,7 @@ var AccCore = /** @class */ (function () {
              */
             var optionalRequire = function (packageName, globalName) {
                 var result;
+                /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
                 try {
                     switch (packageName) {
                         case 'opentok-text-chat':
@@ -292,7 +306,7 @@ var AccCore = /** @class */ (function () {
                 //   return optionalRequire('opentok-archiving', 'ArchivingAccPack');
                 // }
             };
-            var packages = new acceleratorPackages_1.AcceleratorPackages();
+            var packages = new models_1.AcceleratorPackages();
             (options.packages || []).forEach(function (acceleratorPack) {
                 if (availablePackages[acceleratorPack]) {
                     var accPack = availablePackages[acceleratorPack];
@@ -401,7 +415,11 @@ var AccCore = /** @class */ (function () {
             });
         }); };
         this.linkAnnotation = function (pubSub, annotationContainer, externalWindow) {
-            _this.annotation.linkCanvas(pubSub, annotationContainer, new linkCanvasOptions_1.LinkCanvasOptions(externalWindow));
+            // this.annotation.linkCanvas(
+            //   pubSub,
+            //   annotationContainer,
+            //   new LinkCanvasOptions(externalWindow)
+            // );
             if (externalWindow) {
                 // Add subscribers to the external window
                 var streams_1 = _this.OpenTokSDK.getStreams();
