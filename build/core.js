@@ -261,7 +261,6 @@ var AccCore = /** @class */ (function () {
              */
             var optionalRequire = function (packageName, globalName) {
                 var result;
-                /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
                 try {
                     switch (packageName) {
                         case 'opentok-text-chat':

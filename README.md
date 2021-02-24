@@ -1,11 +1,8 @@
 # Accelerator Core JS
 
-![CI](https://github.com/opentok/accelerator-core-js/workflows/CI/badge.svg?branch=master)
-[![GitHub release](https://img.shields.io/github/release/opentok/accelerator-core-js.svg)](./README.md)
-[![license](https://img.shields.io/github/license/opentok/accelerator-core-js.svg)](./.github/CONTRIBUTING.md)
+![CI](https://github.com/opentok/accelerator-core-js/workflows/CI/badge.svg?branch=main) 
 [![npm](https://img.shields.io/npm/v/opentok-accelerator-core.svg)](https://www.npmjs.com/package/opentok-accelerator-core)
-
-<img src="https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg" height="48px" alt="Tokbox is now known as Vonage" />
+[![license](https://img.shields.io/github/license/opentok/accelerator-core-js.svg)](./.github/CONTRIBUTING.md)
 
 OpenTok's Accelerator Core JS provides easy integration for OpenTok libraries. Whether you've already built your application using the OpenTok platform or are just getting started, Accelerator Core JS helps you implement:
 
@@ -30,7 +27,10 @@ To start using audio/video communication with OpenTok's libraries go to [Using A
 
 ## Sample Applications
 
-There are two sample applications for `Core` .  The [React](https://github.com/opentok/accelerator-sample-apps-js/tree/master/react-sample-app) sample application was built with [Create React App](https://github.com/facebookincubator/create-react-app) and uses [webpack](https://webpack.github.io/) to transpile code.  The other [sample application](https://github.com/opentok/accelerator-sample-apps-js/tree/master/vanilla-js-sample-app) is built with vanilla JavaScript.
+There are three sample applications for `Core`. The [React](/samples/core/react-sample) sample application was built with `Create React App` and uses webpack to transpile code. The [Vue](/samples/core/vue-sample) sample application was built with the Vue CLI. The [vanilla](/samples/core/vanilla) is built with vanilla JavaScript.
+
+There is also a [sample application](/samples/sdk-wrapper) for the `SDK Wrapper` that is built with vanilla 
+JavaScript.
 
 ## Installation
 
@@ -57,7 +57,6 @@ const options = {
     sessionId: yourOpenTokSessionId,
     token: yourOpenTokToken,
   },
-
 ```
 
 Other properties are the following.

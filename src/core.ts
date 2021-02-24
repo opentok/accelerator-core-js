@@ -305,7 +305,6 @@ export class AccCore {
       globalName: string
     ): (() => void) => {
       let result;
-      /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
       try {
         switch (packageName) {
           case 'opentok-text-chat':

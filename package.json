@@ -15,8 +15,7 @@
     "coverage": "nyc mocha -r ts-node/register test/**/*spec.ts --insect",
     "browserify": "npm run browserify:sdk && npm run browserify:core",
     "browserify:core": "browserify -p tinyify build/core.js -o dist/core.js",
-    "browserify:sdk": "browserify -p tinyify build/sdk-wrapper/sdkWrapper.js -o dist/sdk.js",
-    "package": ""
+    "browserify:sdk": "browserify -p tinyify build/sdk-wrapper/sdkWrapper.js -o dist/sdk.js"
   },
   "keywords": [
     "opentok",

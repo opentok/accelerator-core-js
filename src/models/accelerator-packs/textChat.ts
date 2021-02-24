@@ -1,3 +1,7 @@
 export interface ITextChat {
-  new (options: unknown): void;
+  isDisplayed(): boolean;
+  isEnabled(): boolean;
+  showTextChat(): void;
+  hideTextChat(): void;
+  deliverUnsentMessage(): void;
 }
