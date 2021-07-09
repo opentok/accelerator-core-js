@@ -54,7 +54,7 @@
     "opentok-archiving": "^1.0.19",
     "opentok-screen-sharing": "^1.0.27",
     "opentok-text-chat": "^1.0.30",
-    "replace": "^0.3.0"
+    "replace": "^1.2.1"
   },
   "dependencies": {
     "opentok-solutions-logging": "^1.0.7"
