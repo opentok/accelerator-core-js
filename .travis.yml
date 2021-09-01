@@ -21,7 +21,7 @@ deploy:
   email: vsolutions@tokbox.com
   api_key: $NPM_TOKEN
   on:
-    branch: master
+    branch: main
     condition: $VERSION != $VER_DEPL
   skip_cleanup: true
 notifications:
