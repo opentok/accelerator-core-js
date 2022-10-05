@@ -1,4 +1,24 @@
-const OTKAnalytics = require('opentok-solutions-logging');
+// const OTKAnalytics = require('opentok-solutions-logging');
+
+class OTKAnalytics {
+  constructor(config, options) {
+    console.log(config, options);
+  }
+  /**
+   * Set additional session info to be included with logs
+   * @param info {SessionInfo}
+   */
+  addSessionInfo(info) {
+    console.log(info);
+  }
+  /**
+   * Log an event
+   * @param data {Object}
+   */
+  logEvent(data) {
+    console.log(data);
+  }
+}
 
 // eslint-disable-next-line no-console
 const message = messageText => console.log(`otAccCore: ${messageText}`);

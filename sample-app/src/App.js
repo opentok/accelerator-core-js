@@ -11,6 +11,7 @@ import './App.css';
 
 
 let otCore;
+console.log("config: ", config);
 const otCoreOptions = {
   credentials: {
     apiKey: config.apiKey,

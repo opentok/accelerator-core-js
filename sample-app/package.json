@@ -9,7 +9,7 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.10.0",
-    "react-scripts": "*"
+    "react-scripts": "0.9.5"
   },
   "dependencies": {
     "babel-polyfill": "^6.23.0",
