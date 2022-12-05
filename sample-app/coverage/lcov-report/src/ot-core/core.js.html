@@ -1,0 +1,2028 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src/ot-core/core.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">All files</a> / <a href="index.html">src/ot-core</a> core.js
+    </h1>
+    <div class='clearfix'>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* global OT */
+/**
+ * Dependencies
+ */
+const util = <span class="cstat-no" title="statement not covered" >require('./util');</span>
+const State = <span class="cstat-no" title="statement not covered" >require('./state').default;</span>
+const accPackEvents = <span class="cstat-no" title="statement not covered" >require('./events');</span>
+const Communication = <span class="cstat-no" title="statement not covered" >require('./communication').default;</span>
+const OpenTokSDK = <span class="cstat-no" title="statement not covered" >require('./sdk-wrapper/sdkWrapper');</span>
+const { CoreError } = <span class="cstat-no" title="statement not covered" >require('./errors');</span>
+const {
+  message,
+  Analytics,
+  logAction,
+  logVariation,
+<span class="cstat-no" title="statement not covered" >} = require('./loggin</span>g');
+&nbsp;
+&nbsp;
+/**
+ * Helper methods
+ */
+const { dom, path, pathOr, properCase } = <span class="cstat-no" title="statement not covered" >util;</span>
+&nbsp;
+/**
+ * Ensure that we have the required credentials
+ * @param {Object} credentials
+ * @param {String} credentials.apiKey
+ * @param {String} credentials.sessionId
+ * @param {String} credentials.token
+ */
+const validateCredentials = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(c</span>redentials = <span class="branch-0 cbranch-no" title="branch not covered" >[])</span> =&gt; {</span>
+  const required = <span class="cstat-no" title="statement not covered" >['apiKey', 'sessionId', 'token'];</span>
+<span class="cstat-no" title="statement not covered" >  required.forEach(<span class="fstat-no" title="function not covered" >(c</span>redential) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (!credentials[credential]) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new CoreError(`${credential} is a required credential`, 'invalidParameters');</span>
+    }
+  });
+};
+&nbsp;
+class AccCore {
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(options) {
+    // Options/credentials validation
+<span class="cstat-no" title="statement not covered" >    if (!options) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new CoreError('Missing options required for initialization', 'invalidParameters');</span>
+    }
+    const { credentials } = <span class="cstat-no" title="statement not covered" >options;</span>
+<span class="cstat-no" title="statement not covered" >    validateCredentials(options.credentials);</span>
+<span class="cstat-no" title="statement not covered" >    this.name = options.name;</span>
+&nbsp;
+    // Init analytics
+<span class="cstat-no" title="statement not covered" >    this.applicationName = options.applicationName;</span>
+<span class="cstat-no" title="statement not covered" >    this.analytics = new Analytics(window.location.origin, credentials.sessionId, null, credentials.apiKey);</span>
+<span class="cstat-no" title="statement not covered" >    this.analytics.log(logAction.init, logVariation.attempt);</span>
+&nbsp;
+    // Create session, setup state
+    const sessionProps = <span class="cstat-no" title="statement not covered" >options.largeScale ? { connectionEventsSuppressed: true } : undefined;</span>
+<span class="cstat-no" title="statement not covered" >    this.session = OT.initSession(credentials.apiKey, credentials.sessionId, sessionProps);</span>
+<span class="cstat-no" title="statement not covered" >    this.internalState = new State();</span>
+<span class="cstat-no" title="statement not covered" >    this.internalState.setSession(this.session);</span>
+<span class="cstat-no" title="statement not covered" >    this.internalState.setCredentials(credentials);</span>
+<span class="cstat-no" title="statement not covered" >    this.internalState.setOptions(options);</span>
+&nbsp;
+    // Individual accelerator packs
+<span class="cstat-no" title="statement not covered" >    this.communication = null;</span>
+<span class="cstat-no" title="statement not covered" >    this.textChat = null;</span>
+<span class="cstat-no" title="statement not covered" >    this.screenSharing = null;</span>
+<span class="cstat-no" title="statement not covered" >    this.annotation = null;</span>
+<span class="cstat-no" title="statement not covered" >    this.archiving = null;</span>
+&nbsp;
+    // Create internal event listeners
+<span class="cstat-no" title="statement not covered" >    this.createEventListeners(this.session, options);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    this.analytics.log(logAction.init, logVariation.success);</span>
+  }
+&nbsp;
+  // OpenTok SDK Wrapper
+  static OpenTokSDK = OpenTokSDK;
+&nbsp;
+  // Expose utility methods
+  static util = util
+&nbsp;
+  /**
+   * Get access to an accelerator pack
+   * @param {String} packageName - textChat, screenSharing, annotation, or archiving
+   * @returns {Object} The instance of the accelerator pack
+   */
+  getAccPack = (packageName) =&gt; {
+    const { analytics, textChat, screenSharing, annotation, archiving } = this;
+    analytics.log(logAction.getAccPack, logVariation.attempt);
+    const packages = {
+      textChat,
+      screenSharing,
+      annotation,
+      archiving,
+    };
+    analytics.log(logAction.getAccPack, logVariation.success);
+    return packages[packageName];
+  }
+&nbsp;
+  /** Eventing */
+&nbsp;
+  /**
+   * Register events that can be listened to be other components/modules
+   * @param {array | string} events - A list of event names. A single event may
+   * also be passed as a string.
+   */
+  registerEvents = (events) =&gt; {
+    const { eventListeners } = this;
+    const eventList = Array.isArray(events) ? events : [events];
+    eventList.forEach((event) =&gt; {
+      if (!eventListeners[event]) {
+        eventListeners[event] = new Set();
+      }
+    });
+  };
+&nbsp;
+  /**
+   * Register a callback for a specific event or pass an object with
+   * with event =&gt; callback key/value pairs to register listeners for
+   * multiple events.
+   * @param {String | Object} event - The name of the event
+   * @param {Function} callback
+   */
+  on = (event, callback) =&gt; {
+    const { eventListeners, on } = this;
+    // analytics.log(logAction.on, logVariation.attempt);
+    if (typeof event === 'object') {
+      Object.keys(event).forEach((eventName) =&gt; {
+        on(eventName, event[eventName]);
+      });
+      return;
+    }
+    const eventCallbacks = eventListeners[event];
+    if (!eventCallbacks) {
+      message(`${event} is not a registered event.`);
+      // analytics.log(logAction.on, logVariation.fail);
+    } else {
+      eventCallbacks.add(callback);
+      // analytics.log(logAction.on, logVariation.success);
+    }
+  }
+&nbsp;
+  /**
+   * Remove a callback for a specific event.  If no parameters are passed,
+   * all event listeners will be removed.
+   * @param {String} event - The name of the event
+   * @param {Function} callback
+   */
+  off = (event, callback) =&gt; {
+    const { eventListeners } = this;
+    // analytics.log(logAction.off, logVariation.attempt);
+    if (!event &amp;&amp; !callback) {
+      Object.keys(eventListeners).forEach((eventType) =&gt; {
+        eventListeners[eventType].clear();
+      });
+    } else {
+      const eventCallbacks = eventListeners[event];
+      if (!eventCallbacks) {
+        // analytics.log(logAction.off, logVariation.fail);
+        message(`${event} is not a registered event.`);
+      } else {
+        eventCallbacks.delete(callback);
+        // analytics.log(logAction.off, logVariation.success);
+      }
+    }
+  }
+&nbsp;
+  /**
+   * Trigger an event and fire all registered callbacks
+   * @param {String} event - The name of the event
+   * @param {*} data - Data to be passed to callback functions
+   */
+  triggerEvent = (event, data) =&gt; {
+    const { eventListeners, registerEvents } = this;
+    const eventCallbacks = eventListeners[event];
+    if (!eventCallbacks) {
+      registerEvents(event);
+      message(`${event} has been registered as a new event.`);
+    } else {
+      eventCallbacks.forEach(callback =&gt; callback(data, event));
+    }
+  };
+&nbsp;
+  /**
+   * Get the current OpenTok session object
+   * @returns {Object}
+   */
+  getSession = () =&gt; this.internalState.getSession()
+&nbsp;
+&nbsp;
+  /**
+   * Returns the current OpenTok session credentials
+   * @returns {Object}
+   */
+  getCredentials = () =&gt; this.internalState.getCredentials()
+&nbsp;
+  /**
+   * Returns the options used for initialization
+   * @returns {Object}
+   */
+  getOptions = () =&gt; this.internalState.getOptions()
+&nbsp;
+  createEventListeners = (session, options) =&gt; {
+    this.eventListeners = {};
+    const { registerEvents, internalState, triggerEvent, on, getSession } = this;
+    Object.keys(accPackEvents).forEach(type =&gt; registerEvents(accPackEvents[type]));
+&nbsp;
+    /**
+     * If using screen sharing + annotation in an external window, the screen sharing
+     * package will take care of calling annotation.start() and annotation.linkCanvas()
+     */
+    const usingAnnotation = path('screenSharing.annotation', options);
+    const internalAnnotation = usingAnnotation &amp;&amp; !path('screenSharing.externalWindow', options);
+&nbsp;
+    /**
+     * Wrap session events and update internalState when streams are created
+     * or destroyed
+     */
+    accPackEvents.session.forEach((eventName) =&gt; {
+      session.on(eventName, (event) =&gt; {
+        if (eventName === 'streamCreated') { internalState.addStream(event.stream); }
+        if (eventName === 'streamDestroyed') { internalState.removeStream(event.stream); }
+        triggerEvent(eventName, event);
+      });
+    });
+&nbsp;
+    if (usingAnnotation) {
+      on('subscribeToScreen', ({ subscriber }) =&gt; {
+        this.annotation.start(getSession())
+          .then(() =&gt; {
+            const absoluteParent = dom.query(path('annotation.absoluteParent.subscriber', options));
+            const linkOptions = absoluteParent ? { absoluteParent } : null;
+            this.annotation.linkCanvas(subscriber, subscriber.element.parentElement, linkOptions);
+          });
+      });
+&nbsp;
+      on('unsubscribeFromScreen', () =&gt; {
+        this.annotation.end();
+      });
+    }
+&nbsp;
+    on('startScreenSharing', (publisher) =&gt; {
+      internalState.addPublisher('screen', publisher);
+      triggerEvent('startScreenShare', Object.assign({}, { publisher }, internalState.getPubSub()));
+      if (internalAnnotation) {
+        this.annotation.start(getSession())
+          .then(() =&gt; {
+            const absoluteParent = dom.query(path('annotation.absoluteParent.publisher', options));
+            const linkOptions = absoluteParent ? { absoluteParent } : null;
+            this.annotation.linkCanvas(publisher, publisher.element.parentElement, linkOptions);
+          });
+      }
+    });
+&nbsp;
+    on('endScreenSharing', (publisher) =&gt; {
+      // delete publishers.screen[publisher.id];
+      internalState.removePublisher('screen', publisher);
+      triggerEvent('endScreenShare', internalState.getPubSub());
+      if (usingAnnotation) {
+        this.annotation.end();
+      }
+    });
+  }
+&nbsp;
+  setupExternalAnnotation = () =&gt; this.annotation.start(this.getSession(), { screensharing: true })
+&nbsp;
+  linkAnnotation = (pubSub, annotationContainer, externalWindow) =&gt; {
+    const { annotation, internalState } = this;
+    annotation.linkCanvas(pubSub, annotationContainer, {
+      externalWindow,
+    });
+&nbsp;
+    if (externalWindow) {
+      // Add subscribers to the external window
+      const streams = internalState.getStreams();
+      const cameraStreams = Object.keys(streams).reduce((acc, streamId) =&gt; {
+        const stream = streams[streamId];
+        return stream.videoType === 'camera' || stream.videoType === 'sip' ? acc.concat(stream) : acc;
+      }, []);
+      cameraStreams.forEach(annotation.addSubscriberToExternalWindow);
+    }
+  }
+&nbsp;
+  initPackages = () =&gt; {
+    const { analytics, getSession, getOptions, internalState } = this;
+    const { on, registerEvents, setupExternalAnnotation, triggerEvent, linkAnnotation } = this;
+    analytics.log(logAction.initPackages, logVariation.attempt);
+    const session = getSession();
+    const options = getOptions();
+    /**
+     * Try to require a package.  If 'require' is unavailable, look for
+     * the package in global scope.  A switch ttatement is used because
+     * webpack and Browserify aren't able to resolve require statements
+     * that use variable names.
+     * @param {String} packageName - The name of the npm package
+     * @param {String} globalName - The name of the package if exposed on global/window
+     * @returns {Object}
+     */
+    const optionalRequire = (packageName, globalName) =&gt; {
+      let result;
+      /* eslint-disable global-require, import/no-extraneous-dependencies, import/no-unresolved */
+      try {
+        switch (packageName) {
+          case 'opentok-text-chat':
+            result = require('opentok-text-chat');
+            break;
+          case 'opentok-screen-sharing':
+            result = require('opentok-screen-sharing');
+            break;
+          case 'opentok-annotation':
+            result = require('opentok-annotation');
+            break;
+          case 'opentok-archiving':
+            result = require('opentok-archiving');
+            break;
+          default:
+            break;
+        }
+        /* eslint-enable global-require */
+      } catch (error) {
+        result = window[globalName];
+      }
+      if (!result) {
+        analytics.log(logAction.initPackages, logVariation.fail);
+        throw new CoreError(`Could not load ${packageName}`, 'missingDependency');
+      }
+      return result;
+    };
+&nbsp;
+    const availablePackages = {
+      textChat() {
+        return optionalRequire('opentok-text-chat', 'TextChatAccPack');
+      },
+      screenSharing() {
+        return optionalRequire('opentok-screen-sharing', 'ScreenSharingAccPack');
+      },
+      annotation() {
+        return optionalRequire('opentok-annotation', 'AnnotationAccPack');
+      },
+      archiving() {
+        return optionalRequire('opentok-archiving', 'ArchivingAccPack');
+      },
+    };
+&nbsp;
+    const packages = {};
+    (path('packages', options) || []).forEach((acceleratorPack) =&gt; {
+      if (availablePackages[acceleratorPack]) { // eslint-disable-next-line no-param-reassign
+        packages[properCase(acceleratorPack)] = availablePackages[acceleratorPack]();
+      } else {
+        message(`${acceleratorPack} is not a valid accelerator pack`);
+      }
+    });
+&nbsp;
+    /**
+     * Get containers for streams, controls, and the chat widget
+     */
+    const getDefaultContainer = pubSub =&gt; document.getElementById(`${pubSub}Container`);
+    const getContainerElements = () =&gt; {
+      // Need to use path to check for null values
+      const controls = pathOr('#videoControls', 'controlsContainer', options);
+      const chat = pathOr('#chat', 'textChat.container', options);
+      const stream = pathOr(getDefaultContainer, 'streamContainers', options);
+      return { stream, controls, chat };
+    };
+    /** *** *** *** *** */
+&nbsp;
+&nbsp;
+    /**
+     * Return options for the specified package
+     * @param {String} packageName
+     * @returns {Object}
+     */
+    const packageOptions = (packageName) =&gt; {
+      /**
+       * Methods to expose to accelerator packs
+       */
+      const accPack = {
+        registerEventListener: on, // Legacy option
+        on,
+        registerEvents,
+        triggerEvent,
+        setupExternalAnnotation,
+        linkAnnotation,
+      };
+&nbsp;
+      /**
+       * If options.controlsContainer/containers.controls is null,
+       * accelerator packs should not append their controls.
+       */
+      const containers = getContainerElements();
+      const appendControl = !!containers.controls;
+      const controlsContainer = containers.controls; // Legacy option
+      const streamContainers = containers.stream;
+      const baseOptions = {
+        session,
+        core: accPack,
+        accPack,
+        controlsContainer,
+        appendControl,
+        streamContainers,
+      };
+&nbsp;
+      switch (packageName) {
+        /* beautify ignore:start */
+        case 'communication': {
+          return Object.assign({}, baseOptions, { state: internalState, analytics }, options.communication);
+        }
+        case 'textChat': {
+          const textChatOptions = {
+            textChatContainer: path('textChat.container', options),
+            waitingMessage: path('textChat.waitingMessage', options),
+            sender: { alias: path('textChat.name', options) },
+            alwaysOpen: path('textChat.alwaysOpen', options),
+          };
+          return Object.assign({}, baseOptions, textChatOptions);
+        }
+        case 'screenSharing': {
+          const screenSharingContainer = { screenSharingContainer: streamContainers };
+          return Object.assign({}, baseOptions, screenSharingContainer, options.screenSharing);
+        }
+        case 'annotation': {
+          return Object.assign({}, baseOptions, options.annotation);
+        }
+        case 'archiving': {
+          return Object.assign({}, baseOptions, options.archiving);
+        }
+        default:
+          return {};
+        /* beautify ignore:end */
+      }
+    };
+&nbsp;
+    /** Create instances of each package */
+    // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+&nbsp;
+    this.communication = new Communication(packageOptions('communication'));
+    this.textChat = packages.TextChat ? new packages.TextChat(packageOptions('textChat')) : null;
+    this.screenSharing = packages.ScreenSharing ? new packages.ScreenSharing(packageOptions('screenSharing')) : null;
+    this.annotation = packages.Annotation ? new packages.Annotation(packageOptions('annotation')) : null;
+    this.archiving = packages.Archiving ? new packages.Archiving(packageOptions('archiving')) : null;
+&nbsp;
+    analytics.log(logAction.initPackages, logVariation.success);
+  }
+&nbsp;
+  /**
+   * Connect to the session
+   * @returns {Promise} &lt;resolve: -, reject: Error&gt;
+   */
+  connect = () =&gt; {
+    const { analytics, getSession, initPackages, triggerEvent, getCredentials } = this;
+    return new Promise((resolve, reject) =&gt; {
+      analytics.log(logAction.connect, logVariation.attempt);
+      const session = getSession();
+      const { token } = getCredentials();
+      session.connect(token, (error) =&gt; {
+        if (error) {
+          message(error);
+          analytics.log(logAction.connect, logVariation.fail);
+          return reject(error);
+        }
+        const { sessionId, apiKey } = session;
+        analytics.update(sessionId, path('connection.connectionId', session), apiKey);
+        analytics.log(logAction.connect, logVariation.success);
+        initPackages();
+        triggerEvent('connected', session);
+        return resolve({ connections: session.connections.length() });
+      });
+    });
+  }
+&nbsp;
+  /**
+   * Disconnect from the session
+   * @returns {Promise} &lt;resolve: -, reject: Error&gt;
+   */
+  disconnect = () =&gt; {
+    const { analytics, getSession, internalState } = this;
+    analytics.log(logAction.disconnect, logVariation.attempt);
+    getSession().disconnect();
+    internalState.reset();
+    analytics.log(logAction.disconnect, logVariation.success);
+  };
+&nbsp;
+  /**
+   * Force a remote connection to leave the session
+   * @param {Object} connection
+   * @returns {Promise} &lt;resolve: empty, reject: Error&gt;
+   */
+  forceDisconnect = (connection) =&gt; {
+    const { analytics, getSession } = this;
+    return new Promise((resolve, reject) =&gt; {
+      analytics.log(logAction.forceDisconnect, logVariation.attempt);
+      getSession().forceDisconnect(connection, (error) =&gt; {
+        if (error) {
+          analytics.log(logAction.forceDisconnect, logVariation.fail);
+          reject(error);
+        } else {
+          analytics.log(logAction.forceDisconnect, logVariation.success);
+          resolve();
+        }
+      });
+    });
+  }
+&nbsp;
+  /**
+   * Start publishing video and subscribing to streams
+   * @param {Object} publisherProps - https://goo.gl/0mL0Eo
+   * @returns {Promise} &lt;resolve: State + Publisher, reject: Error&gt;
+   */
+  startCall = publisherProps =&gt; this.communication.startCall(publisherProps)
+&nbsp;
+  /**
+   * Stop all publishing un unsubscribe from all streams
+   * @returns {void}
+   */
+  endCall = () =&gt; this.communication.endCall()
+&nbsp;
+  /**
+   * Start publishing video and subscribing to streams
+   * @returns {Object} The internal state of the core session
+   */
+  state = () =&gt; this.internalState.all();
+&nbsp;
+  /**
+   * Manually subscribe to a stream
+   * @param {Object} stream - An OpenTok stream
+   * @param {Object} [subscriberProperties] - https://tokbox.com/developer/sdks/js/reference/Session.html#subscribe
+   * @param {Boolean} [networkTest] - Subscribing to our own publisher as part of a network test?
+   * @returns {Promise} &lt;resolve: Subscriber, reject: Error&gt;
+   */
+  subscribe = (stream, subscriberProperties, networkTest = false) =&gt;
+    this.communication.subscribe(stream, subscriberProperties, networkTest)
+&nbsp;
+  /**
+   * Manually unsubscribe from a stream
+   * @param {Object} subscriber - An OpenTok subscriber object
+   * @returns {Promise} &lt;resolve: void, reject: Error&gt;
+   */
+  unsubscribe = subscriber =&gt; this.communication.unsubscribe(subscriber)
+&nbsp;
+  /**
+   * Force the publisher of a stream to stop publishing the stream
+   * @param {Object} stream
+   * @returns {Promise} &lt;resolve: empty, reject: Error&gt;
+   */
+  forceUnpublish = (stream) =&gt; {
+    const { analytics, getSession } = this;
+    return new Promise((resolve, reject) =&gt; {
+      analytics.log(logAction.forceUnpublish, logVariation.attempt);
+      getSession().forceUnpublish(stream, (error) =&gt; {
+        if (error) {
+          analytics.log(logAction.forceUnpublish, logVariation.fail);
+          reject(error);
+        } else {
+          analytics.log(logAction.forceUnpublish, logVariation.success);
+          resolve();
+        }
+      });
+    });
+  }
+&nbsp;
+  /**
+   * Get the local publisher object for a stream
+   * @param {Object} stream - An OpenTok stream object
+   * @returns {Object} - The publisher object
+   */
+  getPublisherForStream = stream =&gt; this.getSession().getPublisherForStream(stream);
+&nbsp;
+  /**
+   * Get the local subscriber objects for a stream
+   * @param {Object} stream - An OpenTok stream object
+   * @returns {Array} - An array of subscriber object
+   */
+  getSubscribersForStream = stream =&gt; this.getSession().getSubscribersForStream(stream);
+&nbsp;
+&nbsp;
+  /**
+   * Send a signal using the OpenTok signaling apiKey
+   * @param {String} type
+   * @param {*} [data]
+   * @param {Object} [to] - An OpenTok connection object
+   * @returns {Promise} &lt;resolve: empty, reject: Error&gt;
+   */
+  signal = (type, data, to) =&gt; {
+    const { analytics, getSession } = this;
+    return new Promise((resolve, reject) =&gt; {
+      analytics.log(logAction.signal, logVariation.attempt);
+      const session = getSession();
+      const signalObj = Object.assign({},
+        type ? { type } : null,
+        data ? { data: JSON.stringify(data) } : null,
+        to ? { to } : null // eslint-disable-line comma-dangle
+      );
+      session.signal(signalObj, (error) =&gt; {
+        if (error) {
+          analytics.log(logAction.signal, logVariation.fail);
+          reject(error);
+        } else {
+          analytics.log(logAction.signal, logVariation.success);
+          resolve();
+        }
+      });
+    });
+  }
+&nbsp;
+  /**
+   * Enable or disable local audio
+   * @param {Boolean} enable
+   */
+  toggleLocalAudio = (enable) =&gt; {
+    const { analytics, internalState, communication } = this;
+    analytics.log(logAction.toggleLocalAudio, logVariation.attempt);
+    const { publishers } = internalState.getPubSub();
+    const toggleAudio = id =&gt; communication.enableLocalAV(id, 'audio', enable);
+    Object.keys(publishers.camera).forEach(toggleAudio);
+    analytics.log(logAction.toggleLocalAudio, logVariation.success);
+  };
+&nbsp;
+  /**
+   * Enable or disable local video
+   * @param {Boolean} enable
+   */
+  toggleLocalVideo = (enable) =&gt; {
+    const { analytics, internalState, communication } = this;
+    analytics.log(logAction.toggleLocalVideo, logVariation.attempt);
+    const { publishers } = internalState.getPubSub();
+    const toggleVideo = id =&gt; communication.enableLocalAV(id, 'video', enable);
+    Object.keys(publishers.camera).forEach(toggleVideo);
+    analytics.log(logAction.toggleLocalVideo, logVariation.success);
+  };
+&nbsp;
+  /**
+   * Enable or disable remote audio
+   * @param {String} id - Subscriber id
+   * @param {Boolean} enable
+   */
+  toggleRemoteAudio = (id, enable) =&gt; {
+    const { analytics, communication } = this;
+    analytics.log(logAction.toggleRemoteAudio, logVariation.attempt);
+    communication.enableRemoteAV(id, 'audio', enable);
+    analytics.log(logAction.toggleRemoteAudio, logVariation.success);
+  };
+&nbsp;
+  /**
+   * Enable or disable remote video
+   * @param {String} id - Subscriber id
+   * @param {Boolean} enable
+   */
+  toggleRemoteVideo = (id, enable) =&gt; {
+    const { analytics, communication } = this;
+    analytics.log(logAction.toggleRemoteVideo, logVariation.attempt);
+    communication.enableRemoteAV(id, 'video', enable);
+    analytics.log(logAction.toggleRemoteVideo, logVariation.success);
+  }
+&nbsp;
+}
+&nbsp;
+if (global === window) {
+  window.AccCore = AccCore;
+}
+&nbsp;
+module.exports = AccCore;
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Mon Dec 05 2022 14:41:27 GMT+0100 (Central European Standard Time)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

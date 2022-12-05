@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src/ot-core/sdk-wrapper/sdkWrapper.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../index.html">All files</a> / <a href="index.html">src/ot-core/sdk-wrapper</a> sdkWrapper.js
+    </h1>
+    <div class='clearfix'>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* global OT */
+&nbsp;
+/* Dependencies */
+const State = <span class="cstat-no" title="statement not covered" >require('./state');</span>
+const { SDKError } = <span class="cstat-no" title="statement not covered" >require('./errors');</span>
+&nbsp;
+/* Internal variables */
+&nbsp;
+const stateMap = <span class="cstat-no" title="statement not covered" >new WeakMap();</span>
+&nbsp;
+/* Internal methods */
+&nbsp;
+/**
+ * Ensures that we have the required credentials
+ * @param {Object} credentials
+ * @param {String} credentials.apiKey
+ * @param {String} credentials.sessionId
+ * @param {String} credentials.token
+ * @returns {Object}
+ */
+const validateCredentials = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(c</span>redentials = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> =&gt; {</span>
+  const required = <span class="cstat-no" title="statement not covered" >['apiKey', 'sessionId', 'token'];</span>
+<span class="cstat-no" title="statement not covered" >  required.forEach(<span class="fstat-no" title="function not covered" >(c</span>redential) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (!credentials[credential]) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new SDKError(`${credential} is a required credential`, 'invalidParameters');</span>
+    }
+  });
+<span class="cstat-no" title="statement not covered" >  return credentials;</span>
+};
+&nbsp;
+/**
+ * Initialize an OpenTok publisher object
+ * @param {String | Object} element - The target element
+ * @param {Object} properties - The publisher properties
+ * @returns {Promise} &lt;resolve: Object, reject: Error&gt;
+ */
+const initPublisher = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(e</span>lement, properties) =&gt;</span>
+<span class="cstat-no" title="statement not covered" >  new Promis<span class="fstat-no" title="function not covered" >e(</span>(resolve, reject) =&gt; {</span>
+    const publisher <span class="cstat-no" title="statement not covered" >= OT.initPublisher(element, properties<span class="fstat-no" title="function not covered" >, </span>(error) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      error ? reject(error) : resolve(publisher)</span>;
+    });
+  });
+&nbsp;
+/**
+ * Binds and sets a single event listener on the OpenTok session
+ * @param {String} event - The name of the event
+ * @param {Function} callback
+ */
+const bindListener = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(t</span>arget, context, event, callback) =&gt; {</span>
+  const paramsError = <span class="cstat-no" title="statement not covered" >'\'on\' requires a string and a function to create an event listener.';</span>
+<span class="cstat-no" title="statement not covered" >  if (typeof event !== 'string' || typeof callback !== 'function') {</span>
+<span class="cstat-no" title="statement not covered" >    throw new SDKError(paramsError, 'invalidParameters');</span>
+  }
+<span class="cstat-no" title="statement not covered" >  target.on(event, callback.bind(context));</span>
+};
+&nbsp;
+/**
+ * Bind and set event listeners
+ * @param {Object} target - An OpenTok session, publisher, or subscriber object
+ * @param {Object} context - The context to which to bind event listeners
+ * @param {Object | Array} listeners - An object (or array of objects) with
+ *        eventName/callback k/v pairs
+ */
+const bindListeners = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(t</span>arget, context, listeners) =&gt; {</span>
+  /**
+   * Create listeners from an object with event/callback k/v pairs
+   * @param {Object} listeners
+   */
+  const createListenersFromObject = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(e</span>ventListeners) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    Object.keys(eventListeners).forEach(<span class="fstat-no" title="function not covered" >(e</span>vent) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      bindListener(target, context, event, eventListeners[event]);</span>
+    });
+  };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (Array.isArray(listeners)) {</span>
+<span class="cstat-no" title="statement not covered" >    listeners.forEach(<span class="fstat-no" title="function not covered" >li</span>stener =&gt; <span class="cstat-no" title="statement not covered" >createListenersFromObject(listener))</span>;</span>
+  } else {
+<span class="cstat-no" title="statement not covered" >    createListenersFromObject(listeners);</span>
+  }
+};
+&nbsp;
+/**
+ * @class
+ * Represents an OpenTok SDK Wrapper
+ */
+class OpenTokSDK {
+  /**
+   * Create an SDK Wrapper
+   * @param {Object} credentials
+   * @param {String} credentials.apiKey
+   * @param {String} credentials.sessionId
+   * @param {String} credentials.token
+   */
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(credentials) {
+<span class="cstat-no" title="statement not covered" >    this.credentials = validateCredentials(credentials);</span>
+<span class="cstat-no" title="statement not covered" >    stateMap.set(this, new State());</span>
+<span class="cstat-no" title="statement not covered" >    this.session = OT.initSession(credentials.apiKey, credentials.sessionId);</span>
+  }
+&nbsp;
+  /**
+   * Determines if a connection object is my local connection
+   * @param {Object} connection - An OpenTok connection object
+   * @returns {Boolean}
+   */
+<span class="fstat-no" title="function not covered" >  is</span>Me(connection) {
+    const { session } = <span class="cstat-no" title="statement not covered" >this;</span>
+<span class="cstat-no" title="statement not covered" >    return session &amp;&amp; session.connection.connectionId === connection.connectionId;</span>
+  }
+&nbsp;
+  /**
+   * Wrap OpenTok session events
+   */
+<span class="fstat-no" title="function not covered" >  se</span>tInternalListeners() {
+    /**
+     * Wrap session events and update state when streams are created
+     * or destroyed
+     */
+    const state = <span class="cstat-no" title="statement not covered" >stateMap.get(this);</span>
+<span class="cstat-no" title="statement not covered" >    this.session.on('streamCreated', <span class="fstat-no" title="function not covered" >({</span> stream }) =&gt; <span class="cstat-no" title="statement not covered" >state.addStream(stream))</span>;</span>
+<span class="cstat-no" title="statement not covered" >    this.session.on('streamDestroyed', <span class="fstat-no" title="function not covered" >({</span> stream }) =&gt; <span class="cstat-no" title="statement not covered" >state.removeStream(stream))</span>;</span>
+<span class="cstat-no" title="statement not covered" >    this.session.on('sessionConnected sessionReconnected', <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >state.setConnected(true))</span>;</span>
+<span class="cstat-no" title="statement not covered" >    this.session.on('sessionDisconnected', <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >state.setConnected(false))</span>;</span>
+  }
+&nbsp;
+  /**
+   * Register a callback for a specific event, pass an object
+   * with event =&gt; callback key/values (or an array of objects)
+   * to register callbacks for multiple events.
+   * @param {String | Object | Array} [events] - The name of the events
+   * @param {Function} [callback]
+   * https://tokbox.com/developer/sdks/js/reference/Session.html#on
+   */
+<span class="fstat-no" title="function not covered" >  on</span>(...args) {
+<span class="cstat-no" title="statement not covered" >    if (args.length === 1 &amp;&amp; typeof args[0] === 'object') {</span>
+<span class="cstat-no" title="statement not covered" >      bindListeners(this.session, this, args[0]);</span>
+    } else <span class="cstat-no" title="statement not covered" >if (args.length === 2) {</span>
+<span class="cstat-no" title="statement not covered" >      bindListener(this.session, this, args[0], args[1]);</span>
+    }
+  }
+&nbsp;
+  /**
+   * Remove a callback for a specific event. If no parameters are passed,
+   * all callbacks for the session will be removed.
+   * @param {String} [events] - The name of the events
+   * @param {Function} [callback]
+   * https://tokbox.com/developer/sdks/js/reference/Session.html#off
+   */
+<span class="fstat-no" title="function not covered" >  of</span>f(...args) {
+<span class="cstat-no" title="statement not covered" >    this.session.off(...args);</span>
+  }
+&nbsp;
+  /**
+   * Enable or disable local publisher audio
+   * @param {Boolean} enable
+   */
+<span class="fstat-no" title="function not covered" >  en</span>ablePublisherAudio(enable) {
+    const { publishers } = <span class="cstat-no" title="statement not covered" >stateMap.get(this).getPubSub();</span>
+<span class="cstat-no" title="statement not covered" >    Object.keys(publishers.camera).forEach(<span class="fstat-no" title="function not covered" >(p</span>ublisherId) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      publishers.camera[publisherId].publishAudio(enable);</span>
+    });
+  }
+&nbsp;
+  /**
+   * Enable or disable local publisher video
+   * @param {Boolean} enable
+   */
+<span class="fstat-no" title="function not covered" >  en</span>ablePublisherVideo(enable) {
+    const { publishers } = <span class="cstat-no" title="statement not covered" >stateMap.get(this).getPubSub();</span>
+<span class="cstat-no" title="statement not covered" >    Object.keys(publishers.camera).forEach(<span class="fstat-no" title="function not covered" >(p</span>ublisherId) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      publishers.camera[publisherId].publishVideo(enable);</span>
+    });
+  }
+&nbsp;
+  /**
+   * Enable or disable local subscriber audio
+   * @param {String} streamId
+   * @param {Boolean} enable
+   */
+<span class="fstat-no" title="function not covered" >  en</span>ableSubscriberAudio(streamId, enable) {
+    const { streamMap, subscribers } = <span class="cstat-no" title="statement not covered" >stateMap.get(this).all();</span>
+    const subscriberId = <span class="cstat-no" title="statement not covered" >streamMap[streamId];</span>
+    const subscriber = <span class="cstat-no" title="statement not covered" >subscribers.camera[subscriberId] || subscribers.screen[subscriberId];</span>
+<span class="cstat-no" title="statement not covered" >    subscriber &amp;&amp; subscriber.subscribeToAudio(enable);</span>
+  }
+&nbsp;
+  /**
+   * Enable or disable local subscriber video
+   * @param {String} streamId
+   * @param {Boolean} enable
+   */
+<span class="fstat-no" title="function not covered" >  en</span>ableSubscriberVideo(streamId, enable) {
+    const { streamMap, subscribers } = <span class="cstat-no" title="statement not covered" >stateMap.get(this).all();</span>
+    const subscriberId = <span class="cstat-no" title="statement not covered" >streamMap[streamId];</span>
+    const subscriber = <span class="cstat-no" title="statement not covered" >subscribers.camera[subscriberId] || subscribers.screen[subscriberId];</span>
+<span class="cstat-no" title="statement not covered" >    subscriber &amp;&amp; subscriber.subscribeToVideo(enable);</span>
+  }
+&nbsp;
+  /**
+   * Create and publish a stream
+   * @param {String | Object} element - The target element
+   * @param {Object} properties - The publisher properties
+   * @param {Array | Object} [eventListeners] - An object (or array of objects) with
+   *        eventName/callback k/v pairs
+   * @param {Boolean} [preview] - Create a publisher with publishing to the session
+   * @returns {Promise} &lt;resolve: Object, reject: Error&gt;
+   */
+<span class="fstat-no" title="function not covered" >  pu</span>blish(element, properties, eventListeners = <span class="branch-0 cbranch-no" title="branch not covered" >null,</span> preview = <span class="branch-0 cbranch-no" title="branch not covered" >false)</span> {
+<span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      initPublisher(element, properties) // eslint-disable-next-line no-confusing-arrow</span>
+        .the<span class="fstat-no" title="function not covered" >n(</span>(publisher) =&gt; {
+<span class="cstat-no" title="statement not covered" >          eventListeners &amp;&amp; bindListeners(publisher, this, eventListeners)</span>;
+<span class="cstat-no" title="statement not covered" >          if (preview) {</span>
+<span class="cstat-no" title="statement not covered" >            resolve(publisher)</span>;
+          } else {
+<span class="cstat-no" title="statement not covered" >            this.publishPreview(publisher)</span>
+              .then(resolve)
+              .catch(reject);
+          }
+        }).catch(reject);
+    });
+  }
+&nbsp;
+  /**
+   * Publish a 'preview' stream to the session
+   * @param {Object} publisher - An OpenTok publisher object
+   * @returns {Promise} &lt;resolve: empty, reject: Error&gt;
+   */
+<span class="fstat-no" title="function not covered" >  pu</span>blishPreview(publisher) {
+<span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+      const state = <span class="cstat-no" title="statement not covered" >stateMap.get(this);</span>
+<span class="cstat-no" title="statement not covered" >      this.session.publish(publisher, <span class="fstat-no" title="function not covered" >(e</span>rror) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        error &amp;&amp; reject(error);</span>
+        const type = <span class="cstat-no" title="statement not covered" >publisher.stream.videoType;</span>
+<span class="cstat-no" title="statement not covered" >        state.addPublisher(type, publisher);</span>
+<span class="cstat-no" title="statement not covered" >        resolve(publisher);</span>
+      });
+    });
+  }
+&nbsp;
+  /**
+   * Stop publishing a stream
+   * @param {Object} publisher - An OpenTok publisher object
+   */
+<span class="fstat-no" title="function not covered" >  un</span>publish(publisher) {
+    const type = <span class="cstat-no" title="statement not covered" >publisher.stream.videoType;</span>
+    const state = <span class="cstat-no" title="statement not covered" >stateMap.get(this);</span>
+<span class="cstat-no" title="statement not covered" >    this.session.unpublish(publisher);</span>
+<span class="cstat-no" title="statement not covered" >    state.removePublisher(type, publisher);</span>
+  }
+&nbsp;
+  /**
+   * Subscribe to stream
+   * @param {Object} stream
+   * @param {String | Object} container - The id of the container or a reference to the element
+   * @param {Object} [properties]
+   * @param {Array | Object} [eventListeners] - An object (or array of objects) with
+   *        eventName/callback k/v pairs
+   * @returns {Promise} &lt;resolve: empty, reject: Error&gt;
+   * https://tokbox.com/developer/sdks/js/reference/Session.html#subscribe
+   */
+<span class="fstat-no" title="function not covered" >  su</span>bscribe(stream, container, properties, eventListeners) {
+    const state = <span class="cstat-no" title="statement not covered" >stateMap.get(this);</span>
+<span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+      const subscriber = <span class="cstat-no" title="statement not covered" >this.session.subscribe(stream, container, properties, <span class="fstat-no" title="function not covered" >(e</span>rror) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        if (error) {</span>
+<span class="cstat-no" title="statement not covered" >          reject(error);</span>
+        } else {
+<span class="cstat-no" title="statement not covered" >          state.addSubscriber(subscriber);</span>
+<span class="cstat-no" title="statement not covered" >          eventListeners &amp;&amp; bindListeners(subscriber, this, eventListeners);</span>
+<span class="cstat-no" title="statement not covered" >          resolve(subscriber);</span>
+        }
+      });
+    });
+  }
+&nbsp;
+  /**
+   * Unsubscribe from a stream and update the state
+   * @param {Object} subscriber - An OpenTok subscriber object
+   * @returns {Promise} &lt;resolve: empty&gt;
+   */
+<span class="fstat-no" title="function not covered" >  un</span>subscribe(subscriber) {
+    const state = <span class="cstat-no" title="statement not covered" >stateMap.get(this);</span>
+<span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      this.session.unsubscribe(subscriber);</span>
+<span class="cstat-no" title="statement not covered" >      state.removeSubscriber(subscriber);</span>
+<span class="cstat-no" title="statement not covered" >      resolve();</span>
+    });
+  }
+&nbsp;
+  /**
+   * Connect to the OpenTok session
+   * @param {Array | Object} [eventListeners] - An object (or array of objects) with
+   *        eventName/callback k/v pairs
+   * @returns {Promise} &lt;resolve: empty, reject: Error&gt;
+   */
+<span class="fstat-no" title="function not covered" >  co</span>nnect(eventListeners) {
+<span class="cstat-no" title="statement not covered" >    this.off();</span>
+<span class="cstat-no" title="statement not covered" >    this.setInternalListeners();</span>
+<span class="cstat-no" title="statement not covered" >    eventListeners &amp;&amp; this.on(eventListeners);</span>
+<span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+      const { token } = <span class="cstat-no" title="statement not covered" >this.credentials;</span>
+<span class="cstat-no" title="statement not covered" >      this.session.connect(token, <span class="fstat-no" title="function not covered" >(e</span>rror) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        error ? reject(error) : resolve();</span>
+      });
+    });
+  }
+&nbsp;
+  /**
+   * Force a remote connection to leave the session
+   * @param {Object} connection
+   * @returns {Promise} &lt;resolve: empty, reject: Error&gt;
+   */
+<span class="fstat-no" title="function not covered" >  fo</span>rceDisconnect(connection) {
+<span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      this.session.forceDisconnect(connection, <span class="fstat-no" title="function not covered" >(e</span>rror) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        error ? reject(error) : resolve();</span>
+      });
+    });
+  }
+&nbsp;
+  /**
+   * Force the publisher of a stream to stop publishing the stream
+   * @param {Object} stream
+   * @returns {Promise} &lt;resolve: empty, reject: Error&gt;
+   */
+<span class="fstat-no" title="function not covered" >  fo</span>rceUnpublish(stream) {
+<span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      this.session.forceUnpublish(stream, <span class="fstat-no" title="function not covered" >(e</span>rror) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        error ? reject(error) : resolve();</span>
+      });
+    });
+  }
+&nbsp;
+&nbsp;
+  /**
+   * Send a signal using the OpenTok signaling apiKey
+   * @param {String} type
+   * @param {*} signalData
+   * @param {Object} [to] - An OpenTok connection object
+   * @returns {Promise} &lt;resolve: empty, reject: Error&gt;
+   * https://tokbox.com/developer/guides/signaling/js/
+   */
+<span class="fstat-no" title="function not covered" >  si</span>gnal(type, signalData, to) {
+    const data = <span class="cstat-no" title="statement not covered" >JSON.stringify(signalData);</span>
+    const signal = <span class="cstat-no" title="statement not covered" >to ? { type, data, to } : { type, data };</span>
+<span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      this.session.signal(signal, <span class="fstat-no" title="function not covered" >(e</span>rror) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        error ? reject(error) : resolve();</span>
+      });
+    });
+  }
+&nbsp;
+  /**
+   * Disconnect from the OpenTok session
+   */
+<span class="fstat-no" title="function not covered" >  di</span>sconnect() {
+<span class="cstat-no" title="statement not covered" >    this.session.disconnect();</span>
+<span class="cstat-no" title="statement not covered" >    stateMap.get(this).reset();</span>
+  }
+&nbsp;
+  /**
+   * Return the state of the OpenTok session
+   * @returns {Object} Streams, publishers, subscribers, and stream map
+   */
+<span class="fstat-no" title="function not covered" >  st</span>ate() {
+<span class="cstat-no" title="statement not covered" >    return stateMap.get(this).all();</span>
+  }
+}
+&nbsp;
+<span class="cstat-no" title="statement not covered" >if (global === window) {</span>
+<span class="cstat-no" title="statement not covered" >  window.OpenTokSDK = OpenTokSDK;</span>
+}
+&nbsp;
+<span class="cstat-no" title="statement not covered" >module.exports = OpenTokSDK;</span>
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Mon Dec 05 2022 14:41:27 GMT+0100 (Central European Standard Time)
+</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>

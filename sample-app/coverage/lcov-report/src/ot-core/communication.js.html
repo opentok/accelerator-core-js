@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src/ot-core/communication.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">All files</a> / <a href="index.html">src/ot-core</a> communication.js
+    </h1>
+    <div class='clearfix'>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337</td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* global OT */<span class="cstat-no" title="statement not covered" ></span>
+&nbsp;
+/** Dependencies */
+const { CoreError } = <span class="cstat-no" title="statement not covered" >require('./errors');</span>
+const { dom, path, pathOr, properCase } = <span class="cstat-no" title="statement not covered" >require('./util');</span>
+const { message, logAction, logVariation } = <span class="cstat-no" title="statement not covered" >require('./logging');</span>
+&nbsp;
+/**
+ * Default UI propties
+ * https://tokbox.com/developer/guides/customize-ui/js/
+ */
+const defaultCallProperties = <span class="cstat-no" title="statement not covered" >{</span>
+  insertMode: 'append',
+  width: '100%',
+  height: '100%',
+  showControls: false,
+  style: {
+    buttonDisplayMode: 'off',
+  },
+};
+class Communication {
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(options) {
+<span class="cstat-no" title="statement not covered" >    this.validateOptions(options);</span>
+<span class="cstat-no" title="statement not covered" >    this.setSession();</span>
+<span class="cstat-no" title="statement not covered" >    this.createEventListeners();</span>
+  }
+&nbsp;
+  validateOptions = (options) =&gt; {
+    const requiredOptions = ['core', 'state', 'analytics'];
+    requiredOptions.forEach((option) =&gt; {
+      if (!options[option]) {
+        throw new CoreError(`${option} is a required option.`, 'invalidParameters');
+      }
+    });
+    const { callProperties, screenProperties, autoSubscribe, subscribeOnly } = options;
+    this.active = false;
+    this.core = options.core;
+    this.state = options.state;
+    this.analytics = options.analytics;
+    this.streamContainers = options.streamContainers;
+    this.callProperties = Object.assign({}, defaultCallProperties, callProperties);
+    this.connectionLimit = options.connectionLimit || null;
+    this.autoSubscribe = options.hasOwnProperty('autoSubscribe') ? autoSubscribe : true;
+    this.subscribeOnly = options.hasOwnProperty('subscribeOnly') ? subscribeOnly : false;
+    this.screenProperties = Object.assign({}, defaultCallProperties, { videoSource: 'window' }, screenProperties);
+  }
+    /**
+     * Trigger an event through the API layer
+     * @param {String} event - The name of the event
+     * @param {*} [data]
+     */
+  triggerEvent = (event, data) =&gt; this.core.triggerEvent(event, data);
+&nbsp;
+  /**
+   * Determine whether or not the party is able to join the call based on
+   * the specified connection limit, if any.
+   * @return {Boolean}
+   */
+  ableToJoin = () =&gt; {
+    const { connectionLimit, state } = this;
+    if (!connectionLimit) {
+      return true;
+    }
+    // Not using the session here since we're concerned with number of active publishers
+    const connections = Object.values(state.getStreams()).filter(s =&gt; s.videoType === 'camera');
+    return connections.length &lt; connectionLimit;
+  };
+&nbsp;
+  /**
+   * Create a camera publisher object
+   * @param {Object} publisherProperties
+   * @returns {Promise} &lt;resolve: Object, reject: Error&gt;
+   */
+  createPublisher = (publisherProperties) =&gt; {
+    const { callProperties, streamContainers } = this;
+    return new Promise((resolve, reject) =&gt; {
+      // TODO: Handle adding 'name' option to props
+      const props = Object.assign({}, callProperties, publisherProperties);
+      // TODO: Figure out how to handle common vs package-specific options
+      // ^^^ This may already be available through package options
+      const container = dom.element(streamContainers('publisher', 'camera'));
+      const publisher = OT.initPublisher(container, props, (error) =&gt; {
+        error ? reject(error) : resolve(publisher);
+      });
+    });
+  }
+&nbsp;
+  /**
+   * Publish the local camera stream and update state
+   * @param {Object} publisherProperties
+   * @returns {Promise} &lt;resolve: empty, reject: Error&gt;
+   */
+  publish = (publisherProperties) =&gt; {
+    const { analytics, state, createPublisher, session, triggerEvent, subscribeOnly } = this;
+&nbsp;
+    /**
+     * For subscriber tokens or cases where we just don't want to be seen or heard.
+     */
+    if (subscribeOnly) {
+      message('Instance is configured with subscribeOnly set to true. Cannot publish to session');
+      return Promise.resolve();
+    }
+&nbsp;
+    return new Promise((resolve, reject) =&gt; {
+      const onPublish = publisher =&gt; (error) =&gt; {
+        if (error) {
+          reject(error);
+          analytics.log(logAction.startCall, logVariation.fail);
+        } else {
+          analytics.log(logAction.startCall, logVariation.success);
+          state.addPublisher('camera', publisher);
+          resolve(publisher);
+        }
+      };
+&nbsp;
+      const publishToSession = publisher =&gt; session.publish(publisher, onPublish(publisher));
+&nbsp;
+      const handleError = (error) =&gt; {
+        analytics.log(logAction.startCall, logVariation.fail);
+        const errorMessage = error.code === 1010 ? 'Check your network connection' : error.message;
+        triggerEvent('error', errorMessage);
+        reject(error);
+      };
+&nbsp;
+      createPublisher(publisherProperties)
+        .then(publishToSession)
+        .catch(handleError);
+    });
+  }
+&nbsp;
+  /**
+   * Subscribe to a stream and update the state
+   * @param {Object} stream - An OpenTok stream object
+   * @param {Object} [subsriberOptions]
+   * @param {Boolean} [networkTest] - Are we subscribing to our own publisher for a network test?
+   * @returns {Promise} &lt;resolve: Object, reject: Error &gt;
+   */
+  subscribe = (stream, subscriberProperties = {}, networkTest = false) =&gt; {
+    const { analytics, state, streamContainers, session, triggerEvent, callProperties, screenProperties } = this;
+    return new Promise((resolve, reject) =&gt; {
+      let connectionData;
+      analytics.log(logAction.subscribe, logVariation.attempt);
+      const streamMap = state.getStreamMap();
+      const { streamId } = stream;
+      // No videoType indicates SIP https://tokbox.com/developer/guides/sip/
+      const type = pathOr('sip', 'videoType', stream);
+      if (streamMap[streamId] &amp;&amp; !networkTest) {
+        // Are we already subscribing to the stream?
+        const { subscribers } = state.all();
+        resolve(subscribers[type][streamMap[streamId]]);
+      } else {
+        try {
+          connectionData = JSON.parse(path(['connection', 'data'], stream) || null);
+        } catch (e) {
+          connectionData = path(['connection', 'data'], stream);
+        }
+        const container = dom.element(streamContainers('subscriber', type, connectionData, stream));
+        const options = Object.assign(
+          {},
+          type === 'camera' || type === 'sip' ? callProperties : screenProperties,
+          subscriberProperties,
+        );
+        const subscriber = session.subscribe(stream, container, options, (error) =&gt; {
+          if (error) {
+            analytics.log(logAction.subscribe, logVariation.fail);
+            reject(error);
+          } else {
+            state.addSubscriber(subscriber);
+            triggerEvent(`subscribeTo${properCase(type)}`, Object.assign({}, { subscriber }, state.all()));
+            type === 'screen' &amp;&amp; triggerEvent('startViewingSharedScreen', subscriber); // Legacy event
+            analytics.log(logAction.subscribe, logVariation.success);
+            resolve(subscriber);
+          }
+        });
+      }
+    });
+  }
+&nbsp;
+  /**
+   * Unsubscribe from a stream and update the state
+   * @param {Object} subscriber - An OpenTok subscriber object
+   * @returns {Promise} &lt;resolve: empty&gt;
+   */
+  unsubscribe = (subscriber) =&gt; {
+    const { analytics, session, state } = this;
+    return new Promise((resolve) =&gt; {
+      analytics.log(logAction.unsubscribe, logVariation.attempt);
+      const type = pathOr('sip', 'stream.videoType', subscriber);
+      state.removeSubscriber(type, subscriber);
+      session.unsubscribe(subscriber);
+      analytics.log(logAction.unsubscribe, logVariation.success);
+      resolve();
+    });
+  }
+&nbsp;
+  /**
+   * Set session in module scope
+   */
+  setSession = () =&gt; {
+    this.session = this.state.getSession();
+  }
+&nbsp;
+  /**
+   * Subscribe to new stream unless autoSubscribe is set to false
+   * @param {Object} stream
+   */
+  onStreamCreated = ({ stream }) =&gt; this.active &amp;&amp; this.autoSubscribe &amp;&amp; this.subscribe(stream);
+&nbsp;
+  /**
+   * Update state and trigger corresponding event(s) when stream is destroyed
+   * @param {Object} stream
+   */
+  onStreamDestroyed = ({ stream }) =&gt; {
+    const { state, triggerEvent } = this;
+    state.removeStream(stream);
+    const type = pathOr('sip', 'videoType', stream);
+    type === 'screen' &amp;&amp; triggerEvent('endViewingSharedScreen'); // Legacy event
+    triggerEvent(`unsubscribeFrom${properCase(type)}`, state.getPubSub());
+  }
+&nbsp;
+  /**
+   * Listen for API-level events
+   */
+  createEventListeners = () =&gt; {
+    const { core, onStreamCreated, onStreamDestroyed } = this;
+    core.on('streamCreated', onStreamCreated);
+    core.on('streamDestroyed', onStreamDestroyed);
+  }
+&nbsp;
+  /**
+   * Start publishing the local camera feed and subscribing to streams in the session
+   * @param {Object} publisherProperties
+   * @returns {Promise} &lt;resolve: Object, reject: Error&gt;
+   */
+  startCall = (publisherProperties) =&gt; {
+    const { analytics, state, subscribe, ableToJoin, triggerEvent, autoSubscribe, publish } = this;
+    return new Promise((resolve, reject) =&gt; { // eslint-disable-line consistent-return
+      analytics.log(logAction.startCall, logVariation.attempt);
+      
+      this.active = true;
+      const initialStreamIds = Object.keys(state.getStreams());
+&nbsp;
+      /**
+       * Determine if we're able to join the session based on an existing connection limit
+       */
+      if (!ableToJoin()) {
+        const errorMessage = 'Session has reached its connection limit';
+        triggerEvent('error', errorMessage);
+        analytics.log(logAction.startCall, logVariation.fail);
+        return reject(new CoreError(errorMessage, 'connectionLimit'));
+      }
+&nbsp;
+      /**
+       * Subscribe to any streams that existed before we start the call from our side.
+       */
+      const subscribeToInitialStreams = (publisher) =&gt; {
+        // Get an array of initial subscription promises
+        const initialSubscriptions = () =&gt; {
+          if (autoSubscribe) {
+            const streams = state.getStreams();
+            return initialStreamIds.map(id =&gt; subscribe(streams[id]));
+          }
+          return [Promise.resolve()];
+        };
+&nbsp;
+        // Handle success
+        const onSubscribeToAll = () =&gt; {
+          const pubSubData = Object.assign({}, state.getPubSub(), { publisher });
+          triggerEvent('startCall', pubSubData);
+          resolve(pubSubData);
+        };
+&nbsp;
+        // Handle error
+        const onError = (reason) =&gt; {
+          message(`Failed to subscribe to all existing streams: ${reason}`);
+          // We do not reject here in case we still successfully publish to the session
+          resolve(Object.assign({}, this.state.getPubSub(), { publisher }));
+        };
+&nbsp;
+        Promise.all(initialSubscriptions())
+          .then(onSubscribeToAll)
+          .catch(onError);
+      };
+&nbsp;
+      publish(publisherProperties)
+        .then(subscribeToInitialStreams)
+        .catch(reject);
+    });
+  }
+&nbsp;
+  /**
+   * Stop publishing and unsubscribe from all streams
+   */
+  endCall = () =&gt; {
+    const { analytics, state, session, unsubscribe, triggerEvent } = this;
+    analytics.log(logAction.endCall, logVariation.attempt);
+    const { publishers, subscribers } = state.getPubSub();
+    const unpublish = publisher =&gt; session.unpublish(publisher);
+    Object.values(publishers.camera).forEach(unpublish);
+    Object.values(publishers.screen).forEach(unpublish);
+    // TODO Promise.all for unsubsribing
+    Object.values(subscribers.camera).forEach(unsubscribe);
+    Object.values(subscribers.screen).forEach(unsubscribe);
+    state.removeAllPublishers();
+    this.active = false;
+    triggerEvent('endCall');
+    analytics.log(logAction.endCall, logVariation.success);
+  }
+&nbsp;
+  /**
+   * Enable/disable local audio or video
+   * @param {String} source - 'audio' or 'video'
+   * @param {Boolean} enable
+   */
+  enableLocalAV = (id, source, enable) =&gt; {
+    const method = `publish${properCase(source)}`;
+    const { publishers } = this.state.getPubSub();
+    publishers.camera[id][method](enable);
+  }
+&nbsp;
+  /**
+   * Enable/disable remote audio or video
+   * @param {String} subscriberId
+   * @param {String} source - 'audio' or 'video'
+   * @param {Boolean} enable
+   */
+  enableRemoteAV = (subscriberId, source, enable) =&gt; {
+    const method = `subscribeTo${properCase(source)}`;
+    const { subscribers } = this.state.getPubSub();
+    const subscriber = subscribers.camera[subscriberId] || subscribers.sip[subscriberId];
+    subscriber[method](enable);
+  }
+&nbsp;
+}
+&nbsp;
+export default Communication;
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Mon Dec 05 2022 14:41:27 GMT+0100 (Central European Standard Time)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>
