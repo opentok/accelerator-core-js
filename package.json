@@ -49,7 +49,7 @@
     "karma-html2js-preprocessor": "^1.1.0",
     "karma-mocha": "^2.0.1",
     "karma-phantomjs-launcher": "^1.0.4",
-    "mocha": "^4.0.1",
+    "mocha": "^10.2.0",
     "opentok-annotation": "^2.0.55",
     "opentok-archiving": "^1.0.19",
     "opentok-screen-sharing": "^1.0.27",
