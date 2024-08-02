@@ -177,7 +177,7 @@ class State {
 
     publisherMap[publisher] = publisher.id;
     streamMap[publisher.streamId] = publisher.id;
-    publishers.publishers[type][publisher.id] = publisher;
+    publishers[type][publisher.id] = publisher;
   }
 
   /**
