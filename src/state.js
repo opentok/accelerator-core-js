@@ -186,13 +186,18 @@ class State {
    * @param {Object} publisher - The OpenTok publisher object
    */
   removePublisher = (type, publisher) => {
-    const { streamMap, publisherMap } = this;
+    const { streamMap, publishers, publisherMap } = this;
     const id = publisher.id || publisherMap[publisher];
     if (id == null) {
       throw 'Publisher no longer exists. It may have been previously destroyed.'
     }
     delete publishers[type][id];
-    delete streamMap[publisher.streamId];
+    delete publisherMap[publisher];
+    for (const [streamId, pubId] of Object.entries(streamMap)) {
+      if (pubId === id) {
+          delete streamMap[streamId];
+      }
+    }
   }
 
   /**
