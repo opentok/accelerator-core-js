@@ -22,6 +22,9 @@ class State {
     // Map stream ids to subscriber/publisher ids
     this.streamMap = {};
 
+    // Map publisher to publisher ids
+    this.publisherMap = {};
+
     // The OpenTok session
     this.session = null;
 
@@ -170,8 +173,11 @@ class State {
    * @param {Object} publisher - The OpenTok publisher object
    */
   addPublisher = (type, publisher) => {
-    this.streamMap[publisher.streamId] = publisher.id;
-    this.publishers[type][publisher.id] = publisher;
+    const { streamMap, publishers, publisherMap } = this;
+
+    publisherMap[publisher] = publisher.id;
+    streamMap[publisher.streamId] = publisher.id;
+    publishers[type][publisher.id] = publisher;
   }
 
   /**
@@ -180,13 +186,18 @@ class State {
    * @param {Object} publisher - The OpenTok publisher object
    */
   removePublisher = (type, publisher) => {
-    const { streamMap, publishers } = this;
-    const id = publisher.id || streamMap[publisher.streamId];
+    const { streamMap, publishers, publisherMap } = this;
+    const id = publisher.id || publisherMap[publisher];
     if (id == null) {
       throw 'Publisher no longer exists. It may have been previously destroyed.'
     }
     delete publishers[type][id];
-    delete streamMap[publisher.streamId];
+    delete publisherMap[publisher];
+    for (const [streamId, pubId] of Object.entries(streamMap)) {
+      if (pubId === id) {
+          delete streamMap[streamId];
+      }
+    }
   }
 
   /**
