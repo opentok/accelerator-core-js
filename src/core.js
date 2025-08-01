@@ -654,7 +654,7 @@ class AccCore {
 
 }
 
-if (global === window) {
+if (globalThis === window) {
   window.AccCore = AccCore;
 }
 
